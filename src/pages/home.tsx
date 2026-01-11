@@ -1,15 +1,15 @@
-import { Hero } from "@/components/hero"
-import { About } from "@/components/about"
-import { Services } from "@/components/services"
-import { Credentials } from "@/components/credentials"
-import { TrainingPlans } from "@/components/training-plans"
-import { Navigation } from "@/components/navigation"
-import { PartnersCarousel } from "@/components/partners-carousel"
-import { Contact } from "@/components/contact"
-import Link from "next/link"
+import { Hero } from "../components/hero"
+import { About } from "../components/about"
+import { Services } from "../components/services"
+import { Credentials } from "../components/credentials"
+import { TrainingPlans } from "../components/training-plans"
+import { Navigation } from "../components/navigation"
+import { PartnersCarousel } from "../components/partners-carousel"
+import { Contact } from "../components/contact"
+import { Link } from "react-router-dom"
 import { Instagram, Facebook, Twitter, Linkedin } from "lucide-react"
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navigation />
@@ -28,7 +28,7 @@ export default function Home() {
             recuperación.
           </p>
           <Link
-            href="/recetas"
+            to="/recetas"
             className="inline-block px-8 py-3 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-colors"
           >
             Ver Recetas

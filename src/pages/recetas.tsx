@@ -1,9 +1,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Navigation } from "@/components/navigation"
+import { Link } from "react-router-dom"
+import { Navigation } from "../components/navigation"
 
 const RECIPES_DATA = [
   {
@@ -201,15 +200,14 @@ export default function RecetasPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe) => (
-                <Link key={recipe.id} href={`/recetas/${recipe.id}`} className="group cursor-pointer">
+                <Link key={recipe.id} to={`/recetas/${recipe.id}`} className="group cursor-pointer">
                   <div className="bg-muted rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-300">
                     {/* Image */}
                     <div className="relative h-64 overflow-hidden bg-muted/50">
-                      <Image
+                      <img
                         src={recipe.image || "/placeholder.svg"}
                         alt={recipe.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
 

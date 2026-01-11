@@ -1,12 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Navigation } from "@/components/navigation"
+import { useParams, Link } from "react-router-dom"
+import { Navigation } from "../components/navigation"
 import { ChevronLeft, Copy, Check } from "lucide-react"
 
-// Recipe data - in a real app this would come from a database
 const RECIPES_DATA = [
   {
     id: 1,
@@ -117,9 +115,10 @@ const RECIPES_DATA = [
   },
 ]
 
-export default function RecipeDetailPage({ params }: { params: { id: string } }) {
+export default function RecipeDetailPage() {
+  const { id } = useParams()
   const [copiedSupp, setCopiedSupp] = useState<string | null>(null)
-  const recipe = RECIPES_DATA.find((r) => r.id === Number.parseInt(params.id))
+  const recipe = RECIPES_DATA.find((r) => r.id === Number.parseInt(id || "0"))
 
   if (!recipe) {
     return (
@@ -127,7 +126,7 @@ export default function RecipeDetailPage({ params }: { params: { id: string } })
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Receta no encontrada</h1>
-          <Link href="/recetas" className="text-primary hover:underline">
+          <Link to="/recetas" className="text-primary hover:underline">
             Volver a las recetas
           </Link>
         </div>
@@ -147,7 +146,7 @@ export default function RecipeDetailPage({ params }: { params: { id: string } })
 
       {/* Back Button */}
       <div className="container mx-auto px-4 py-4">
-        <Link href="/recetas" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+        <Link to="/recetas" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
           <ChevronLeft size={20} />
           Volver a Recetas
         </Link>
@@ -159,7 +158,7 @@ export default function RecipeDetailPage({ params }: { params: { id: string } })
           <div className="grid md:grid-cols-2 gap-8">
             {/* Image */}
             <div className="relative h-96 rounded-lg overflow-hidden bg-muted/50">
-              <Image src={recipe.image || "/placeholder.svg"} alt={recipe.title} fill className="object-cover" />
+              <img src={recipe.image || "/placeholder.svg"} alt={recipe.title} className="w-full h-full object-cover" />
             </div>
 
             {/* Details */}
@@ -312,14 +311,13 @@ export default function RecipeDetailPage({ params }: { params: { id: string } })
             {RECIPES_DATA.filter((r) => r.id !== recipe.id)
               .slice(0, 3)
               .map((relatedRecipe) => (
-                <Link key={relatedRecipe.id} href={`/recetas/${relatedRecipe.id}`} className="group">
+                <Link key={relatedRecipe.id} to={`/recetas/${relatedRecipe.id}`} className="group">
                   <div className="bg-background border border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300">
                     <div className="relative h-48 bg-muted/50">
-                      <Image
+                      <img
                         src={relatedRecipe.image || "/placeholder.svg"}
                         alt={relatedRecipe.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                     <div className="p-4">
