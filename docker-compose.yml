@@ -1,0 +1,30 @@
+services:
+  # Production service (default)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_MAINTENANCE_MODE=${VITE_MAINTENANCE_MODE:-false}
+    container_name: personal-trainer-prod
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  # Development service with hot reload
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: personal-trainer-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - dev

@@ -33,7 +33,7 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <button onClick={() => scrollToSection("hero")} className="text-2xl font-bold tracking-tight text-primary">
-            ELITE PT
+            JT TRAINING
           </button>
 
           {/* Desktop Navigation */}
@@ -42,31 +42,31 @@ export function Navigation() {
               onClick={() => scrollToSection("about")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              ABOUT
+              SOBRE MÍ
             </button>
             <button
               onClick={() => scrollToSection("services")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              SERVICES
+              SERVICIOS
             </button>
             <button
               onClick={() => scrollToSection("credentials")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              CREDENTIALS
+              CREDENCIALES
             </button>
             <button
               onClick={() => scrollToSection("plans")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              TRAINING PLANS
+              PLANES
             </button>
             <Button
               onClick={() => scrollToSection("contact")}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              CONTACT
+              CONTACTO
             </Button>
           </div>
 
@@ -83,31 +83,31 @@ export function Navigation() {
               onClick={() => scrollToSection("about")}
               className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              ABOUT
+              SOBRE MÍ
             </button>
             <button
               onClick={() => scrollToSection("services")}
               className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              SERVICES
+              SERVICIOS
             </button>
             <button
               onClick={() => scrollToSection("credentials")}
               className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              CREDENTIALS
+              CREDENCIALES
             </button>
             <button
               onClick={() => scrollToSection("plans")}
               className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              TRAINING PLANS
+              PLANES
             </button>
             <Button
               onClick={() => scrollToSection("contact")}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              CONTACT
+              CONTACTO
             </Button>
           </div>
         )}

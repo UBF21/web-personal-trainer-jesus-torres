@@ -34,17 +34,17 @@ export function Credentials() {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">Credentials</span>
+            <span className="text-xs font-bold tracking-widest text-primary uppercase">Credenciales</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
-            Expertise You Can
-            <span className="block text-primary">Trust</span>
+            Experiencia en la que Puedes
+            <span className="block text-primary">Confiar</span>
           </h2>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start max-w-6xl mx-auto">
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold">Certifications & Education</h3>
+            <h3 className="text-2xl font-bold">Certificaciones y Educación</h3>
             <div className="space-y-4">
               {certifications.map((cert, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -56,10 +56,10 @@ export function Credentials() {
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold">Brand Partnerships</h3>
+            <h3 className="text-2xl font-bold">Colaboraciones con Marcas</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Trusted by the world's leading athletic and wellness brands to develop elite training programs and
-              represent excellence in performance coaching.
+              Respaldado por las marcas líderes mundiales en atletismo y bienestar para desarrollar programas de
+              entrenamiento de élite y representar la excelencia en coaching de rendimiento.
             </p>
             <div className="grid grid-cols-2 gap-8 pt-4">
               {partnerships.map((partner, index) => (

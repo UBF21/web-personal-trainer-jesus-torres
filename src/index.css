@@ -149,3 +149,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Carousel infinite scroll animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.33%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 25s linear infinite;
+  will-change: transform;
+}

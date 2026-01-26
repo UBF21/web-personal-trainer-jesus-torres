@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Mail, Phone } from "lucide-react"
+import { Mail, Phone, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -138,7 +138,7 @@ export function Contact() {
             <div className="space-y-8 pt-8 border-t border-border">
               <div className="group">
                 <a
-                  href="mailto:contacto@entrenamientoelite.com"
+                  href="mailto:personaltrainerjesustorres@gmail.com"
                   className="flex items-start gap-4 hover:opacity-80 transition-opacity"
                 >
                   <Mail className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
@@ -146,20 +146,30 @@ export function Contact() {
                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                       Correo Electrónico
                     </p>
-                    <p className="text-lg text-foreground font-light mt-1">contacto@entrenamientoelite.com</p>
+                    <p className="text-lg text-foreground font-light mt-1">personaltrainerjesustorres@gmail.com</p>
                   </div>
                 </a>
               </div>
 
               <div className="group">
-                <a href="tel:+15551234567" className="flex items-start gap-4 hover:opacity-80 transition-opacity">
+                <a href="tel:+34662245562" className="flex items-start gap-4 hover:opacity-80 transition-opacity">
                   <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Teléfono</p>
-                    <p className="text-lg text-foreground font-light mt-1">+1 (555) 123-4567</p>
+                    <p className="text-lg text-foreground font-light mt-1">(+34) 662 245 562</p>
                   </div>
                 </a>
               </div>
+
+              <a
+                href="https://wa.me/34662245562"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full py-4 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Ponte en contacto con nosotros</span>
+              </a>
             </div>
 
             <div className="pt-8 border-t border-border">

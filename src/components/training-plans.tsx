@@ -9,9 +9,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 const plans = [
   {
     name: "Fundamentos",
-    price: 299,
-    duration: "4 Semanas",
-    description: "Construye la base para el rendimiento elite",
+    price: 100,
+    duration: "1 Mes",
+    description: "Comienza tu transformación",
     features: [
       "Evaluación personalizada",
       "Programa de entrenamiento personalizado",
@@ -23,8 +23,8 @@ const plans = [
   },
   {
     name: "Transformación Elite",
-    price: 799,
-    duration: "12 Semanas",
+    price: 500,
+    duration: "6 Meses",
     description: "Transformación completa del cuerpo y la mente",
     features: [
       "Todo en Fundamentos",
@@ -38,8 +38,8 @@ const plans = [
   },
   {
     name: "Campeonato",
-    price: 1499,
-    duration: "24 Semanas",
+    price: 900,
+    duration: "12 Meses",
     description: "El programa de rendimiento definitivo",
     features: [
       "Todo en Transformación Elite",
@@ -129,8 +129,8 @@ export function TrainingPlans() {
 
                   <div className="space-y-1">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold">${plan.price}</span>
-                      <span className="text-muted-foreground">USD</span>
+                      <span className="text-5xl font-bold">{plan.price}€</span>
+                      <span className="text-muted-foreground">EUR</span>
                     </div>
                     <p className="text-sm text-muted-foreground">{plan.duration}</p>
                   </div>
@@ -175,7 +175,7 @@ export function TrainingPlans() {
                       }`}
                     >
                       <div className="font-bold">{plan.name}</div>
-                      <div className="text-xl mt-2 text-primary">${plan.price}</div>
+                      <div className="text-xl mt-2 text-primary">{plan.price}€</div>
                       <div className="text-xs text-muted-foreground mt-1">{plan.duration}</div>
                     </th>
                   ))}
@@ -183,7 +183,7 @@ export function TrainingPlans() {
               </thead>
               <tbody>
                 {[
-                  { label: "Duración", values: ["4 Semanas", "12 Semanas", "24 Semanas"] },
+                  { label: "Duración", values: ["1 Mes", "6 Meses", "12 Meses"] },
                   { label: "Evaluación Personalizada", values: [true, true, true] },
                   { label: "Programa de Entrenamiento Personalizado", values: [true, true, true] },
                   { label: "Guías de Nutrición", values: [true, true, true] },

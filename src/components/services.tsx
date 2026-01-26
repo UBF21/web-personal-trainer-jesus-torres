@@ -4,27 +4,27 @@ import { Card } from "@/components/ui/card"
 const services = [
   {
     icon: Dumbbell,
-    title: "Elite Strength Training",
+    title: "Entrenamiento de Fuerza Elite",
     description:
-      "Customized strength and conditioning programs designed to build explosive power, functional movement, and athletic dominance.",
+      "Programas personalizados de fuerza y acondicionamiento diseñados para desarrollar potencia explosiva, movimiento funcional y dominio atlético.",
   },
   {
     icon: Brain,
-    title: "Mental Performance",
+    title: "Rendimiento Mental",
     description:
-      "Cognitive training and mindset coaching to develop the mental resilience and focus that separates champions from competitors.",
+      "Entrenamiento cognitivo y coaching de mentalidad para desarrollar la resiliencia mental y el enfoque que separa a los campeones de los competidores.",
   },
   {
     icon: Heart,
-    title: "Metabolic Optimization",
+    title: "Optimización Metabólica",
     description:
-      "Advanced nutrition planning and metabolic testing to optimize body composition, energy levels, and overall health markers.",
+      "Planificación nutricional avanzada y pruebas metabólicas para optimizar la composición corporal, los niveles de energía y los marcadores de salud.",
   },
   {
     icon: Zap,
-    title: "Peak Performance",
+    title: "Máximo Rendimiento",
     description:
-      "Integrated recovery protocols, mobility work, and lifestyle optimization to maintain peak performance and prevent injuries.",
+      "Protocolos de recuperación integrados, trabajo de movilidad y optimización del estilo de vida para mantener el máximo rendimiento y prevenir lesiones.",
   },
 ]
 
@@ -34,15 +34,15 @@ export function Services() {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">Services</span>
+            <span className="text-xs font-bold tracking-widest text-primary uppercase">Servicios</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
-            A Holistic Approach to
-            <span className="block text-primary">Elite Performance</span>
+            Un Enfoque Integral en
+            <span className="block text-primary">Jesus Torres Training</span>
           </h2>
           <p className="text-muted-foreground leading-relaxed text-pretty">
-            Every aspect of your training is meticulously crafted to deliver measurable results and sustainable
-            excellence.
+            Cada aspecto de tu entrenamiento está meticulosamente diseñado para ofrecer resultados medibles y
+            excelencia sostenible.
           </p>
         </div>
 

@@ -40,7 +40,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             {/* Company Info */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Elite Performance</h3>
+              <h3 className="text-lg font-semibold mb-4">Jesus Torres Training</h3>
               <p className="text-sm text-muted-foreground">
                 Entrenamiento de élite para atletas y emprendedores que buscan transformación.
               </p>
@@ -73,7 +73,7 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold mb-4">Síguenos</h3>
               <div className="flex gap-4">
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/jjttrainer/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-lg bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors flex items-center justify-center"
@@ -116,18 +116,18 @@ export default function HomePage() {
           <div className="border-t border-border pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-sm text-muted-foreground">
-                © 2025 Elite Performance Training. Todos los derechos reservados.
+                © 2026 Jesus Torres Training. Todos los derechos reservados.
               </p>
               <div className="flex items-center gap-6 text-sm">
                 <a
-                  href="mailto:contact@eliteperformancept.com"
+                  href="mailto:personaltrainerjesustorres@gmail.com"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  contact@eliteperformancept.com
+                  personaltrainerjesustorres@gmail.com
                 </a>
                 <span className="text-border">|</span>
-                <a href="tel:+15551234567" className="text-muted-foreground hover:text-primary transition-colors">
-                  +1 (555) 123-4567
+                <a href="tel:+34662245562" className="text-muted-foreground hover:text-primary transition-colors">
+                  (+34) 662 245 562
                 </a>
               </div>
             </div>
