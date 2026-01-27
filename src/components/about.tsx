@@ -10,9 +10,9 @@ export function About() {
   const aboutImage = images[0]?.url || FALLBACK_IMAGE
 
   return (
-    <section id="about" className="py-24 md:py-32 bg-secondary/50">
+    <section id="about" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-secondary/50">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid md:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 xl:gap-20 items-center">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/10 translate-x-4 translate-y-4" />
             {loading ? (
@@ -31,7 +31,7 @@ export function About() {
               <span className="text-xs font-bold tracking-widest text-primary uppercase">Mi Historia</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance">
               Creado para lo
               <span className="block text-primary">Extraordinario</span>
             </h2>

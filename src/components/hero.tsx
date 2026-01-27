@@ -27,25 +27,25 @@ export function Hero() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/65" />
 
-      <div className="container mx-auto px-4 relative z-10 text-center">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase border border-primary/40 px-4 py-2">
+            <span className="text-[10px] sm:text-xs font-bold tracking-widest text-primary uppercase border border-primary/40 px-3 py-1.5 sm:px-4 sm:py-2">
               Entrenamiento de Rendimiento Elite
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-balance text-white">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold tracking-tighter text-balance text-white">
             Transforma Tu
             <span className="block text-primary">Rendimiento</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-100 max-w-2xl mx-auto text-pretty leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-100 max-w-2xl mx-auto text-pretty leading-relaxed">
             Entrenamiento personal exclusivo para emprendedores y atletas profesionales que exigen excelencia. Eleva tu
             cuerpo, agudiza tu mente, domina tu campo.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
             <Button
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8"

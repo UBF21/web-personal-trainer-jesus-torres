@@ -123,15 +123,15 @@ export default function RecetasPage() {
       <Navigation />
 
       {/* Header */}
-      <section className="py-12 bg-gradient-to-br from-background via-muted/30 to-background border-b border-border">
+      <section className="py-8 sm:py-10 md:py-12 pt-24 sm:pt-28 md:pt-32 bg-gradient-to-br from-background via-muted/30 to-background border-b border-border">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 text-balance">Sabor & Músculo</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-balance">Sabor & Músculo</h1>
           <p className="text-lg text-muted-foreground">Recetas reales · Ingredientes sencillos</p>
         </div>
       </section>
 
       {/* Filters */}
-      <section className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border py-6">
+      <section className="sticky top-20 z-40 bg-background/95 backdrop-blur border-b border-border py-4 sm:py-5 md:py-6">
         <div className="container mx-auto px-4">
           <div className="space-y-4">
             {/* Meal Type Filter */}
@@ -191,19 +191,19 @@ export default function RecetasPage() {
       </section>
 
       {/* Recipes Grid */}
-      <section className="py-12">
+      <section className="py-8 sm:py-10 md:py-12">
         <div className="container mx-auto px-4">
           {filteredRecipes.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-12 sm:py-16">
               <p className="text-muted-foreground text-lg">No hay recetas que coincidan con tus filtros.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/recetas/${recipe.id}`} className="group cursor-pointer">
                   <div className="bg-muted rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-300">
                     {/* Image */}
-                    <div className="relative h-64 overflow-hidden bg-muted/50">
+                    <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden bg-muted/50">
                       <img
                         src={recipe.image || "/placeholder.svg"}
                         alt={recipe.title}

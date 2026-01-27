@@ -35,13 +35,13 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="py-24 md:py-32 bg-secondary/50">
+    <section id="contact" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-secondary/50">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 space-y-4">
           <div className="inline-block">
             <span className="text-xs font-bold tracking-widest text-primary uppercase">Contacto</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance">
             Comienza Tu
             <span className="block text-primary">Transformación</span>
           </h2>
@@ -51,9 +51,9 @@ export function Contact() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 max-w-6xl mx-auto">
           <div className="space-y-8">
-            <Card className="bg-card border-border p-6">
+            <Card className="bg-card border-border p-4 sm:p-5 md:p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -128,7 +128,7 @@ export function Contact() {
 
           <div className="space-y-12">
             <div>
-              <h3 className="text-2xl font-bold mb-6">Ponte en Contacto</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Ponte en Contacto</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Ya sea que busques romper un estancamiento, prepararte para la competencia, o transformar completamente
                 tu cuerpo y mentalidad, estoy aquí para guiarte en cada paso del camino.
