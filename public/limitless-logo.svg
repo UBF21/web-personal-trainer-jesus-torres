@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="limitlessGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4AC3F8"/>
+      <stop offset="100%" stop-color="#00A8E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Marco exterior con esquinas redondeadas -->
+  <path
+    d="M 28 7
+       L 72 7
+       C 85 7, 93 15, 93 28
+       L 93 72
+       C 93 85, 85 93, 72 93
+       L 28 93
+       C 15 93, 7 85, 7 72
+       L 7 28
+       C 7 15, 15 7, 28 7"
+    stroke="url(#limitlessGrad)"
+    stroke-width="9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Espiral superior derecha (hacia adentro) -->
+  <path
+    d="M 93 45
+       L 93 35
+       C 93 25, 85 17, 75 17
+       L 65 17
+       C 55 17, 47 25, 47 35
+       L 47 40
+       C 47 47, 53 53, 60 53
+       C 67 53, 73 47, 73 40
+       C 73 33, 67 27, 60 27"
+    stroke="url(#limitlessGrad)"
+    stroke-width="9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Espiral inferior izquierda (hacia adentro) -->
+  <path
+    d="M 7 55
+       L 7 65
+       C 7 75, 15 83, 25 83
+       L 35 83
+       C 45 83, 53 75, 53 65
+       L 53 60
+       C 53 53, 47 47, 40 47
+       C 33 47, 27 53, 27 60
+       C 27 67, 33 73, 40 73"
+    stroke="url(#limitlessGrad)"
+    stroke-width="9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+</svg>

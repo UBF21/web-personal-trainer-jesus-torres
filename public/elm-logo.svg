@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;display=swap');
+      .elm-title {
+        font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
+        font-weight: 700;
+        font-size: 48px;
+        letter-spacing: 8px;
+        fill: #ffffff;
+      }
+      .elm-subtitle {
+        font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
+        font-weight: 400;
+        font-size: 9px;
+        letter-spacing: 4px;
+        fill: #ffffff;
+      }
+    </style>
+  </defs>
+
+  <!-- ELM en grande -->
+  <text x="100" y="42" text-anchor="middle" class="elm-title">ELM</text>
+
+  <!-- EXCLUSIVE LIFE MAGAZINE debajo -->
+  <text x="100" y="62" text-anchor="middle" class="elm-subtitle">EXCLUSIVE LIFE MAGAZINE</text>
+</svg>

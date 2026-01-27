@@ -3,45 +3,61 @@
 import { useState } from "react"
 
 const partners = [
-  { name: "Nike", discount: "15%", code: "ELITE15" },
-  { name: "Lululemon", discount: "12%", code: "ELITE12" },
-  { name: "Apple Fitness", discount: "20%", code: "ELITE20" },
-  { name: "Gatorade", discount: "18%", code: "ELITE18" },
-  { name: "Fitbit", discount: "25%", code: "ELITE25" },
-  { name: "Peloton", discount: "10%", code: "ELITE10" },
+  { name: "Feast Fit", code: "FEASTFIT10", logo: "/feastfit-logo.svg", link: null },
+  { name: "Exclusive Life Magazine", code: "ELM20", logo: "/elm-logo.svg", link: null },
+  { name: "Limitless", code: null, logo: "/limitless-logo.svg", link: "https://limitlessbiochem.eu/?ref=JESUSTORRES" },
+  { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES" },
+  { name: "Biaxol", code: null, logo: "/biaxol-logo.svg", link: "https://biaxol.com/?coupon=jesus10" },
 ]
 
 export function PartnersCarousel() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code)
-    setCopiedCode(code)
-    setTimeout(() => setCopiedCode(null), 2000)
+  const handleClick = (partner: typeof partners[0]) => {
+    if (partner.link) {
+      window.open(partner.link, "_blank")
+    } else if (partner.code) {
+      navigator.clipboard.writeText(partner.code)
+      setCopiedCode(partner.code)
+      setTimeout(() => setCopiedCode(null), 2000)
+    }
+  }
+
+  const getActionText = (partner: typeof partners[0]) => {
+    if (partner.link) {
+      return "Haz clic para activar descuento"
+    }
+    if (partner.code && copiedCode === partner.code) {
+      return "¡CÓDIGO COPIADO!"
+    }
+    return "Haz clic para activar descuento"
   }
 
   const PartnerCard = ({ partner }: { partner: typeof partners[0] }) => (
-    <div className="flex-shrink-0 min-w-max group">
+    <div className="flex-shrink-0 group">
       <div
-        className="bg-background border-2 border-border hover:border-primary transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center min-w-44 sm:min-w-52 lg:min-w-56 h-52 sm:h-58 lg:h-64 cursor-pointer relative overflow-hidden group"
-        onClick={() => handleCopyCode(partner.code)}
+        className="bg-background border-2 border-border hover:border-primary transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center w-44 sm:w-52 lg:w-56 h-52 sm:h-58 lg:h-64 cursor-pointer relative overflow-hidden group"
+        onClick={() => handleClick(partner)}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/5 group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300" />
 
-        <div className="relative z-10 mb-auto pt-6">
-          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold tracking-wider text-center">{partner.name}</h3>
+        {/* Logo de fondo - aparece discreto en hover */}
+        {partner.logo && (
+          <img
+            src={partner.logo}
+            alt=""
+            className="absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 object-contain opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+          />
+        )}
+
+        <div className="relative z-10 flex-1 flex items-center justify-center px-2">
+          <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight">{partner.name}</h3>
         </div>
 
-        <div className="relative z-10 text-center my-6">
-          <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">{partner.discount}</div>
-          <div className="text-sm font-semibold text-muted-foreground">DESCUENTO</div>
-        </div>
-
-        <div className="relative z-10 mt-auto pb-6 text-center">
-          <div className="text-xs font-mono font-semibold text-primary mb-2 tracking-wider">
-            {copiedCode === partner.code ? "¡COPIADO!" : partner.code}
+        <div className="relative z-10 text-center mt-auto pb-4">
+          <div className="text-xs text-primary font-semibold">
+            {getActionText(partner)}
           </div>
-          <div className="text-xs text-muted-foreground">Haz clic para copiar código</div>
         </div>
       </div>
     </div>
@@ -78,7 +94,7 @@ export function PartnersCarousel() {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-10">
-          Haz clic en cualquier tarjeta para copiar tu código de descuento exclusivo
+          Haz clic en cualquier tarjeta para acceder a tu descuento exclusivo
         </p>
       </div>
     </section>

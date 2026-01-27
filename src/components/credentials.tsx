@@ -11,20 +11,20 @@ const certifications = [
 
 const partnerships = [
   {
-    name: "Nike",
-    logo: "/nike-logo-white.jpg",
+    name: "Feast Fit",
+    logo: "/feastfit-logo.svg",
   },
   {
-    name: "Under Armour",
-    logo: "/under-armour-logo-white.jpg",
+    name: "Exclusive Life Magazine",
+    logo: "/elm-logo.svg",
   },
   {
-    name: "Gatorade",
-    logo: "/gatorade-logo-white.jpg",
+    name: "Limitless",
+    logo: "/limitless-logo.svg",
   },
   {
-    name: "Reebok",
-    logo: "/reebok-logo-white.jpg",
+    name: "Zumub",
+    logo: "/zumub-logo.png",
   },
 ]
 
