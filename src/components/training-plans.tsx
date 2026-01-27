@@ -69,13 +69,13 @@ export function TrainingPlans() {
   }
 
   return (
-    <section id="plans" className="py-24 md:py-32">
+    <section id="plans" className="py-16 sm:py-20 md:py-24 lg:py-32">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 space-y-4">
           <div className="inline-block">
             <span className="text-xs font-bold tracking-widest text-primary uppercase">Planes de Entrenamiento</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance">
             Elige Tu Camino Hacia
             <span className="block text-primary">La Grandeza</span>
           </h2>
@@ -85,7 +85,7 @@ export function TrainingPlans() {
           </p>
         </div>
 
-        <div className="flex justify-center mb-12">
+        <div className="flex justify-center mb-8 sm:mb-10 md:mb-12">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")} className="w-auto">
             <TabsList className="bg-card border border-border">
               <TabsTrigger
@@ -105,12 +105,12 @@ export function TrainingPlans() {
         </div>
 
         {viewMode === "cards" && (
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-8 max-w-7xl mx-auto">
             {plans.map((plan, index) => (
               <Card
                 key={index}
-                className={`relative bg-card border-border p-8 flex flex-col ${
-                  plan.popular ? "md:scale-105 border-2 border-primary shadow-2xl" : "border"
+                className={`relative bg-card border-border p-5 sm:p-6 lg:p-8 flex flex-col ${
+                  plan.popular ? "lg:scale-105 border-2 border-primary shadow-2xl" : "border"
                 }`}
               >
                 {plan.popular && (
@@ -123,13 +123,13 @@ export function TrainingPlans() {
 
                 <div className="space-y-6 flex-grow">
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-bold">{plan.name}</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground">{plan.description}</p>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold">{plan.price}€</span>
+                      <span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{plan.price}€</span>
                       <span className="text-muted-foreground">EUR</span>
                     </div>
                     <p className="text-sm text-muted-foreground">{plan.duration}</p>
