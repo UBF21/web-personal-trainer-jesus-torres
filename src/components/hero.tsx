@@ -2,8 +2,14 @@
 
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useImages } from "@/hooks/use-images"
+
+const FALLBACK_IMAGE = "/hero-bg.jpg"
 
 export function Hero() {
+  const { images } = useImages("hero")
+  const heroImage = images[0]?.url || FALLBACK_IMAGE
+
   const scrollToContact = () => {
     const element = document.getElementById("contact")
     if (element) {
@@ -16,7 +22,7 @@ export function Hero() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url(/placeholder.svg?height=1080&width=1920&query=professional+athlete+elite+fitness+training+luxury+gym+motivational)`,
+          backgroundImage: `url(${heroImage})`,
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/65" />

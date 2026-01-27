@@ -1,7 +1,7 @@
 import { Award, Target, TrendingUp } from "lucide-react"
 import { useImages } from "@/hooks/use-images"
 
-const FALLBACK_IMAGE = "https://uvfkmhsyrmuvkyzvrumq.supabase.co/storage/v1/object/public/jt-Images/hero/1769461177044-12.jpg"
+const FALLBACK_IMAGE = "https://uvfkmhsyrmuvkyzvrumq.supabase.co/storage/v1/object/public/jt-Images/about/1769461177044-12.jpg"
 
 export function About() {
   const { images, loading } = useImages("about")
