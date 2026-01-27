@@ -1,1 +1,77 @@
-node_modules
+# Dependencias (nunca subir)
+node_modules/
+.pnp/
+.pnp.js
+
+# Builds y outputs de producción
+build/
+dist/
+dist-ssr/
+*.local
+
+# Logs y temporales
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Caches varios
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.next/
+.nuxt/
+.output/
+.vite/
+.temp/
+.svelte-kit/
+
+# Archivos de entorno (¡muy importante! no subas secretos)
+
+# Editor y OS basura
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.vscode/
+!.vscode/extensions.json   # opcional: si quieres compartir extensiones recomendadas
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# TypeScript / compilados
+*.tsbuildinfo
+
+# Tests coverage
+coverage/
+.nyc_output/
+
+# Archivos temporales de paquetes
+*.tgz
+*.egg-info/
+dist/
+build/
+
+# Yarn v2/v3
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Otros comunes en React/Vite
+public/build/          # si usas algo custom
+src-tauri/             # si usas Tauri
+playwright-report/
+test-results/
