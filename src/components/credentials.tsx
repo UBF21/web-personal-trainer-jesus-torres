@@ -1,12 +1,10 @@
 import { CheckCircle2 } from "lucide-react"
 
 const certifications = [
-  "Certified Strength & Conditioning Specialist (CSCS)",
-  "National Academy of Sports Medicine (NASM) Master Trainer",
-  "Precision Nutrition Level 2 Certified",
-  "USA Weightlifting Sports Performance Coach",
-  "Functional Movement Systems (FMS) Certified",
-  "PhD in Exercise Physiology",
+  "EREPS Fitness Instructor - EQF Level 3 (EuropeActive)",
+  "Personal Trainer EQF4 - FiveStars International Graduate School (460h)",
+  "Fitness Instructor EQF3 - FiveStars International Graduate School (200h)",
+  "Especialista en Nutrición Deportiva, Suplementación y Ayudas Ergogénicas (150h)",
 ]
 
 const partnerships = [
@@ -19,8 +17,8 @@ const partnerships = [
     logo: "/elm-logo.svg",
   },
   {
-    name: "Limitless",
-    logo: "/limitless-logo.svg",
+    name: "Raph-Corp",
+    logo: "/isotipo-solido-alt.png",
   },
   {
     name: "Zumub",

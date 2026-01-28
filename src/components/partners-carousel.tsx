@@ -3,11 +3,10 @@
 import { useState } from "react"
 
 const partners = [
-  { name: "Feast Fit", code: "FEASTFIT10", logo: "/feastfit-logo.svg", link: null },
-  { name: "Exclusive Life Magazine", code: "ELM20", logo: "/elm-logo.svg", link: null },
-  { name: "Limitless", code: null, logo: "/limitless-logo.svg", link: "https://limitlessbiochem.eu/?ref=JESUSTORRES" },
-  { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES" },
-  { name: "Biaxol", code: null, logo: "/biaxol-logo.svg", link: "https://biaxol.com/?coupon=jesus10" },
+  { name: "Feast Fit", code: "FEASTFIT10", logo: "/feastfit-logo.svg", link: null, isDiscount: true },
+  { name: "Exclusive Life Magazine", code: "ELM20", logo: "/elm-logo.svg", link: null, isDiscount: true },
+  { name: "Raph-Corp", code: null, logo: "/isotipo-solido-alt.png", link: "https://raph-corp.com", isDiscount: false },
+  { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES", isDiscount: true },
 ]
 
 export function PartnersCarousel() {
@@ -24,13 +23,16 @@ export function PartnersCarousel() {
   }
 
   const getActionText = (partner: typeof partners[0]) => {
-    if (partner.link) {
-      return "Haz clic para activar descuento"
-    }
     if (partner.code && copiedCode === partner.code) {
       return "¡CÓDIGO COPIADO!"
     }
-    return "Haz clic para activar descuento"
+    if (partner.isDiscount) {
+      return "Haz clic para activar descuento"
+    }
+    if (partner.link) {
+      return "Visita nuestra web"
+    }
+    return ""
   }
 
   const PartnerCard = ({ partner }: { partner: typeof partners[0] }) => (
@@ -69,10 +71,10 @@ export function PartnersCarousel() {
         <div className="text-center mb-10 sm:mb-12 md:mb-16">
           <p className="text-sm font-semibold tracking-widest text-primary uppercase mb-3">Asociados de Confianza</p>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance">
-            Acceso Exclusivo a<span className="block text-primary">Marcas Premium</span>
+            Acceso Exclusivo a<span className="block text-primary">Nuestros Partners</span>
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-            Obtén descuentos especiales en las marcas líderes en fitness y bienestar
+            Descuentos especiales y colaboraciones con marcas de fitness, nutrición y tecnología
           </p>
         </div>
 
