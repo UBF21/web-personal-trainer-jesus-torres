@@ -30,14 +30,14 @@ export function Hero() {
       <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center">
         <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           <div className="inline-block">
-            <span className="text-[10px] sm:text-xs font-bold tracking-widest text-primary uppercase border border-primary/40 px-3 py-1.5 sm:px-4 sm:py-2">
+            <span className="text-[10px] sm:text-xs font-bold tracking-widest text-white uppercase border border-white/40 px-3 py-1.5 sm:px-4 sm:py-2">
               Entrenamiento de Rendimiento Elite
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold tracking-tighter text-balance text-white">
             Transforma Tu
-            <span className="block text-primary">Rendimiento</span>
+            <span className="block text-gray-400">Rendimiento</span>
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-gray-100 max-w-2xl mx-auto text-pretty leading-relaxed">
@@ -48,7 +48,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
             <Button
               size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8"
+              className="bg-white text-black hover:bg-gray-200 text-base px-8"
               onClick={scrollToContact}
             >
               COMIENZA TU JORNADA

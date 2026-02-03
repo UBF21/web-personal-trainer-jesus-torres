@@ -7,7 +7,7 @@ import { Navigation } from "../components/navigation"
 import { PartnersCarousel } from "../components/partners-carousel"
 import { Contact } from "../components/contact"
 import { Link } from "react-router-dom"
-import { Instagram, Facebook, Twitter, Linkedin } from "lucide-react"
+import { Instagram } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -20,7 +20,7 @@ export default function HomePage() {
       <Credentials />
       <TrainingPlans />
       <Contact />
-      <section className="py-12 sm:py-14 md:py-16 bg-gradient-to-br from-background to-muted/50">
+      {/* <section className="py-12 sm:py-14 md:py-16 bg-gradient-to-br from-background to-muted/50">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-balance">Nutrición & Recetas</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -34,7 +34,7 @@ export default function HomePage() {
             Ver Recetas
           </Link>
         </div>
-      </section>
+      </section> */}
       <footer className="border-t border-border py-8 sm:py-10 md:py-12 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
@@ -71,42 +71,33 @@ export default function HomePage() {
             {/* Social Media */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Síguenos</h3>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-3">
                 <a
                   href="https://www.instagram.com/jjttrainer/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors flex items-center justify-center"
-                  aria-label="Instagram"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors"
                 >
-                  <Instagram size={20} />
+                  <Instagram size={18} />
+                  <span className="text-sm font-medium">@jjttrainer</span>
                 </a>
                 <a
-                  href="https://facebook.com"
+                  href="https://www.instagram.com/julitojesustorres/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors flex items-center justify-center"
-                  aria-label="Facebook"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors"
                 >
-                  <Facebook size={20} />
+                  <Instagram size={18} />
+                  <span className="text-sm font-medium">@julitojesustorres</span>
                 </a>
                 <a
-                  href="https://twitter.com"
+                  href="https://www.instagram.com/fit.blood/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors flex items-center justify-center"
-                  aria-label="Twitter"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors"
                 >
-                  <Twitter size={20} />
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-primary text-muted-foreground hover:text-primary-foreground transition-colors flex items-center justify-center"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin size={20} />
+                  <Instagram size={18} />
+                  <span className="text-sm font-medium">@fit.blood</span>
                 </a>
               </div>
             </div>
@@ -124,10 +115,6 @@ export default function HomePage() {
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   personaltrainerjesustorres@gmail.com
-                </a>
-                <span className="text-border">|</span>
-                <a href="tel:+34662245562" className="text-muted-foreground hover:text-primary transition-colors">
-                  (+34) 662 245 562
                 </a>
               </div>
             </div>

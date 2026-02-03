@@ -56,14 +56,13 @@ export function Credentials() {
           <div className="space-y-6">
             <h3 className="text-xl sm:text-2xl font-bold">Colaboraciones con Marcas</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Respaldado por las marcas líderes mundiales en atletismo y bienestar para desarrollar programas de
-              entrenamiento de élite y representar la excelencia en coaching de rendimiento.
+              Estas marcas son pilares en mi camino, tanto en mi carrera profesional como en mi vida personal. Su apoyo y colaboración hacen posible cada paso que doy. ¡Gracias por estar siempre!
             </p>
             <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8 pt-4">
               {partnerships.map((partner, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-center p-4 sm:p-5 lg:p-6 bg-muted/30 hover:bg-muted/50 transition-colors grayscale hover:grayscale-0"
+                  className="flex items-center justify-center p-4 sm:p-5 lg:p-6 bg-gray-700 hover:bg-gray-900 transition-colors grayscale hover:grayscale-0"
                 >
                   <img
                     src={partner.logo || "/placeholder.svg"}

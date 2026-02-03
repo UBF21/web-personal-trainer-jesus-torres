@@ -8,47 +8,48 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const plans = [
   {
-    name: "Fundamentos",
+    name: "Plan Básico",
     price: 100,
     duration: "1 Mes",
     description: "Comienza tu transformación",
     features: [
-      "Evaluación personalizada",
+      "Evaluación personal",
       "Programa de entrenamiento personalizado",
-      "Guías de nutrición",
+      "Guía de nutricionista",
       "Seguimiento semanal del progreso",
       "Soporte por correo electrónico",
     ],
     popular: false,
   },
   {
-    name: "Transformación Elite",
-    price: 500,
+    name: "Plan Elite",
+    price: 600,
     duration: "6 Meses",
     description: "Transformación completa del cuerpo y la mente",
     features: [
-      "Todo en Fundamentos",
-      "Consultas de video quincenales",
-      "Pruebas metabólicas avanzadas",
-      "Entrenamiento de rendimiento mental",
-      "Protocolos de recuperación",
-      "Soporte prioritario",
+      "Evaluación personal",
+      "Programa de entrenamiento personalizado",
+      "Dieta personalizada",
+      "Desafíos mensuales",
+      "Seguimiento semanal del progreso",
+      "Soporte por WhatsApp",
     ],
     popular: true,
   },
   {
-    name: "Campeonato",
-    price: 900,
-    duration: "12 Meses",
+    name: "Plan VIP",
+    price: 1500,
+    duration: "1 Año",
     description: "El programa de rendimiento definitivo",
     features: [
-      "Todo en Transformación Elite",
-      "Sesiones semanales 1 a 1",
-      "Protocolo personalizado de suplementos",
-      "Preparación para la competencia",
-      "Optimización del estilo de vida",
-      "Acceso directo 24/7",
-      "Invitación al retiro exclusivo",
+      "Evaluación personal",
+      "Programa de entrenamiento personalizado",
+      "Dieta personalizada",
+      "Libro de recetas fitness",
+      "Programa de suplementación",
+      "Acceso a sorteos exclusivos",
+      "Seguimiento semanal por videollamada",
+      "Soporte por WhatsApp",
     ],
     popular: false,
   },
@@ -90,13 +91,13 @@ export function TrainingPlans() {
             <TabsList className="bg-card border border-border">
               <TabsTrigger
                 value="cards"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="data-[state=active]:bg-black data-[state=active]:text-white"
               >
                 Vista de Tarjetas
               </TabsTrigger>
               <TabsTrigger
                 value="table"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="data-[state=active]:bg-black data-[state=active]:text-white"
               >
                 Comparar Planes
               </TabsTrigger>
@@ -183,16 +184,19 @@ export function TrainingPlans() {
               </thead>
               <tbody>
                 {[
-                  { label: "Duración", values: ["1 Mes", "6 Meses", "12 Meses"] },
-                  { label: "Evaluación Personalizada", values: [true, true, true] },
+                  { label: "Duración", values: ["1 Mes", "6 Meses", "1 Año"] },
+                  { label: "Evaluación Personal", values: [true, true, true] },
                   { label: "Programa de Entrenamiento Personalizado", values: [true, true, true] },
-                  { label: "Guías de Nutrición", values: [true, true, true] },
-                  { label: "Seguimiento Semanal", values: [true, true, true] },
-                  { label: "Consultas de Video", values: [false, true, true] },
-                  { label: "Entrenamiento de Rendimiento Mental", values: [false, true, true] },
-                  { label: "Sesiones Semanales 1 a 1", values: [false, false, true] },
-                  { label: "Acceso Directo 24/7", values: [false, false, true] },
-                  { label: "Retiro Exclusivo", values: [false, false, true] },
+                  { label: "Guía de Nutricionista", values: [true, false, false] },
+                  { label: "Dieta Personalizada", values: [false, true, true] },
+                  { label: "Seguimiento Semanal del Progreso", values: [true, true, false] },
+                  { label: "Seguimiento Semanal por Videollamada", values: [false, false, true] },
+                  { label: "Desafíos Mensuales", values: [false, true, false] },
+                  { label: "Libro de Recetas Fitness", values: [false, false, true] },
+                  { label: "Programa de Suplementación", values: [false, false, true] },
+                  { label: "Acceso a Sorteos Exclusivos", values: [false, false, true] },
+                  { label: "Soporte por Correo Electrónico", values: [true, false, false] },
+                  { label: "Soporte por WhatsApp", values: [false, true, true] },
                 ].map((row, idx) => (
                   <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
                     <td className="py-4 px-4 font-medium text-foreground">{row.label}</td>

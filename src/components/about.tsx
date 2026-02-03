@@ -37,16 +37,19 @@ export function About() {
             </h2>
 
             <p className="text-muted-foreground leading-relaxed text-pretty">
-              Con más de 15 años de experiencia entrenando atletas de clase mundial, ejecutivos y profesionales de alto
-              rendimiento, he desarrollado una metodología que trasciende el entrenamiento físico tradicional. Mi enfoque
-              integra ciencia deportiva de vanguardia, acondicionamiento mental y estrategias nutricionales personalizadas.
+              Desde muy joven estuve vinculado al mundo de la estética y la imagen, comenzando mi carrera como modelo. A lo largo de los años trabajé en distintos realities de televisión en Sudamérica y desarrollé mi carrera profesional como modelo en Sudamérica, Centroamérica, Norteamérica y Europa, lo que me permitió conocer de cerca la importancia del cuidado físico, la disciplina y los hábitos saludables.
             </p>
 
             <p className="text-muted-foreground leading-relaxed text-pretty">
-              Después de competir profesionalmente y obtener certificaciones de las instituciones de fitness más
-              prestigiosas del mundo, fundé Jesus Torres Training para servir a quienes se niegan a conformarse con lo
-              promedio. Cada cliente recibe un programa de entrenamiento personalizado diseñado para desbloquear el máximo
-              rendimiento físico y mental.
+              A partir de esa experiencia nació mi interés genuino por el fitness y la nutrición. De manera inicial, comencé a ayudar a amigos y familiares a mejorar su condición física y su estética como un hobby, y descubrí lo bien que me hacía ver los cambios positivos que lograban en su cuerpo, su salud y su autoestima.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed text-pretty">
+              Motivado por esa pasión, decidí formarme profesionalmente, estudiando y perfeccionándome como Personal Trainer y Nutricionista, para luego volcarme de lleno al ámbito profesional y comercial.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed text-pretty">
+              Hoy, mi principal objetivo es acompañar a las personas en el desarrollo de hábitos saludables y sostenibles, logrando que el bienestar, la salud y la estética vayan de la mano. Me incentiva ayudar a cada persona a sacar su mejor versión, no solo desde lo físico, sino también desde la calidad de vida.
             </p>
 
             <div className="grid sm:grid-cols-3 gap-6 pt-6">
