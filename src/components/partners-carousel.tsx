@@ -38,10 +38,10 @@ export function PartnersCarousel() {
   const PartnerCard = ({ partner }: { partner: typeof partners[0] }) => (
     <div className="flex-shrink-0 group">
       <div
-        className="bg-background border-2 border-border hover:border-primary transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center w-44 sm:w-52 lg:w-56 h-52 sm:h-58 lg:h-64 cursor-pointer relative overflow-hidden group"
+        className="bg-white border-2 border-gray-200 hover:border-black transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center w-44 sm:w-52 lg:w-56 h-52 sm:h-58 lg:h-64 cursor-pointer relative overflow-hidden group"
         onClick={() => handleClick(partner)}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-muted/5 group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-white group-hover:from-black/5 group-hover:to-white transition-all duration-300" />
 
         {/* Logo de fondo - aparece discreto en hover */}
         {partner.logo && (
@@ -53,11 +53,11 @@ export function PartnersCarousel() {
         )}
 
         <div className="relative z-10 flex-1 flex items-center justify-center px-2">
-          <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight">{partner.name}</h3>
+          <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight text-black">{partner.name}</h3>
         </div>
 
         <div className="relative z-10 text-center mt-auto pb-4">
-          <div className="text-xs text-primary font-semibold">
+          <div className="text-xs text-black font-semibold">
             {getActionText(partner)}
           </div>
         </div>
@@ -66,14 +66,14 @@ export function PartnersCarousel() {
   )
 
   return (
-    <section className="py-14 sm:py-16 md:py-20 lg:py-24 bg-secondary border-y border-border">
+    <section className="py-14 sm:py-16 md:py-20 lg:py-24 bg-gray-100 border-y border-gray-200">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10 sm:mb-12 md:mb-16">
-          <p className="text-sm font-semibold tracking-widest text-primary uppercase mb-3">Asociados de Confianza</p>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance">
-            Acceso Exclusivo a<span className="block text-primary">Nuestros Partners</span>
+          <p className="text-sm font-semibold tracking-widest text-black uppercase mb-3 border border-black/30 inline-block px-3 py-1">Asociados de Confianza</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance text-black mt-4">
+            Acceso Exclusivo a<span className="block text-gray-500">Nuestros Partners</span>
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
             Descuentos especiales y colaboraciones con marcas de fitness, nutrición y tecnología
           </p>
         </div>
@@ -95,7 +95,7 @@ export function PartnersCarousel() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-10">
+        <p className="text-center text-sm text-gray-500 mt-10">
           Haz clic en cualquier tarjeta para acceder a tu descuento exclusivo
         </p>
       </div>

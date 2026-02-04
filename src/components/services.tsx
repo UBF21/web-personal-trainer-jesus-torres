@@ -30,17 +30,17 @@ const services = [
 
 export function Services() {
   return (
-    <section id="services" className="py-16 sm:py-20 md:py-24 lg:py-32">
+    <section id="services" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-black text-white">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 space-y-4">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">Servicios</span>
+            <span className="text-xs font-bold tracking-widest text-white uppercase border border-white/30 px-3 py-1">Servicios</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-white">
             Un Enfoque Integral en
-            <span className="block text-primary">Jesus Torres Training</span>
+            <span className="block text-gray-400">Jesus Torres Training</span>
           </h2>
-          <p className="text-muted-foreground leading-relaxed text-pretty">
+          <p className="text-gray-400 leading-relaxed text-pretty">
             Cada aspecto de tu entrenamiento está meticulosamente diseñado para ofrecer resultados medibles y
             excelencia sostenible.
           </p>
@@ -50,14 +50,14 @@ export function Services() {
           {services.map((service, index) => (
             <Card
               key={index}
-              className="bg-card border-border hover:border-primary/50 transition-all duration-300 p-5 sm:p-6 lg:p-8 group"
+              className="bg-gray-900 border-gray-800 hover:border-white/50 transition-all duration-300 p-5 sm:p-6 lg:p-8 group"
             >
               <div className="space-y-4">
-                <div className="w-14 h-14 bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <service.icon className="w-7 h-7 text-primary" />
+                <div className="w-14 h-14 bg-white flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                  <service.icon className="w-7 h-7 text-black" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold">{service.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{service.description}</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">{service.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{service.description}</p>
               </div>
             </Card>
           ))}

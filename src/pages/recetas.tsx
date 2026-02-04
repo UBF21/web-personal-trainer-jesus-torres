@@ -119,24 +119,24 @@ export default function RecetasPage() {
   }, [selectedMeal, selectedMacro])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-100">
       <Navigation />
 
       {/* Header */}
-      <section className="py-8 sm:py-10 md:py-12 pt-24 sm:pt-28 md:pt-32 bg-gradient-to-br from-background via-muted/30 to-background border-b border-border">
+      <section className="py-8 sm:py-10 md:py-12 pt-24 sm:pt-28 md:pt-32 bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-balance">Sabor & Músculo</h1>
-          <p className="text-lg text-muted-foreground">Recetas reales · Ingredientes sencillos</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-balance text-white">Sabor & Músculo</h1>
+          <p className="text-lg text-gray-400">Recetas reales · Ingredientes sencillos</p>
         </div>
       </section>
 
       {/* Filters */}
-      <section className="sticky top-20 z-40 bg-background/95 backdrop-blur border-b border-border py-4 sm:py-5 md:py-6">
+      <section className="sticky top-20 z-40 bg-white/95 backdrop-blur border-b border-gray-200 py-4 sm:py-5 md:py-6">
         <div className="container mx-auto px-4">
           <div className="space-y-4">
             {/* Meal Type Filter */}
             <div>
-              <h3 className="text-sm font-semibold mb-3 text-foreground">Tipo de Comida</h3>
+              <h3 className="text-sm font-semibold mb-3 text-black">Tipo de Comida</h3>
               <div className="flex flex-wrap gap-2">
                 {MEAL_TYPES.map((type) => (
                   <button
@@ -144,8 +144,8 @@ export default function RecetasPage() {
                     onClick={() => setSelectedMeal(type)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       selectedMeal === type
-                        ? "bg-primary text-background"
-                        : "bg-muted text-foreground hover:bg-muted/80"
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-black hover:bg-gray-200"
                     }`}
                   >
                     {type}
@@ -156,7 +156,7 @@ export default function RecetasPage() {
 
             {/* Macro Filter */}
             <div>
-              <h3 className="text-sm font-semibold mb-3 text-foreground">Macronutriente</h3>
+              <h3 className="text-sm font-semibold mb-3 text-black">Macronutriente</h3>
               <div className="flex flex-wrap gap-2">
                 {MACRO_FILTERS.map((macro) => (
                   <button
@@ -164,8 +164,8 @@ export default function RecetasPage() {
                     onClick={() => setSelectedMacro(macro)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       selectedMacro === macro
-                        ? "bg-primary text-background"
-                        : "bg-muted text-foreground hover:bg-muted/80"
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-black hover:bg-gray-200"
                     }`}
                   >
                     {macro}
@@ -181,7 +181,7 @@ export default function RecetasPage() {
                   setSelectedMeal("Todos")
                   setSelectedMacro("Todos")
                 }}
-                className="text-sm text-primary hover:text-primary/80 transition-colors"
+                className="text-sm text-black hover:text-gray-600 transition-colors underline"
               >
                 Limpiar filtros
               </button>
@@ -195,15 +195,15 @@ export default function RecetasPage() {
         <div className="container mx-auto px-4">
           {filteredRecipes.length === 0 ? (
             <div className="text-center py-12 sm:py-16">
-              <p className="text-muted-foreground text-lg">No hay recetas que coincidan con tus filtros.</p>
+              <p className="text-gray-500 text-lg">No hay recetas que coincidan con tus filtros.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/recetas/${recipe.id}`} className="group cursor-pointer">
-                  <div className="bg-muted rounded-lg overflow-hidden border border-border hover:border-primary transition-all duration-300">
+                  <div className="bg-white overflow-hidden border border-gray-200 hover:border-black transition-all duration-300">
                     {/* Image */}
-                    <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden bg-muted/50">
+                    <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden bg-gray-100">
                       <img
                         src={recipe.image || "/placeholder.svg"}
                         alt={recipe.title}
@@ -214,37 +214,37 @@ export default function RecetasPage() {
                     {/* Content */}
                     <div className="p-4">
                       {/* Title */}
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                      <h3 className="text-lg font-semibold mb-2 text-black group-hover:text-gray-600 transition-colors">
                         {recipe.title}
                       </h3>
 
                       {/* Type Badge */}
-                      <p className="text-xs text-primary mb-3 font-medium">{recipe.type}</p>
+                      <p className="text-xs text-black mb-3 font-medium uppercase tracking-wider">{recipe.type}</p>
 
                       {/* Macros */}
                       <div className="grid grid-cols-4 gap-2 text-xs mb-4">
-                        <div className="bg-background p-2 rounded text-center">
-                          <p className="font-semibold text-foreground">{recipe.macros.protein.toFixed(1)}g</p>
-                          <p className="text-muted-foreground">Proteína</p>
+                        <div className="bg-gray-100 p-2 text-center">
+                          <p className="font-semibold text-black">{recipe.macros.protein.toFixed(1)}g</p>
+                          <p className="text-gray-500">Proteína</p>
                         </div>
-                        <div className="bg-background p-2 rounded text-center">
-                          <p className="font-semibold text-foreground">{recipe.macros.carbs.toFixed(1)}g</p>
-                          <p className="text-muted-foreground">Carbs</p>
+                        <div className="bg-gray-100 p-2 text-center">
+                          <p className="font-semibold text-black">{recipe.macros.carbs.toFixed(1)}g</p>
+                          <p className="text-gray-500">Carbs</p>
                         </div>
-                        <div className="bg-background p-2 rounded text-center">
-                          <p className="font-semibold text-foreground">{recipe.macros.fat.toFixed(1)}g</p>
-                          <p className="text-muted-foreground">Grasas</p>
+                        <div className="bg-gray-100 p-2 text-center">
+                          <p className="font-semibold text-black">{recipe.macros.fat.toFixed(1)}g</p>
+                          <p className="text-gray-500">Grasas</p>
                         </div>
-                        <div className="bg-background p-2 rounded text-center">
-                          <p className="font-semibold text-foreground">{recipe.macros.calories.toFixed(0)}</p>
-                          <p className="text-muted-foreground">kcal</p>
+                        <div className="bg-gray-100 p-2 text-center">
+                          <p className="font-semibold text-black">{recipe.macros.calories.toFixed(0)}</p>
+                          <p className="text-gray-500">kcal</p>
                         </div>
                       </div>
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-1">
                         {recipe.tags.slice(0, 2).map((tag) => (
-                          <span key={tag} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                          <span key={tag} className="text-xs bg-black text-white px-2 py-1">
                             {tag}
                           </span>
                         ))}

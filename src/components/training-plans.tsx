@@ -70,17 +70,17 @@ export function TrainingPlans() {
   }
 
   return (
-    <section id="plans" className="py-16 sm:py-20 md:py-24 lg:py-32">
+    <section id="plans" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-gray-100">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 space-y-4">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">Planes de Entrenamiento</span>
+            <span className="text-xs font-bold tracking-widest text-black uppercase border border-black/30 px-3 py-1">Planes de Entrenamiento</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-black">
             Elige Tu Camino Hacia
-            <span className="block text-primary">La Grandeza</span>
+            <span className="block text-gray-500">La Grandeza</span>
           </h2>
-          <p className="text-muted-foreground leading-relaxed text-pretty">
+          <p className="text-gray-600 leading-relaxed text-pretty">
             Selecciona el programa que se alinee con tus ambiciones. Todos los planes incluyen acceso de por vida a
             recursos exclusivos y comunidad.
           </p>
@@ -88,7 +88,7 @@ export function TrainingPlans() {
 
         <div className="flex justify-center mb-8 sm:mb-10 md:mb-12">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")} className="w-auto">
-            <TabsList className="bg-card border border-border">
+            <TabsList className="bg-white border border-gray-300">
               <TabsTrigger
                 value="cards"
                 className="data-[state=active]:bg-black data-[state=active]:text-white"
@@ -110,13 +110,13 @@ export function TrainingPlans() {
             {plans.map((plan, index) => (
               <Card
                 key={index}
-                className={`relative bg-card border-border p-5 sm:p-6 lg:p-8 flex flex-col ${
-                  plan.popular ? "lg:scale-105 border-2 border-primary shadow-2xl" : "border"
+                className={`relative bg-white border-gray-200 p-5 sm:p-6 lg:p-8 flex flex-col ${
+                  plan.popular ? "lg:scale-105 border-2 border-black shadow-2xl" : "border"
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 uppercase tracking-wider">
+                    <span className="bg-black text-white text-xs font-bold px-4 py-1.5 uppercase tracking-wider">
                       Más Popular
                     </span>
                   </div>
@@ -124,23 +124,23 @@ export function TrainingPlans() {
 
                 <div className="space-y-6 flex-grow">
                   <div className="space-y-2">
-                    <h3 className="text-xl sm:text-2xl font-bold">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-black">{plan.name}</h3>
+                    <p className="text-sm text-gray-500">{plan.description}</p>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{plan.price}€</span>
-                      <span className="text-muted-foreground">EUR</span>
+                      <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black">{plan.price}€</span>
+                      <span className="text-gray-500">EUR</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{plan.duration}</p>
+                    <p className="text-sm text-gray-500">{plan.duration}</p>
                   </div>
 
                   <div className="space-y-3 pt-4">
                     {plan.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
+                        <Check className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-gray-600">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -149,8 +149,8 @@ export function TrainingPlans() {
                 <Button
                   className={`w-full mt-8 ${
                     plan.popular
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-secondary text-foreground hover:bg-muted"
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300"
                   }`}
                   size="lg"
                   onClick={() => handlePlanSelect(plan.name)}
@@ -163,21 +163,21 @@ export function TrainingPlans() {
         )}
 
         {viewMode === "table" && (
-          <div className="max-w-5xl mx-auto overflow-x-auto">
+          <div className="max-w-5xl mx-auto overflow-x-auto bg-white border border-gray-200">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b-2 border-border">
-                  <th className="text-left py-4 px-4 font-bold text-foreground">Característica</th>
+                <tr className="border-b-2 border-gray-300">
+                  <th className="text-left py-4 px-4 font-bold text-black">Característica</th>
                   {plans.map((plan) => (
                     <th
                       key={plan.name}
                       className={`text-center py-4 px-4 font-bold ${
-                        plan.popular ? "bg-primary/10 border-l-2 border-r-2 border-primary/30" : ""
+                        plan.popular ? "bg-gray-100 border-l-2 border-r-2 border-black" : ""
                       }`}
                     >
-                      <div className="font-bold">{plan.name}</div>
-                      <div className="text-xl mt-2 text-primary">{plan.price}€</div>
-                      <div className="text-xs text-muted-foreground mt-1">{plan.duration}</div>
+                      <div className="font-bold text-black">{plan.name}</div>
+                      <div className="text-xl mt-2 text-black">{plan.price}€</div>
+                      <div className="text-xs text-gray-500 mt-1">{plan.duration}</div>
                     </th>
                   ))}
                 </tr>
@@ -198,43 +198,43 @@ export function TrainingPlans() {
                   { label: "Soporte por Correo Electrónico", values: [true, false, false] },
                   { label: "Soporte por WhatsApp", values: [false, true, true] },
                 ].map((row, idx) => (
-                  <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
-                    <td className="py-4 px-4 font-medium text-foreground">{row.label}</td>
+                  <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4 font-medium text-black">{row.label}</td>
                     {row.values.map((value, i) => (
                       <td
                         key={i}
                         className={`text-center py-4 px-4 ${
-                          plans[i].popular ? "bg-primary/5 border-l-2 border-r-2 border-primary/30" : ""
+                          plans[i].popular ? "bg-gray-50 border-l-2 border-r-2 border-black" : ""
                         }`}
                       >
                         {typeof value === "boolean" ? (
                           value ? (
-                            <Check className="w-5 h-5 text-primary mx-auto" />
+                            <Check className="w-5 h-5 text-black mx-auto" />
                           ) : (
-                            <div className="text-muted-foreground font-light">−</div>
+                            <div className="text-gray-400 font-light">−</div>
                           )
                         ) : (
-                          <span className="text-muted-foreground">{value}</span>
+                          <span className="text-gray-600">{value}</span>
                         )}
                       </td>
                     ))}
                   </tr>
                 ))}
-                <tr className="border-t-2 border-border">
+                <tr className="border-t-2 border-gray-300">
                   <td className="py-4 px-4" />
                   {plans.map((plan) => (
                     <td
                       key={`btn-${plan.name}`}
                       className={`text-center py-4 px-4 ${
-                        plan.popular ? "bg-primary/5 border-l-2 border-r-2 border-primary/30" : ""
+                        plan.popular ? "bg-gray-50 border-l-2 border-r-2 border-black" : ""
                       }`}
                     >
                       <Button
                         size="sm"
                         className={
                           plan.popular
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90 w-full"
-                            : "bg-secondary text-foreground hover:bg-muted w-full"
+                            ? "bg-black text-white hover:bg-gray-800 w-full"
+                            : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300 w-full"
                         }
                         onClick={() => handlePlanSelect(plan.name)}
                       >
@@ -249,7 +249,7 @@ export function TrainingPlans() {
         )}
 
         <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-600">
             Todos los planes incluyen garantía de satisfacción de 30 días.
             <br />
             ¿No estás seguro de cuál es el plan adecuado? Contáctanos para una recomendación personalizada.
