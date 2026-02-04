@@ -1,0 +1,37 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - main  # Cambia a 'master' si ese es el nombre de tu rama principal
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Construir proyecto React
+        run: npm run build
+
+      - name: Desplegar en Netlify
+        uses: netlify/actions/cli@master
+        with:
+          # IMPORTANTE: 
+          # Usa '--dir=dist' si usas Vite.
+          # Usa '--dir=build' si usas Create React App.
+          args: deploy --dir=dist --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

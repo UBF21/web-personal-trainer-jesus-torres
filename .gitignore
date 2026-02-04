@@ -75,3 +75,5 @@ public/build/          # si usas algo custom
 src-tauri/             # si usas Tauri
 playwright-report/
 test-results/
+# Local Netlify folder
+.netlify
