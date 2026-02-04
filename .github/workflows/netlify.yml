@@ -3,7 +3,7 @@ name: Deploy to Netlify
 on:
   push:
     branches:
-      - main  # Cambia a 'master' si ese es el nombre de tu rama principal
+      - main
 
 jobs:
   build-and-deploy:
@@ -28,10 +28,7 @@ jobs:
       - name: Desplegar en Netlify
         uses: netlify/actions/cli@master
         with:
-          # IMPORTANTE: 
-          # Usa '--dir=dist' si usas Vite.
-          # Usa '--dir=build' si usas Create React App.
-          args: deploy --dir=dist --prod
+          args: deploy --dir=dist --prod --simple-build
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
