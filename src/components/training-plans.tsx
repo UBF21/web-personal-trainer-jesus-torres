@@ -20,6 +20,7 @@ const plans = [
       "Soporte continuo por correo electrónico",
     ],
     popular: false,
+    paymentUrl: "https://www.paypal.com/ncp/payment/QGTJ67SDUZ58Q",
   },
   {
     name: "Plan Avanzado",
@@ -35,6 +36,7 @@ const plans = [
       "Soporte por WhatsApp",
     ],
     popular: true,
+    paymentUrl: null,
   },
   {
     name: "Plan VIP",
@@ -54,6 +56,7 @@ const plans = [
       "Soporte por WhatsApp prioritario",
     ],
     popular: false,
+    paymentUrl: null,
   },
 ]
 
@@ -61,7 +64,11 @@ export function TrainingPlans() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
 
-  const handlePlanSelect = (planName: string) => {
+  const handlePlanSelect = (planName: string, paymentUrl: string | null) => {
+    if (paymentUrl) {
+      window.open(paymentUrl, "_blank")
+      return
+    }
     setSelectedPlan(planName)
     setTimeout(() => {
       const element = document.getElementById("contact")
@@ -155,7 +162,7 @@ export function TrainingPlans() {
                       : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300"
                   }`}
                   size="lg"
-                  onClick={() => handlePlanSelect(plan.name)}
+                  onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
                 >
                   SELECCIONAR {plan.name.toUpperCase()}
                 </Button>
@@ -239,7 +246,7 @@ export function TrainingPlans() {
                             ? "bg-black text-white hover:bg-gray-800 w-full"
                             : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300 w-full"
                         }
-                        onClick={() => handlePlanSelect(plan.name)}
+                        onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
                       >
                         Seleccionar
                       </Button>

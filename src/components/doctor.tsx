@@ -12,7 +12,7 @@ export function Doctor() {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-black">
             Respaldo Médico de
-            <span className="block text-gray-500">Primer Nivel</span>
+            <span className="block text-gray-500">Nivel Mundial</span>
           </h2>
         </div>
 

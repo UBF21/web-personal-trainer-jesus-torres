@@ -82,18 +82,21 @@ export function PartnersCarousel() {
         </div>
 
         <div className="relative overflow-hidden">
-          <div className="flex gap-6 md:gap-8 animate-scroll hover:[animation-play-state:paused]">
-            {/* Original set */}
+          <div
+            className="flex gap-6 md:gap-8 animate-scroll hover:[animation-play-state:paused]"
+            style={{ width: 'max-content' }}
+          >
+            {/* First set */}
             {partners.map((partner, index) => (
-              <PartnerCard key={`original-${index}`} partner={partner} />
+              <PartnerCard key={`set1-${index}`} partner={partner} />
             ))}
-            {/* Duplicate for seamless loop */}
+            {/* Second set for seamless loop */}
             {partners.map((partner, index) => (
-              <PartnerCard key={`duplicate-${index}`} partner={partner} />
+              <PartnerCard key={`set2-${index}`} partner={partner} />
             ))}
-            {/* Third set for extra smoothness */}
+            {/* Third set for buffer */}
             {partners.map((partner, index) => (
-              <PartnerCard key={`triplicate-${index}`} partner={partner} />
+              <PartnerCard key={`set3-${index}`} partner={partner} />
             ))}
           </div>
         </div>

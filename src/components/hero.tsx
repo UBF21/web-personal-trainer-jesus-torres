@@ -29,12 +29,6 @@ export function Hero() {
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center">
         <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-          <div className="inline-block">
-            <span className="text-[10px] sm:text-xs font-bold tracking-widest text-white uppercase border border-white/40 px-3 py-1.5 sm:px-4 sm:py-2">
-              Entrenamiento de Rendimiento Elite
-            </span>
-          </div>
-
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-bold tracking-tighter text-balance text-white">
             Transforma Tu
             <span className="block text-gray-400">Rendimiento</span>

@@ -9,8 +9,8 @@ const certifications = [
 
 const partnerships = [
   {
-    name: "Feast Fit",
-    logo: "/feastfit-logo.svg",
+    name: "Biolab",
+    logo: "/biolab-logo.jpg",
   },
   {
     name: "Exclusive Life Magazine",
