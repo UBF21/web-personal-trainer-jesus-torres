@@ -2,9 +2,9 @@ import { CheckCircle2 } from "lucide-react"
 
 const certifications = [
   "EREPS Fitness Instructor - EQF Level 3 (EuropeActive)",
-  "Personal Trainer EQF4 - FiveStars International Graduate School (460h)",
-  "Fitness Instructor EQF3 - FiveStars International Graduate School (200h)",
-  "Especialista en Nutrición Deportiva, Suplementación y Ayudas Ergogénicas (150h)",
+  "Personal Trainer EQF4 - FiveStars International Graduate School",
+  "Fitness Instructor EQF3 - FiveStars International Graduate School",
+  "Especialista en Nutrición Deportiva, Suplementación y Ayudas Ergogénicas",
 ]
 
 const partnerships = [
@@ -71,6 +71,19 @@ export function Credentials() {
                   />
                 </div>
               ))}
+            </div>
+            <div className="flex flex-col items-center justify-center pt-8 mt-4 border-t border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-300" />
+                <div className="flex items-center gap-3 px-6 py-3 bg-gray-100 border border-gray-200">
+                  <span className="text-3xl font-bold text-black">+10</span>
+                  <div className="text-left">
+                    <span className="block text-sm font-semibold text-black">Marcas colaboradoras</span>
+                    <span className="block text-xs text-gray-500">confían en nuestro trabajo</span>
+                  </div>
+                </div>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-300" />
+              </div>
             </div>
           </div>
         </div>

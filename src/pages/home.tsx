@@ -4,6 +4,7 @@ import { About } from "../components/about"
 import { Services } from "../components/services"
 import { Credentials } from "../components/credentials"
 import { TrainingPlans } from "../components/training-plans"
+import { Doctor } from "../components/doctor"
 import { Navigation } from "../components/navigation"
 import { PartnersCarousel } from "../components/partners-carousel"
 import { Contact } from "../components/contact"
@@ -45,6 +46,8 @@ export default function HomePage() {
       <Credentials />
       <div className="border-t border-gray-200" />
       <TrainingPlans />
+      <div className="border-t border-gray-200" />
+      <Doctor />
       <div className="border-t border-gray-200" />
       <section id="recetas" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-black text-white">
         <div className="container mx-auto px-4">

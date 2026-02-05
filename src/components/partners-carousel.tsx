@@ -7,6 +7,9 @@ const partners = [
   { name: "Exclusive Life Magazine", code: "ELM20", logo: "/elm-logo.svg", link: null, isDiscount: true },
   { name: "Raph-Corp", code: null, logo: "/isotipo-solido-alt.png", link: "https://raph-corp.com", isDiscount: false },
   { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES", isDiscount: true },
+  { name: "Biolab", code: null, logo: "/biolab-logo.jpg", link: "https://biolabshop.co.uk", isDiscount: false },
+  { name: "Fitblood", code: null, logo: "/fitblood-logo.png", link: "https://instagram.com/fit.blood", isDiscount: false },
+  { name: "Gaspar", code: null, logo: "/gaspar-logo.jpeg", link: "https://www.instagram.com/gaspar.microcapilar", isDiscount: false },
 ]
 
 export function PartnersCarousel() {
