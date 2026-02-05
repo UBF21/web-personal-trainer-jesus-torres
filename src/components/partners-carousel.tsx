@@ -10,6 +10,7 @@ const partners = [
   { name: "Biolab", code: null, logo: "/biolab-logo.jpg", link: "https://biolabshop.co.uk", isDiscount: false },
   { name: "Fitblood", code: null, logo: "/fitblood-logo.png", link: "https://instagram.com/fit.blood", isDiscount: false },
   { name: "Gaspar", code: null, logo: "/gaspar-logo.jpeg", link: "https://www.instagram.com/gaspar.microcapilar", isDiscount: false },
+  { name: "Jose Bulnes", code: null, logo: "/josebulnes-logo.png", link: "https://www.josebulnes.com", isDiscount: false },
 ]
 
 export function PartnersCarousel() {
