@@ -52,8 +52,8 @@ export function Navigation() {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <button onClick={() => scrollToSection("hero")} className="text-2xl font-bold tracking-tight transition-colors text-white">
-            JT TRAINING
+          <button onClick={() => scrollToSection("hero")} className="transition-opacity hover:opacity-80">
+            <img src="/jt-logo-white.png" alt="JT Training" className="h-24 w-auto" />
           </button>
 
           {/* Desktop Navigation */}

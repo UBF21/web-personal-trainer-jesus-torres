@@ -30,7 +30,7 @@ export function Doctor() {
           <div className="space-y-6">
             <div>
               <h3 className="text-2xl sm:text-3xl font-bold text-black">
-                Dr. Francisco "Curro" Martínez Peñalver
+                Dr. Francisco Martínez Peñalver
               </h3>
               <p className="text-gray-600 mt-2 font-medium">
                 Médico Internista | Especialista en Longevidad y Medicina de Precisión | Fundador de Lilibe

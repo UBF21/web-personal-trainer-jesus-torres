@@ -11,18 +11,22 @@ const partnerships = [
   {
     name: "Biolab",
     logo: "/biolab-logo.jpg",
+    lightBg: true,
   },
   {
     name: "Exclusive Life Magazine",
     logo: "/elm-logo.svg",
-  },
-  {
-    name: "Raph-Corp",
-    logo: "/isotipo-solido-alt.png",
+    lightBg: false,
   },
   {
     name: "Zumub",
     logo: "/zumub-logo.png",
+    lightBg: false,
+  },
+  {
+    name: "Raph-Corp",
+    logo: "/isotipo-solido-alt.png",
+    lightBg: true,
   },
 ]
 
@@ -62,12 +66,18 @@ export function Credentials() {
               {partnerships.map((partner, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-center p-4 sm:p-5 lg:p-6 bg-black hover:bg-gray-800 transition-colors grayscale hover:grayscale-0"
+                  className={`flex items-center justify-center p-4 sm:p-5 lg:p-6 transition-colors grayscale hover:grayscale-0 ${
+                    partner.lightBg
+                      ? "bg-[#F5F5F7] border-2 border-black hover:bg-gray-100"
+                      : "bg-black hover:bg-gray-800"
+                  }`}
                 >
                   <img
                     src={partner.logo || "/placeholder.svg"}
                     alt={partner.name}
-                    className="w-full h-auto max-h-12 object-contain opacity-70 hover:opacity-100 transition-opacity"
+                    className={`w-full h-auto object-contain opacity-70 hover:opacity-100 transition-opacity ${
+                      partner.lightBg ? "max-h-20" : "max-h-12"
+                    }`}
                   />
                 </div>
               ))}

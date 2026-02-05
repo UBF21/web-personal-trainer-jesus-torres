@@ -126,7 +126,7 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
             {/* Company Info */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Jesus Torres Training</h3>
+              <img src="/jt-logo-white.png" alt="JT Training" className="h-24 w-auto mb-4" />
               <p className="text-sm text-gray-400">
                 Entrenamiento de élite para atletas y emprendedores que buscan transformación.
               </p>

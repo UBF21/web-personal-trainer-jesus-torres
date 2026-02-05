@@ -36,7 +36,7 @@ const plans = [
       "Soporte por WhatsApp",
     ],
     popular: true,
-    paymentUrl: null,
+    paymentUrl: "https://www.paypal.com/ncp/payment/WNAYJCKMZXZUL",
   },
   {
     name: "Plan VIP",
@@ -56,7 +56,7 @@ const plans = [
       "Soporte por WhatsApp prioritario",
     ],
     popular: false,
-    paymentUrl: null,
+    paymentUrl: "https://www.paypal.com/ncp/payment/BMX2AHTFL7CE8",
   },
 ]
 
