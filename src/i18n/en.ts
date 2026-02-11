@@ -50,8 +50,8 @@ export const en: Translations = {
     subtitle: "Certifications and Education",
     certifications: [
       "EREPS Fitness Instructor - EQF Level 3 (EuropeActive)",
-      "Personal Trainer EQF4 - FiveStars International Graduate School",
-      "Fitness Instructor EQF3 - FiveStars International Graduate School",
+      "Personal Trainer",
+      "Fitness Instructor",
       "Specialist in Sports Nutrition, Supplementation and Ergogenic Aids",
     ],
   },

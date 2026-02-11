@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check } from "lucide-react"
+import { Check, CreditCard, Building2, X, Copy, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,8 +16,15 @@ const PAYMENT_URLS = [
 const PRICES = [100, 1200, 3000]
 const POPULAR_INDEX = 1
 
+interface SelectedPlanData {
+  name: string
+  price: number
+  paymentUrl: string
+}
+
 export function TrainingPlans() {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [selectedPlanData, setSelectedPlanData] = useState<SelectedPlanData | null>(null)
+  const [showBankDetails, setShowBankDetails] = useState(false)
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
   const { t } = useTranslation()
 
@@ -28,18 +35,28 @@ export function TrainingPlans() {
     paymentUrl: PAYMENT_URLS[i],
   }))
 
-  const handlePlanSelect = (planName: string, paymentUrl: string | null) => {
-    if (paymentUrl) {
-      window.open(paymentUrl, "_blank")
-      return
+  const handlePlanSelect = (planName: string, price: number, paymentUrl: string) => {
+    setSelectedPlanData({ name: planName, price, paymentUrl })
+  }
+
+  const handlePayPalPayment = () => {
+    if (selectedPlanData?.paymentUrl) {
+      window.open(selectedPlanData.paymentUrl, "_blank")
+      setSelectedPlanData(null)
     }
-    setSelectedPlan(planName)
-    setTimeout(() => {
-      const element = document.getElementById("contact")
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" })
-      }
-    }, 100)
+  }
+
+  const handleBankTransfer = () => {
+    setShowBankDetails(true)
+  }
+
+  const closeModal = () => {
+    setSelectedPlanData(null)
+    setShowBankDetails(false)
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
   }
 
   return (
@@ -125,7 +142,7 @@ export function TrainingPlans() {
                       : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300"
                   }`}
                   size="lg"
-                  onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
+                  onClick={() => handlePlanSelect(plan.name, plan.price, plan.paymentUrl)}
                 >
                   {t.plans.select} {plan.name.toUpperCase()}
                 </Button>
@@ -194,7 +211,7 @@ export function TrainingPlans() {
                             ? "bg-black text-white hover:bg-gray-800 w-full"
                             : "bg-gray-100 text-black hover:bg-gray-200 border border-gray-300 w-full"
                         }
-                        onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
+                        onClick={() => handlePlanSelect(plan.name, plan.price, plan.paymentUrl)}
                       >
                         {t.plans.selectTable}
                       </Button>
@@ -214,6 +231,137 @@ export function TrainingPlans() {
           </p>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {selectedPlanData && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            {/* Close button */}
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+
+            {!showBankDetails ? (
+              /* Payment method selection */
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-black mb-2">
+                    {selectedPlanData.name}
+                  </h3>
+                  <p className="text-4xl font-bold text-black mb-1">
+                    {selectedPlanData.price}€
+                    <span className="text-lg text-gray-500 ml-2">EUR</span>
+                  </p>
+                  <p className="text-sm text-gray-600">Selecciona tu método de pago</p>
+                </div>
+
+                <div className="space-y-3">
+                  {/* PayPal Button */}
+                  <button
+                    onClick={handlePayPalPayment}
+                    className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 group"
+                  >
+                    <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Pagar con PayPal</span>
+                  </button>
+
+                  {/* Bank Transfer Button */}
+                  <button
+                    onClick={handleBankTransfer}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-black font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 border border-gray-300 group"
+                  >
+                    <Building2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Transferencia Bancaria</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Bank transfer details */
+              <div className="space-y-6">
+                {/* Back button */}
+                <button
+                  onClick={() => setShowBankDetails(false)}
+                  className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm">Volver</span>
+                </button>
+
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-black mb-2">
+                    Transferencia Bancaria
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">Solo para Europa</p>
+                  <p className="text-3xl font-bold text-black">
+                    {selectedPlanData.price}€
+                    <span className="text-base text-gray-500 ml-2">EUR</span>
+                  </p>
+                </div>
+
+                <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
+                  {/* IBAN */}
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">IBAN</label>
+                    <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
+                      <span className="font-mono text-sm">LT02 3130 0101 3018 4834</span>
+                      <button
+                        onClick={() => copyToClipboard("LT02313001013018484")}
+                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* BIC/SWIFT */}
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">BIC/SWIFT</label>
+                    <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
+                      <span className="font-mono text-sm">BZENLT22</span>
+                      <button
+                        onClick={() => copyToClipboard("BZENLT22")}
+                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Plan name as reference */}
+                  <div>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Concepto</label>
+                    <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
+                      <span className="text-sm">{selectedPlanData.name}</span>
+                      <button
+                        onClick={() => copyToClipboard(selectedPlanData.name)}
+                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2 text-sm">
+                  <p className="font-semibold text-blue-900">ℹ️ Información importante:</p>
+                  <ul className="space-y-1 text-blue-800">
+                    <li>• Solo válido para transferencias en euros dentro de la UE y EFTA</li>
+                    <li>• La transferencia suele tardar 1 día laborable en procesarse</li>
+                    <li>• Los costes dependen de tu banco</li>
+                  </ul>
+                </div>
+
+                <p className="text-xs text-gray-500 text-center">
+                  Una vez realizada la transferencia, nos pondremos en contacto contigo
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   )
 }
