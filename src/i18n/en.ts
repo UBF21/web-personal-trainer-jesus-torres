@@ -38,8 +38,8 @@ export const en: Translations = {
     description: "Every aspect of your training is meticulously designed to deliver measurable results and sustained excellence.",
     items: [
       { title: "Elite Strength Training", description: "Customized strength and conditioning programs designed to develop explosive power, functional movement, and athletic mastery." },
-      { title: "Mental Performance", description: "Cognitive training and mindset coaching to develop the mental resilience and focus that separates champions from competitors." },
-      { title: "Metabolic Optimization", description: "Advanced nutritional planning and metabolic testing to optimize body composition, energy levels, and health markers." },
+      { title: "Peptide Optimization", description: "We explore how peptides can enhance muscle growth, accelerate recovery, and optimize performance with personalized protocols." },
+      { title: "Comprehensive Hormonal Balance", description: "We focus on hormonal assessment and regulation to maximize energy, performance, and long-term well-being through evidence-based medical strategies." },
       { title: "Peak Performance", description: "Integrated recovery protocols, mobility work, and lifestyle optimization to maintain peak performance and prevent injuries." },
     ],
   },

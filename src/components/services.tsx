@@ -1,8 +1,8 @@
-import { Brain, Dumbbell, Heart, Zap } from "lucide-react"
+import { Atom, Dumbbell, Scale, Zap } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useTranslation } from "@/contexts/language-context"
 
-const icons = [Dumbbell, Brain, Heart, Zap]
+const icons = [Dumbbell, Atom, Scale, Zap]
 
 export function Services() {
   const { t } = useTranslation()

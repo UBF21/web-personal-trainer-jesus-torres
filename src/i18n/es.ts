@@ -38,8 +38,8 @@ export const es: Translations = {
     description: "Cada aspecto de tu entrenamiento est\u00E1 meticulosamente dise\u00F1ado para ofrecer resultados medibles y excelencia sostenible.",
     items: [
       { title: "Entrenamiento de Fuerza Elite", description: "Programas personalizados de fuerza y acondicionamiento dise\u00F1ados para desarrollar potencia explosiva, movimiento funcional y dominio atl\u00E9tico." },
-      { title: "Rendimiento Mental", description: "Entrenamiento cognitivo y coaching de mentalidad para desarrollar la resiliencia mental y el enfoque que separa a los campeones de los competidores." },
-      { title: "Optimizaci\u00F3n Metab\u00F3lica", description: "Planificaci\u00F3n nutricional avanzada y pruebas metab\u00F3licas para optimizar la composici\u00F3n corporal, los niveles de energ\u00EDa y los marcadores de salud." },
+      { title: "Optimizaci\u00F3n Pept\u00EDdica", description: "Exploramos c\u00F3mo los p\u00E9ptidos pueden potenciar el crecimiento muscular, acelerar la recuperaci\u00F3n y optimizar el rendimiento, con protocolos personalizados." },
+      { title: "Balance Hormonal Integral", description: "Nos enfocamos en la evaluaci\u00F3n y regulaci\u00F3n hormonal para maximizar energ\u00EDa, rendimiento y bienestar a largo plazo, mediante estrategias m\u00E9dicas avaladas." },
       { title: "M\u00E1ximo Rendimiento", description: "Protocolos de recuperaci\u00F3n integrados, trabajo de movilidad y optimizaci\u00F3n del estilo de vida para mantener el m\u00E1ximo rendimiento y prevenir lesiones." },
     ],
   },
