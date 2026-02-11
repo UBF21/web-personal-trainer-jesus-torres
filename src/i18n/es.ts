@@ -54,6 +54,12 @@ export const es: Translations = {
       "Fitness Instructor",
       "Especialista en Nutrici\u00F3n Deportiva, Suplementaci\u00F3n y Ayudas Ergog\u00E9nicas",
     ],
+    magazine: {
+      title: "Exclusive Life Magazine",
+      subtitle: "Destacado en la revista de estilo de vida de lujo",
+      instagramButton: "Ver en Instagram",
+      magazineButton: "Leer Revista",
+    },
   },
   brands: {
     badge: "Colaboraciones",

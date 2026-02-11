@@ -54,6 +54,12 @@ export const en: Translations = {
       "Fitness Instructor",
       "Specialist in Sports Nutrition, Supplementation and Ergogenic Aids",
     ],
+    magazine: {
+      title: "Exclusive Life Magazine",
+      subtitle: "Featured in the luxury lifestyle magazine",
+      instagramButton: "View on Instagram",
+      magazineButton: "Read Magazine",
+    },
   },
   brands: {
     badge: "Collaborations",

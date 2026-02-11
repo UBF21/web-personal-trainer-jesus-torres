@@ -3,6 +3,7 @@ import { Hero } from "../components/hero"
 import { About } from "../components/about"
 import { Services } from "../components/services"
 import { Credentials } from "../components/credentials"
+import { MagazineFeature } from "../components/magazine-feature"
 import { Brands } from "../components/brands"
 import { TrainingPlans } from "../components/training-plans"
 import { Doctor } from "../components/doctor"
@@ -48,6 +49,8 @@ export default function HomePage() {
       <Services />
       <div className="border-t border-gray-200" />
       <Credentials />
+      <div className="border-t border-gray-200" />
+      <MagazineFeature />
       <div className="border-t border-gray-200" />
       <Brands />
       <div className="border-t border-gray-200" />
