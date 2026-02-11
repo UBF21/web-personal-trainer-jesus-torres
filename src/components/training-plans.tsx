@@ -5,64 +5,28 @@ import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useTranslation } from "@/contexts/language-context"
 
-const plans = [
-  {
-    name: "Plan Básico",
-    price: 100,
-    duration: "1 Mes",
-    description: "Comienza tu transformación",
-    features: [
-      "Evaluación personalizada",
-      "Programa de entrenamiento hecho a medida",
-      "Guía de nutrición adecuada al cliente",
-      "Recomendación de suplementación",
-      "Soporte continuo por correo electrónico",
-    ],
-    popular: false,
-    paymentUrl: "https://www.paypal.com/ncp/payment/QGTJ67SDUZ58Q",
-  },
-  {
-    name: "Plan Avanzado",
-    price: 1200,
-    duration: "1 Año",
-    description: "Transformación completa del cuerpo y la mente",
-    features: [
-      "Evaluación personalizada",
-      "Programa de entrenamiento hecho a medida",
-      "Plan de nutrición adecuado al cliente",
-      "Recomendación de suplementación",
-      "Control mensual por videollamada personalizado",
-      "Soporte por WhatsApp",
-    ],
-    popular: true,
-    paymentUrl: "https://www.paypal.com/ncp/payment/WNAYJCKMZXZUL",
-  },
-  {
-    name: "Plan VIP",
-    price: 3000,
-    duration: "1 Año",
-    description: "El programa de rendimiento definitivo",
-    features: [
-      "Evaluación personalizada por videollamada",
-      "Dos consultas anuales con el doctor (antiaging, péptidos, hormonas)",
-      "Programa de entrenamiento personalizado",
-      "Dieta personalizada",
-      "Programa de suplementación adaptado",
-      "Libro de recetas fit exclusivo",
-      "Acceso a sorteos VIP exclusivos",
-      "Descuentos en diferentes marcas",
-      "Seguimiento mensual por videollamada",
-      "Soporte por WhatsApp prioritario",
-    ],
-    popular: false,
-    paymentUrl: "https://www.paypal.com/ncp/payment/BMX2AHTFL7CE8",
-  },
+const PAYMENT_URLS = [
+  "https://www.paypal.com/ncp/payment/QGTJ67SDUZ58Q",
+  "https://www.paypal.com/ncp/payment/WNAYJCKMZXZUL",
+  "https://www.paypal.com/ncp/payment/BMX2AHTFL7CE8",
 ]
+
+const PRICES = [100, 1200, 3000]
+const POPULAR_INDEX = 1
 
 export function TrainingPlans() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
+  const { t } = useTranslation()
+
+  const plans = t.plans.items.map((item, i) => ({
+    ...item,
+    price: PRICES[i],
+    popular: i === POPULAR_INDEX,
+    paymentUrl: PAYMENT_URLS[i],
+  }))
 
   const handlePlanSelect = (planName: string, paymentUrl: string | null) => {
     if (paymentUrl) {
@@ -83,15 +47,14 @@ export function TrainingPlans() {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 space-y-4">
           <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-black uppercase border border-black/30 px-3 py-1">Planes de Entrenamiento</span>
+            <span className="text-xs font-bold tracking-widest text-black uppercase border border-black/30 px-3 py-1">{t.plans.badge}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-black">
-            Elige Tu Camino Hacia
-            <span className="block text-gray-500">La Grandeza</span>
+            {t.plans.titleLine1}
+            <span className="block text-gray-500">{t.plans.titleLine2}</span>
           </h2>
           <p className="text-gray-600 leading-relaxed text-pretty">
-            Selecciona el programa que se alinee con tus ambiciones. Todos los planes incluyen acceso de por vida a
-            recursos exclusivos y comunidad.
+            {t.plans.description}
           </p>
         </div>
 
@@ -102,13 +65,13 @@ export function TrainingPlans() {
                 value="cards"
                 className="data-[state=active]:bg-black data-[state=active]:text-white"
               >
-                Vista de Tarjetas
+                {t.plans.viewCards}
               </TabsTrigger>
               <TabsTrigger
                 value="table"
                 className="data-[state=active]:bg-black data-[state=active]:text-white"
               >
-                Comparar Planes
+                {t.plans.viewTable}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -126,7 +89,7 @@ export function TrainingPlans() {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-black text-white text-xs font-bold px-4 py-1.5 uppercase tracking-wider">
-                      Más Popular
+                      {t.plans.popular}
                     </span>
                   </div>
                 )}
@@ -164,7 +127,7 @@ export function TrainingPlans() {
                   size="lg"
                   onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
                 >
-                  SELECCIONAR {plan.name.toUpperCase()}
+                  {t.plans.select} {plan.name.toUpperCase()}
                 </Button>
               </Card>
             ))}
@@ -176,7 +139,7 @@ export function TrainingPlans() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-gray-300">
-                  <th className="text-left py-4 px-4 font-bold text-black">Característica</th>
+                  <th className="text-left py-4 px-4 font-bold text-black">{t.plans.feature}</th>
                   {plans.map((plan) => (
                     <th
                       key={plan.name}
@@ -192,22 +155,7 @@ export function TrainingPlans() {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { label: "Duración", values: ["1 Mes", "1 Año", "1 Año"] },
-                  { label: "Evaluación Personalizada", values: [true, true, "Por videollamada"] },
-                  { label: "Programa de Entrenamiento a Medida", values: [true, true, true] },
-                  { label: "Guía de Nutrición", values: [true, false, false] },
-                  { label: "Plan de Nutrición / Dieta Personalizada", values: [false, true, true] },
-                  { label: "Recomendación de Suplementación", values: [true, true, false] },
-                  { label: "Programa de Suplementación Adaptado", values: [false, false, true] },
-                  { label: "Control Mensual por Videollamada", values: [false, true, true] },
-                  { label: "Consultas con Doctor (Antiaging, Péptidos, Hormonas)", values: [false, false, "2 anuales"] },
-                  { label: "Libro de Recetas Fit Exclusivo", values: [false, false, true] },
-                  { label: "Acceso a Sorteos VIP Exclusivos", values: [false, false, true] },
-                  { label: "Descuentos en Diferentes Marcas", values: [false, false, true] },
-                  { label: "Soporte por Correo Electrónico", values: [true, false, false] },
-                  { label: "Soporte por WhatsApp", values: [false, true, "Prioritario"] },
-                ].map((row, idx) => (
+                {t.plans.tableRows.map((row, idx) => (
                   <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-4 font-medium text-black">{row.label}</td>
                     {row.values.map((value, i) => (
@@ -248,7 +196,7 @@ export function TrainingPlans() {
                         }
                         onClick={() => handlePlanSelect(plan.name, plan.paymentUrl)}
                       >
-                        Seleccionar
+                        {t.plans.selectTable}
                       </Button>
                     </td>
                   ))}
@@ -260,9 +208,9 @@ export function TrainingPlans() {
 
         <div className="text-center mt-12">
           <p className="text-sm text-gray-600">
-            Todos los planes incluyen garantía de satisfacción de 30 días.
+            {t.plans.guarantee}
             <br />
-            ¿No estás seguro de cuál es el plan adecuado? Contáctanos para una recomendación personalizada.
+            {t.plans.guaranteeQuestion}
           </p>
         </div>
       </div>

@@ -4,12 +4,15 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitch } from "@/components/language-switch"
+import { useTranslation } from "@/contexts/language-context"
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
 
   // Si no estamos en home, siempre mostrar navbar con fondo
   const isHomePage = location.pathname === "/"
@@ -62,38 +65,39 @@ export function Navigation() {
               onClick={() => scrollToSection("about")}
               className="text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              SOBRE MÍ
+              {t.nav.about}
             </button>
             <button
               onClick={() => scrollToSection("services")}
               className="text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              SERVICIOS
+              {t.nav.services}
             </button>
             <button
               onClick={() => scrollToSection("credentials")}
               className="text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              CREDENCIALES
+              {t.nav.credentials}
             </button>
             <button
               onClick={() => scrollToSection("plans")}
               className="text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              PLANES
+              {t.nav.plans}
             </button>
             <button
               onClick={() => scrollToSection("recetas")}
               className="text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              RECETAS
+              {t.nav.recipes}
             </button>
             <Button
               onClick={() => scrollToSection("contact")}
               className="bg-white text-black hover:bg-gray-200"
             >
-              CONTACTO
+              {t.nav.contact}
             </Button>
+            <LanguageSwitch />
           </div>
 
           {/* Mobile Menu Button */}
@@ -109,38 +113,41 @@ export function Navigation() {
               onClick={() => scrollToSection("about")}
               className="block w-full text-left text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              SOBRE MÍ
+              {t.nav.about}
             </button>
             <button
               onClick={() => scrollToSection("services")}
               className="block w-full text-left text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              SERVICIOS
+              {t.nav.services}
             </button>
             <button
               onClick={() => scrollToSection("credentials")}
               className="block w-full text-left text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              CREDENCIALES
+              {t.nav.credentials}
             </button>
             <button
               onClick={() => scrollToSection("plans")}
               className="block w-full text-left text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              PLANES
+              {t.nav.plans}
             </button>
             <button
               onClick={() => scrollToSection("recetas")}
               className="block w-full text-left text-sm font-medium transition-colors text-white/70 hover:text-white"
             >
-              RECETAS
+              {t.nav.recipes}
             </button>
             <Button
               onClick={() => scrollToSection("contact")}
               className="w-full bg-white text-black hover:bg-gray-200"
             >
-              CONTACTO
+              {t.nav.contact}
             </Button>
+            <div className="flex justify-center pt-2">
+              <LanguageSwitch />
+            </div>
           </div>
         )}
       </div>

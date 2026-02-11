@@ -1,20 +1,23 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "@/contexts/language-context"
 
 const partners = [
-  { name: "Feast Fit", code: "FEASTFIT10", logo: "/feastfit-logo.svg", link: null, isDiscount: true },
-  { name: "Exclusive Life Magazine", code: "ELM20", logo: "/elm-logo.svg", link: null, isDiscount: true },
+  { name: "Banus Medical", code: null, logo: "/banus-medical-logo.png", link: "https://banusmedical.com", isDiscount: false },
+  { name: "Exclusive Life Magazine", code: null, logo: "/elm-logo-white.png", link: "https://issuu.com/exclusivelifemagazine/docs/exclusive_life_magazine_24_90cc935d256558", isDiscount: false },
   { name: "Raph-Corp", code: null, logo: "/isotipo-solido-alt.png", link: "https://raph-corp.com", isDiscount: false },
   { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES", isDiscount: true },
   { name: "Biolab", code: null, logo: "/biolab-logo.jpg", link: "https://biolabshop.co.uk", isDiscount: false },
   { name: "Fitblood", code: null, logo: "/fitblood-logo.png", link: "https://instagram.com/fit.blood", isDiscount: false },
   { name: "Gaspar", code: null, logo: "/gaspar-logo.jpeg", link: "https://www.instagram.com/gaspar.microcapilar", isDiscount: false },
   { name: "Jose Bulnes", code: null, logo: "/josebulnes-logo.png", link: "https://www.josebulnes.com", isDiscount: false },
+  { name: "TrainerStudio", code: null, logo: "/trainerstudio-logo.png", link: "https://www.trainerstudio.com", isDiscount: false },
 ]
 
 export function PartnersCarousel() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const { t } = useTranslation()
 
   const handleClick = (partner: typeof partners[0]) => {
     if (partner.link) {
@@ -28,13 +31,13 @@ export function PartnersCarousel() {
 
   const getActionText = (partner: typeof partners[0]) => {
     if (partner.code && copiedCode === partner.code) {
-      return "¡CÓDIGO COPIADO!"
+      return t.partners.codeCopied
     }
     if (partner.isDiscount) {
-      return "Haz clic para activar descuento"
+      return t.partners.activateDiscount
     }
     if (partner.link) {
-      return "Visita nuestra web"
+      return t.partners.visitWeb
     }
     return ""
   }
@@ -47,12 +50,12 @@ export function PartnersCarousel() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-white group-hover:from-black/5 group-hover:to-white transition-all duration-300" />
 
-        {/* Logo de fondo - aparece discreto en hover */}
+        {/* Logo de fondo - siempre visible con transparencia */}
         {partner.logo && (
           <img
             src={partner.logo}
             alt=""
-            className="absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 object-contain opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+            className="absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 object-contain opacity-10"
           />
         )}
 
@@ -73,12 +76,12 @@ export function PartnersCarousel() {
     <section className="py-14 sm:py-16 md:py-20 lg:py-24 bg-gray-100 border-y border-gray-200">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10 sm:mb-12 md:mb-16">
-          <p className="text-sm font-semibold tracking-widest text-black uppercase mb-3 border border-black/30 inline-block px-3 py-1">Asociados de Confianza</p>
+          <p className="text-sm font-semibold tracking-widest text-black uppercase mb-3 border border-black/30 inline-block px-3 py-1">{t.partners.badge}</p>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance text-black mt-4">
-            Acceso Exclusivo a<span className="block text-gray-500">Nuestros Partners</span>
+            {t.partners.titleLine1}<span className="block text-gray-500">{t.partners.titleLine2}</span>
           </h2>
           <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-            Descuentos especiales y colaboraciones con marcas de fitness, nutrición y tecnología
+            {t.partners.description}
           </p>
         </div>
 
@@ -103,7 +106,7 @@ export function PartnersCarousel() {
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-10">
-          Haz clic en cualquier tarjeta para acceder a tu descuento exclusivo
+          {t.partners.bottomNote}
         </p>
       </div>
     </section>

@@ -3,6 +3,7 @@ import { Hero } from "../components/hero"
 import { About } from "../components/about"
 import { Services } from "../components/services"
 import { Credentials } from "../components/credentials"
+import { Brands } from "../components/brands"
 import { TrainingPlans } from "../components/training-plans"
 import { Doctor } from "../components/doctor"
 import { Navigation } from "../components/navigation"
@@ -10,6 +11,7 @@ import { PartnersCarousel } from "../components/partners-carousel"
 import { Contact } from "../components/contact"
 import { Link } from "react-router-dom"
 import { Instagram } from "lucide-react"
+import { useTranslation } from "@/contexts/language-context"
 
 const RECIPE_IMAGES = [
   { id: 1, title: "Avocado Toast con Huevo", image: "/avocado-toast-egg.png" },
@@ -27,6 +29,8 @@ const RECIPE_IMAGES = [
 ]
 
 export default function HomePage() {
+  const { t } = useTranslation()
+
   // Seleccionar 2 recetas aleatorias
   const randomRecipes = useMemo(() => {
     const shuffled = [...RECIPE_IMAGES].sort(() => Math.random() - 0.5)
@@ -45,6 +49,8 @@ export default function HomePage() {
       <div className="border-t border-gray-200" />
       <Credentials />
       <div className="border-t border-gray-200" />
+      <Brands />
+      <div className="border-t border-gray-200" />
       <Doctor />
       <div className="border-t border-gray-200" />
       <TrainingPlans />
@@ -56,32 +62,41 @@ export default function HomePage() {
             {/* Left: Content */}
             <div className="space-y-6 text-center lg:text-left order-2 lg:order-1">
               <div className="inline-block">
-                <span className="text-xs font-bold tracking-widest text-white uppercase border border-white/30 px-3 py-1">Alimentación Inteligente</span>
+                <span className="text-xs font-bold tracking-widest text-white uppercase border border-white/30 px-3 py-1">{t.home.recipesBadge}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-white">
-                Nutrición &
-                <span className="block text-gray-400">Recetas</span>
+                {t.home.recipesTitleLine1}
+                <span className="block text-gray-400">{t.home.recipesTitleLine2}</span>
               </h2>
               <p className="text-gray-400 leading-relaxed text-pretty max-w-md mx-auto lg:mx-0">
-                Descubre nuestro catálogo completo de recetas saludables, diseñadas para maximizar tu rendimiento y
-                recuperación. Cada plato pensado para potenciar tus resultados.
+                {t.home.recipesDescription}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <Link
                   to="/recetas"
                   className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-semibold hover:bg-gray-200 transition-colors"
                 >
-                  Explorar Recetas
+                  {t.home.exploreRecipes}
                 </Link>
+                <a
+                  href="https://www.amazon.es/dp/B0GMD97XMT"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white font-semibold border border-white hover:bg-white hover:text-black transition-colors"
+                >
+                  {t.home.buyRecipeBook}
+                </a>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-400">
                   <div className="text-center">
-                    <span className="block text-2xl font-bold text-white">12+</span>
-                    <span>Recetas</span>
+                    <span className="block text-2xl font-bold text-white">{t.home.recipesCount}</span>
+                    <span>{t.home.recipesCountLabel}</span>
                   </div>
                   <div className="w-px h-10 bg-gray-700" />
                   <div className="text-center">
-                    <span className="block text-2xl font-bold text-white">100%</span>
-                    <span>Saludables</span>
+                    <span className="block text-2xl font-bold text-white">{t.home.healthyPercent}</span>
+                    <span>{t.home.healthyLabel}</span>
                   </div>
                 </div>
               </div>
@@ -106,7 +121,7 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <span className="text-white text-sm font-medium block">{recipe.title}</span>
-                        <span className="text-white/70 text-xs">Ver receta →</span>
+                        <span className="text-white/70 text-xs">{t.home.viewRecipe}</span>
                       </div>
                     </div>
                   </Link>
@@ -128,27 +143,27 @@ export default function HomePage() {
             <div>
               <img src="/jt-logo-white.png" alt="JT Training" className="h-24 w-auto mb-4" />
               <p className="text-sm text-gray-400">
-                Entrenamiento de élite para atletas y emprendedores que buscan transformación.
+                {t.home.footerDescription}
               </p>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Enlaces Rápidos</h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">{t.home.quickLinks}</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href="#about" className="text-gray-400 hover:text-white transition-colors">
-                    Acerca de
+                    {t.home.aboutLink}
                   </a>
                 </li>
                 <li>
                   <a href="#services" className="text-gray-400 hover:text-white transition-colors">
-                    Servicios
+                    {t.home.servicesLink}
                   </a>
                 </li>
                 <li>
                   <a href="#contact" className="text-gray-400 hover:text-white transition-colors">
-                    Contacto
+                    {t.home.contactLink}
                   </a>
                 </li>
               </ul>
@@ -156,7 +171,7 @@ export default function HomePage() {
 
             {/* Social Media */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Síguenos</h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">{t.home.followUs}</h3>
               <div className="flex flex-wrap gap-3">
                 <a
                   href="https://www.instagram.com/jjttrainer/"
@@ -193,7 +208,7 @@ export default function HomePage() {
           <div className="border-t border-gray-800 pt-6 sm:pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
               <p className="text-xs sm:text-sm text-gray-500">
-                © 2026 Jesus Torres Training. Todos los derechos reservados.
+                {t.home.copyright}
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-xs sm:text-sm">
                 <a

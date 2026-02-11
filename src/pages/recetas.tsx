@@ -3,120 +3,57 @@
 import { useState, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { Navigation } from "../components/navigation"
+import { useTranslation } from "@/contexts/language-context"
 
-const RECIPES_DATA = [
-  {
-    id: 1,
-    title: "Avocado Toast con Huevo",
-    type: "Desayuno",
-    image: "/avocado-toast-egg.png",
-    macros: { protein: 13.3, carbs: 10, fat: 12, calories: 201 },
-    tags: ["Alto en proteínas", "Vegano", "Sin gluten"],
-  },
-  {
-    id: 2,
-    title: "Ensalada de Quinoa",
-    type: "Comida",
-    image: "/colorful-quinoa-salad.png",
-    macros: { protein: 7.5, carbs: 15, fat: 5, calories: 135 },
-    tags: ["Balanceado", "Vegano"],
-  },
-  {
-    id: 3,
-    title: "Pasta Vegetariana",
-    type: "Cena",
-    image: "/vegetarian-pasta.png",
-    macros: { protein: 4, carbs: 20, fat: 3.2, calories: 125 },
-    tags: ["Vegano"],
-  },
-  {
-    id: 4,
-    title: "Yogur con Nueces",
-    type: "Snack",
-    image: "/yogurt-nuts.jpg",
-    macros: { protein: 5.3, carbs: 6.7, fat: 16.7, calories: 198 },
-    tags: ["Alto en grasas", "Sin gluten"],
-  },
-  {
-    id: 5,
-    title: "Avena con Frutas",
-    type: "Desayuno",
-    image: "/oatmeal-fruits.jpg",
-    macros: { protein: 2.5, carbs: 20, fat: 2.5, calories: 113 },
-    tags: ["Balanceado"],
-  },
-  {
-    id: 6,
-    title: "Smoothie de Espinaca",
-    type: "Desayuno",
-    image: "/spinach-smoothie.jpg",
-    macros: { protein: 8.7, carbs: 6.7, fat: 4, calories: 102.3 },
-    tags: ["Alto en proteínas", "Sin gluten"],
-  },
-  {
-    id: 7,
-    title: "Pechuga de Pollo a la Plancha",
-    type: "Almuerzo",
-    image: "/grilled-chicken-breast.png",
-    macros: { protein: 15, carbs: 5, fat: 4, calories: 116 },
-    tags: ["Alto en proteínas"],
-  },
-  {
-    id: 8,
-    title: "Salmón al Horno con Espárragos",
-    type: "Cena",
-    image: "/salmon-asparagus.jpg",
-    macros: { protein: 10, carbs: 6, fat: 6, calories: 118 },
-    tags: ["Alto en proteínas", "Sin gluten"],
-  },
-  {
-    id: 9,
-    title: "Bowl de Arroz y Salmón",
-    type: "Comida",
-    image: "/salmon-rice-bowl.png",
-    macros: { protein: 10, carbs: 18, fat: 7, calories: 185 },
-    tags: ["Balanceado"],
-  },
-  {
-    id: 10,
-    title: "Tacos de Pavo",
-    type: "Comida",
-    image: "/turkey-tacos.jpg",
-    macros: { protein: 9, carbs: 12, fat: 6, calories: 142 },
-    tags: ["Alto en proteínas"],
-  },
-  {
-    id: 11,
-    title: "Wrap Integral de Pollo",
-    type: "Almuerzo",
-    image: "/chicken-wrap.png",
-    macros: { protein: 12, carbs: 18, fat: 5, calories: 170 },
-    tags: ["Alto en proteínas"],
-  },
-  {
-    id: 12,
-    title: "Crepes de Avena y Plátano",
-    type: "Desayuno",
-    image: "/oatmeal-crepes-banana.jpg",
-    macros: { protein: 5, carbs: 30, fat: 2, calories: 160 },
-    tags: ["Balanceado"],
-  },
+const RECIPE_IMAGES = [
+  "/avocado-toast-egg.png",
+  "/colorful-quinoa-salad.png",
+  "/vegetarian-pasta.png",
+  "/yogurt-nuts.jpg",
+  "/oatmeal-fruits.jpg",
+  "/spinach-smoothie.jpg",
+  "/grilled-chicken-breast.png",
+  "/salmon-asparagus.jpg",
+  "/salmon-rice-bowl.png",
+  "/turkey-tacos.jpg",
+  "/chicken-wrap.png",
+  "/oatmeal-crepes-banana.jpg",
 ]
 
-const MEAL_TYPES = ["Todos", "Desayuno", "Comida", "Almuerzo", "Cena", "Snack"]
-const MACRO_FILTERS = ["Todos", "Alto en proteínas", "Alto en carbohidratos", "Alto en grasas", "Balanceado"]
+const RECIPE_MACROS = [
+  { protein: 13.3, carbs: 10, fat: 12, calories: 201 },
+  { protein: 7.5, carbs: 15, fat: 5, calories: 135 },
+  { protein: 4, carbs: 20, fat: 3.2, calories: 125 },
+  { protein: 5.3, carbs: 6.7, fat: 16.7, calories: 198 },
+  { protein: 2.5, carbs: 20, fat: 2.5, calories: 113 },
+  { protein: 8.7, carbs: 6.7, fat: 4, calories: 102.3 },
+  { protein: 15, carbs: 5, fat: 4, calories: 116 },
+  { protein: 10, carbs: 6, fat: 6, calories: 118 },
+  { protein: 10, carbs: 18, fat: 7, calories: 185 },
+  { protein: 9, carbs: 12, fat: 6, calories: 142 },
+  { protein: 12, carbs: 18, fat: 5, calories: 170 },
+  { protein: 5, carbs: 30, fat: 2, calories: 160 },
+]
 
 export default function RecetasPage() {
-  const [selectedMeal, setSelectedMeal] = useState("Todos")
-  const [selectedMacro, setSelectedMacro] = useState("Todos")
+  const [selectedMealIdx, setSelectedMealIdx] = useState(0)
+  const [selectedMacroIdx, setSelectedMacroIdx] = useState(0)
+  const { t } = useTranslation()
+
+  const recipes = t.recetas.recipes.map((r, i) => ({
+    id: i + 1,
+    ...r,
+    image: RECIPE_IMAGES[i],
+    macros: RECIPE_MACROS[i],
+  }))
 
   const filteredRecipes = useMemo(() => {
-    return RECIPES_DATA.filter((recipe) => {
-      const mealMatch = selectedMeal === "Todos" || recipe.type === selectedMeal
-      const macroMatch = selectedMacro === "Todos" || recipe.tags.includes(selectedMacro)
+    return recipes.filter((recipe) => {
+      const mealMatch = selectedMealIdx === 0 || recipe.type === t.recetas.mealTypes[selectedMealIdx]
+      const macroMatch = selectedMacroIdx === 0 || recipe.tags.includes(t.recetas.macroFilters[selectedMacroIdx])
       return mealMatch && macroMatch
     })
-  }, [selectedMeal, selectedMacro])
+  }, [selectedMealIdx, selectedMacroIdx, t])
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -125,8 +62,8 @@ export default function RecetasPage() {
       {/* Header */}
       <section className="py-8 sm:py-10 md:py-12 pt-24 sm:pt-28 md:pt-32 bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-balance text-white">Sabor & Músculo</h1>
-          <p className="text-lg text-gray-400">Recetas reales · Ingredientes sencillos</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-balance text-white">{t.recetas.pageTitle}</h1>
+          <p className="text-lg text-gray-400">{t.recetas.pageSubtitle}</p>
         </div>
       </section>
 
@@ -136,14 +73,14 @@ export default function RecetasPage() {
           <div className="space-y-4">
             {/* Meal Type Filter */}
             <div>
-              <h3 className="text-sm font-semibold mb-3 text-black">Tipo de Comida</h3>
+              <h3 className="text-sm font-semibold mb-3 text-black">{t.recetas.mealTypeLabel}</h3>
               <div className="flex flex-wrap gap-2">
-                {MEAL_TYPES.map((type) => (
+                {t.recetas.mealTypes.map((type, idx) => (
                   <button
-                    key={type}
-                    onClick={() => setSelectedMeal(type)}
+                    key={idx}
+                    onClick={() => setSelectedMealIdx(idx)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedMeal === type
+                      selectedMealIdx === idx
                         ? "bg-black text-white"
                         : "bg-gray-100 text-black hover:bg-gray-200"
                     }`}
@@ -156,14 +93,14 @@ export default function RecetasPage() {
 
             {/* Macro Filter */}
             <div>
-              <h3 className="text-sm font-semibold mb-3 text-black">Macronutriente</h3>
+              <h3 className="text-sm font-semibold mb-3 text-black">{t.recetas.macroLabel}</h3>
               <div className="flex flex-wrap gap-2">
-                {MACRO_FILTERS.map((macro) => (
+                {t.recetas.macroFilters.map((macro, idx) => (
                   <button
-                    key={macro}
-                    onClick={() => setSelectedMacro(macro)}
+                    key={idx}
+                    onClick={() => setSelectedMacroIdx(idx)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedMacro === macro
+                      selectedMacroIdx === idx
                         ? "bg-black text-white"
                         : "bg-gray-100 text-black hover:bg-gray-200"
                     }`}
@@ -175,15 +112,15 @@ export default function RecetasPage() {
             </div>
 
             {/* Clear Filters */}
-            {(selectedMeal !== "Todos" || selectedMacro !== "Todos") && (
+            {(selectedMealIdx !== 0 || selectedMacroIdx !== 0) && (
               <button
                 onClick={() => {
-                  setSelectedMeal("Todos")
-                  setSelectedMacro("Todos")
+                  setSelectedMealIdx(0)
+                  setSelectedMacroIdx(0)
                 }}
                 className="text-sm text-black hover:text-gray-600 transition-colors underline"
               >
-                Limpiar filtros
+                {t.recetas.clearFilters}
               </button>
             )}
           </div>
@@ -195,7 +132,7 @@ export default function RecetasPage() {
         <div className="container mx-auto px-4">
           {filteredRecipes.length === 0 ? (
             <div className="text-center py-12 sm:py-16">
-              <p className="text-gray-500 text-lg">No hay recetas que coincidan con tus filtros.</p>
+              <p className="text-gray-500 text-lg">{t.recetas.noResults}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
@@ -225,15 +162,15 @@ export default function RecetasPage() {
                       <div className="grid grid-cols-4 gap-2 text-xs mb-4">
                         <div className="bg-gray-100 p-2 text-center">
                           <p className="font-semibold text-black">{recipe.macros.protein.toFixed(1)}g</p>
-                          <p className="text-gray-500">Proteína</p>
+                          <p className="text-gray-500">{t.recetas.protein}</p>
                         </div>
                         <div className="bg-gray-100 p-2 text-center">
                           <p className="font-semibold text-black">{recipe.macros.carbs.toFixed(1)}g</p>
-                          <p className="text-gray-500">Carbs</p>
+                          <p className="text-gray-500">{t.recetas.carbs}</p>
                         </div>
                         <div className="bg-gray-100 p-2 text-center">
                           <p className="font-semibold text-black">{recipe.macros.fat.toFixed(1)}g</p>
-                          <p className="text-gray-500">Grasas</p>
+                          <p className="text-gray-500">{t.recetas.fats}</p>
                         </div>
                         <div className="bg-gray-100 p-2 text-center">
                           <p className="font-semibold text-black">{recipe.macros.calories.toFixed(0)}</p>
@@ -255,6 +192,18 @@ export default function RecetasPage() {
               ))}
             </div>
           )}
+
+          {/* Comprar Recetario Button */}
+          <div className="flex justify-center mt-12 sm:mt-16">
+            <a
+              href="https://www.amazon.es/dp/B0GMD97XMT"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-8 py-4 bg-black text-white font-semibold border border-black hover:bg-white hover:text-black transition-colors"
+            >
+              {t.recetas.buyComplete}
+            </a>
+          </div>
         </div>
       </section>
     </div>
