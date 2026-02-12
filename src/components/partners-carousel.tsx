@@ -56,18 +56,16 @@ export function PartnersCarousel() {
           <img
             src={partner.logo}
             alt=""
-            className={`absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 object-contain ${
-              partner.name === "TrainerStudio" ? "opacity-100" : "opacity-10"
+            className={`absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 object-contain opacity-10 ${
+              partner.name === "TrainerStudio" ? "-translate-y-12" : ""
             }`}
           />
         )}
 
-        {/* Nombre solo si no es TrainerStudio */}
-        {partner.name !== "TrainerStudio" && (
-          <div className="relative z-10 flex-1 flex items-center justify-center px-2">
-            <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight text-black">{partner.name}</h3>
-          </div>
-        )}
+        {/* Nombre */}
+        <div className="relative z-10 flex-1 flex items-center justify-center px-2">
+          <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight text-black">{partner.name}</h3>
+        </div>
 
         <div className="relative z-10 text-center mt-auto pb-4">
           <div className="text-xs text-black font-semibold">
