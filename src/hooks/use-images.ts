@@ -15,6 +15,9 @@ export function useImages(category?: string) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 second timeout
+
     const fetchImages = async () => {
       try {
         setLoading(true)
@@ -22,19 +25,32 @@ export function useImages(category?: string) {
           ? await api.images.getByCategory(category)
           : await api.images.getAll()
 
-        if (response.success) {
+        clearTimeout(timeoutId)
+
+        if (response.success && response.data && response.data.length > 0) {
           setImages(response.data)
         } else {
-          setError(response.error)
+          // Si no hay imágenes o hay error, usar fallback (array vacío)
+          setImages([])
+          setError(response.error || "No images found")
         }
       } catch (err) {
-        setError("Error al cargar imágenes")
+        clearTimeout(timeoutId)
+        // En caso de error (timeout, network error, etc), usar fallback
+        setImages([])
+        setError("Error al cargar imágenes - usando imagen local")
+        console.warn("Failed to load images from backend, using fallback:", err)
       } finally {
         setLoading(false)
       }
     }
 
     fetchImages()
+
+    return () => {
+      clearTimeout(timeoutId)
+      controller.abort()
+    }
   }, [category])
 
   return { images, loading, error }

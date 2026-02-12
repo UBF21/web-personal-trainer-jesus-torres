@@ -2,13 +2,13 @@ import { Award, Target, TrendingUp } from "lucide-react"
 import { useImages } from "@/hooks/use-images"
 import { useTranslation } from "@/contexts/language-context"
 
-const FALLBACK_IMAGE = "https://uvfkmhsyrmuvkyzvrumq.supabase.co/storage/v1/object/public/jt-Images/about/1769461177044-12.jpg"
+const FALLBACK_IMAGE = "/about-photo.jpg"
 
 export function About() {
   const { images, loading } = useImages("about")
   const { t } = useTranslation()
 
-  // Usa la primera imagen de la categoría "about", o fallback a "hero", o imagen por defecto
+  // Usa la primera imagen del backend, o fallback a imagen local
   const aboutImage = images[0]?.url || FALLBACK_IMAGE
 
   return (
