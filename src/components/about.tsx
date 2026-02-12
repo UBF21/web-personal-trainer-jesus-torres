@@ -17,15 +17,11 @@ export function About() {
         <div className="grid md:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 xl:gap-20 items-center">
           <div className="relative">
             <div className="absolute inset-0 bg-black translate-x-4 translate-y-4" />
-            {loading ? (
-              <div className="relative w-full aspect-[3/4] bg-gray-200 animate-pulse" />
-            ) : (
-              <img
-                src={aboutImage}
-                alt={images[0]?.alt || "Entrenador Personal de Elite"}
-                className="relative w-full h-auto grayscale hover:grayscale-0 transition-all duration-500"
-              />
-            )}
+            <img
+              src={aboutImage}
+              alt={images[0]?.alt || "Entrenador Personal de Elite"}
+              className="relative w-full h-auto grayscale hover:grayscale-0 transition-all duration-500"
+            />
           </div>
 
           <div className="space-y-6">
