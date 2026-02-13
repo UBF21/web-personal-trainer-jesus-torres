@@ -1,4 +1,4 @@
-import { Instagram, BookOpen } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import { useTranslation } from "@/contexts/language-context"
 
 export function MagazineFeature() {
@@ -27,22 +27,13 @@ export function MagazineFeature() {
               />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="https://www.instagram.com/p/DF-6s_PtBA7/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 w-full sm:w-auto justify-center"
-              >
-                <Instagram className="w-5 h-5" />
-                <span>{t.credentials.magazine.instagramButton}</span>
-              </a>
+            {/* Action Button */}
+            <div className="flex justify-center">
               <a
                 href="https://issuu.com/exclusivelifemagazine/docs/exclusive_life_magazine_24_90cc935d256558"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 w-full sm:w-auto justify-center"
+                className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <BookOpen className="w-5 h-5" />
                 <span>{t.credentials.magazine.magazineButton}</span>

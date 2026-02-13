@@ -98,7 +98,7 @@ export const es: Translations = {
     items: [
       {
         name: "Plan B\u00E1sico",
-        duration: "1 Mes",
+        duration: "3 Meses",
         description: "Comienza tu transformaci\u00F3n",
         features: [
           "Evaluaci\u00F3n personalizada",

@@ -13,7 +13,7 @@ const PAYMENT_URLS = [
   "https://www.paypal.com/ncp/payment/BMX2AHTFL7CE8",
 ]
 
-const PRICES = [100, 1200, 3000]
+const PRICES = [400, 1200, 3000]
 const POPULAR_INDEX = 1
 
 interface SelectedPlanData {

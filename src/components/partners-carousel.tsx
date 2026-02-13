@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useTranslation } from "@/contexts/language-context"
 
 const partners = [
-  { name: "Banus Medical", code: null, logo: "/banus-medical-logo.png", link: "https://banusmedical.com", isDiscount: false },
   { name: "Exclusive Life Magazine", code: null, logo: "/elm-logo-white.png", link: "https://issuu.com/exclusivelifemagazine/docs/exclusive_life_magazine_24_90cc935d256558", isDiscount: false },
   { name: "Raph-Corp", code: null, logo: "/isotipo-solido-alt.png", link: "https://raph-corp.com", isDiscount: false },
   { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES", isDiscount: true },

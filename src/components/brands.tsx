@@ -3,29 +3,14 @@ import { Sparkles } from "lucide-react"
 
 const partnerships = [
   {
-    name: "Banus Medical",
-    logo: "/banus-medical-logo.png",
+    name: "Biolab",
+    logo: "/biolab-logo.jpg",
     lightBg: true,
   },
   {
     name: "Exclusive Life Magazine",
     logo: "/elm-logo-white.png",
     lightBg: false,
-  },
-  {
-    name: "Raph-Corp",
-    logo: "/isotipo-solido-alt.png",
-    lightBg: true,
-  },
-  {
-    name: "Zumub",
-    logo: "/zumub-logo.png",
-    lightBg: false,
-  },
-  {
-    name: "Biolab",
-    logo: "/biolab-logo.jpg",
-    lightBg: true,
   },
   {
     name: "Fitblood",
@@ -38,8 +23,18 @@ const partnerships = [
     lightBg: true,
   },
   {
+    name: "GREAT I AM",
+    logo: "/greatiam-logo.png",
+    lightBg: true,
+  },
+  {
     name: "Jose Bulnes",
     logo: "/josebulnes-logo.png",
+    lightBg: true,
+  },
+  {
+    name: "Raph-Corp",
+    logo: "/isotipo-solido-alt.png",
     lightBg: true,
   },
   {
@@ -48,9 +43,9 @@ const partnerships = [
     lightBg: true,
   },
   {
-    name: "GREAT I AM",
-    logo: "/greatiam-logo.png",
-    lightBg: true,
+    name: "Zumub",
+    logo: "/zumub-logo.png",
+    lightBg: false,
   },
 ]
 
@@ -87,27 +82,42 @@ export function Brands() {
         </div>
 
         {/* Brands Grid */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
-            {partnerships.map((partner, index) => (
+        <div className="max-w-5xl mx-auto">
+          {/* Row 1: 5 logos */}
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-5 md:gap-6 mb-4 sm:mb-5 md:mb-6">
+            {partnerships.slice(0, 5).map((partner, index) => (
               <div
                 key={index}
-                className="group bg-white border border-gray-200 hover:border-gray-400 transition-all duration-500 aspect-square flex items-center justify-center p-6 sm:p-8 relative overflow-hidden rounded-xl hover:scale-105 hover:shadow-xl"
+                className="group relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white border border-gray-200 hover:border-black rounded-2xl flex items-center justify-center p-5 sm:p-6 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-white/20"
               >
-                {/* Glow effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-50/0 via-gray-50/0 to-gray-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                {/* Logo */}
                 <img
                   src={partner.logo || "/placeholder.svg"}
                   alt={partner.name}
-                  className={`w-full h-auto object-contain max-h-12 sm:max-h-16 md:max-h-20 transition-all duration-500 opacity-80 group-hover:opacity-100 relative z-10 ${
+                  className={`w-full h-auto object-contain max-h-14 sm:max-h-16 md:max-h-20 transition-all duration-500 opacity-70 group-hover:opacity-100 ${
                     partner.name === "Exclusive Life Magazine" ? "invert" : ""
                   }`}
                 />
-
-                {/* Brand name on hover */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/95 to-transparent text-white text-xs font-semibold py-3 text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                {/* Brand name tooltip */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
+                  {partner.name}
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Row 2: 4 logos centered */}
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-5 md:gap-6">
+            {partnerships.slice(5).map((partner, index) => (
+              <div
+                key={index + 5}
+                className="group relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 bg-white border border-gray-200 hover:border-black rounded-2xl flex items-center justify-center p-5 sm:p-6 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-white/20"
+              >
+                <img
+                  src={partner.logo || "/placeholder.svg"}
+                  alt={partner.name}
+                  className="w-full h-auto object-contain max-h-14 sm:max-h-16 md:max-h-20 transition-all duration-500 opacity-70 group-hover:opacity-100"
+                />
+                {/* Brand name tooltip */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
                   {partner.name}
                 </div>
               </div>
