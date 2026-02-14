@@ -92,7 +92,6 @@ export const en: Translations = {
     popular: "Most Popular",
     select: "SELECT",
     selectTable: "Select",
-    guarantee: "All plans include a 30-day satisfaction guarantee.",
     guaranteeQuestion: "Not sure which plan is right for you? Contact us for a personalized recommendation.",
     feature: "Feature",
     items: [
@@ -106,6 +105,7 @@ export const en: Translations = {
           "Client-appropriate nutrition guide",
           "Supplementation recommendation",
           "Continuous email support",
+          "Personalized app service",
         ],
       },
       {
@@ -119,6 +119,7 @@ export const en: Translations = {
           "Supplementation recommendation",
           "Monthly personalized video call check-in",
           "WhatsApp support",
+          "Personalized app service",
         ],
       },
       {
@@ -136,6 +137,7 @@ export const en: Translations = {
           "Discounts at various brands",
           "Monthly video call follow-up",
           "Priority WhatsApp support",
+          "Personalized app service",
         ],
       },
     ],
@@ -154,6 +156,7 @@ export const en: Translations = {
       { label: "Discounts at Various Brands", values: [false, false, true] },
       { label: "Email Support", values: [true, false, false] },
       { label: "WhatsApp Support", values: [false, true, "Priority"] },
+      { label: "Personalized App Service", values: [true, true, true] },
     ],
   },
   contact: {

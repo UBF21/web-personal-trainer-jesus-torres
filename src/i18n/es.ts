@@ -92,7 +92,6 @@ export const es: Translations = {
     popular: "M\u00E1s Popular",
     select: "SELECCIONAR",
     selectTable: "Seleccionar",
-    guarantee: "Todos los planes incluyen garant\u00EDa de satisfacci\u00F3n de 30 d\u00EDas.",
     guaranteeQuestion: "\u00BFNo est\u00E1s seguro de cu\u00E1l es el plan adecuado? Cont\u00E1ctanos para una recomendaci\u00F3n personalizada.",
     feature: "Caracter\u00EDstica",
     items: [
@@ -106,6 +105,7 @@ export const es: Translations = {
           "Gu\u00EDa de nutrici\u00F3n adecuada al cliente",
           "Recomendaci\u00F3n de suplementaci\u00F3n",
           "Soporte continuo por correo electr\u00F3nico",
+          "Servicio por app personalizado",
         ],
       },
       {
@@ -119,6 +119,7 @@ export const es: Translations = {
           "Recomendaci\u00F3n de suplementaci\u00F3n",
           "Control mensual por videollamada personalizado",
           "Soporte por WhatsApp",
+          "Servicio por app personalizado",
         ],
       },
       {
@@ -136,6 +137,7 @@ export const es: Translations = {
           "Descuentos en diferentes marcas",
           "Seguimiento mensual por videollamada",
           "Soporte por WhatsApp prioritario",
+          "Servicio por app personalizado",
         ],
       },
     ],
@@ -154,6 +156,7 @@ export const es: Translations = {
       { label: "Descuentos en Diferentes Marcas", values: [false, false, true] },
       { label: "Soporte por Correo Electr\u00F3nico", values: [true, false, false] },
       { label: "Soporte por WhatsApp", values: [false, true, "Prioritario"] },
+      { label: "Servicio por App Personalizado", values: [true, true, true] },
     ],
   },
   contact: {

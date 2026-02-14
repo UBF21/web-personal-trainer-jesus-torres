@@ -77,7 +77,6 @@ export interface Translations {
     popular: string
     select: string
     selectTable: string
-    guarantee: string
     guaranteeQuestion: string
     feature: string
     items: Array<{

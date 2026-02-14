@@ -225,8 +225,6 @@ export function TrainingPlans() {
 
         <div className="text-center mt-12">
           <p className="text-sm text-gray-600">
-            {t.plans.guarantee}
-            <br />
             {t.plans.guaranteeQuestion}
           </p>
         </div>
