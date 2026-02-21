@@ -47,6 +47,11 @@ const partnerships = [
     logo: "/zumub-logo.png",
     lightBg: false,
   },
+  {
+    name: "Diamond Shine",
+    logo: "/diamondshine-logo.jpeg",
+    lightBg: true,
+  },
 ]
 
 export function Brands() {

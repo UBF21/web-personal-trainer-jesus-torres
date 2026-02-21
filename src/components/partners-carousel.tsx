@@ -13,6 +13,7 @@ const partners = [
   { name: "Jose Bulnes", code: null, logo: "/josebulnes-logo.png", link: "https://www.josebulnes.com", isDiscount: false },
   { name: "TrainerStudio", code: null, logo: "/trainerstudio-logo.png", link: "https://www.trainerstudio.com", isDiscount: false },
   { name: "GREAT I AM", code: null, logo: "/greatiam-logo.png", link: "https://greatiamwear.com/es/", isDiscount: false },
+  { name: "Diamond Shine", code: null, logo: "/diamondshine-logo.jpeg", link: "https://www.instagram.com/diamondshinemarbella/", isDiscount: false },
 ]
 
 export function PartnersCarousel() {
