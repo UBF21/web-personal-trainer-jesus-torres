@@ -292,7 +292,6 @@ export function TrainingPlans() {
                   <h3 className="text-2xl font-bold text-black mb-2">
                     Transferencia Bancaria
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">Solo para Europa</p>
                   <p className="text-3xl font-bold text-black">
                     {selectedPlanData.price}€
                     <span className="text-base text-gray-500 ml-2">EUR</span>
@@ -306,35 +305,7 @@ export function TrainingPlans() {
                     <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
                       <span className="font-mono text-sm">LT02 3130 0101 3018 4834</span>
                       <button
-                        onClick={() => copyToClipboard("LT02313001013018484")}
-                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <Copy className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* BIC/SWIFT */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">BIC/SWIFT</label>
-                    <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
-                      <span className="font-mono text-sm">BZENLT22</span>
-                      <button
-                        onClick={() => copyToClipboard("BZENLT22")}
-                        className="p-1.5 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <Copy className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Plan name as reference */}
-                  <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Concepto</label>
-                    <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
-                      <span className="text-sm">{selectedPlanData.name}</span>
-                      <button
-                        onClick={() => copyToClipboard(selectedPlanData.name)}
+                        onClick={() => copyToClipboard("LT023130010130184834")}
                         className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                       >
                         <Copy className="w-4 h-4 text-gray-500" />
@@ -344,16 +315,27 @@ export function TrainingPlans() {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2 text-sm">
-                  <p className="font-semibold text-blue-900">ℹ️ Información importante:</p>
-                  <ul className="space-y-1 text-blue-800">
-                    <li>• Solo válido para transferencias en euros dentro de la UE y EFTA</li>
-                    <li>• La transferencia suele tardar 1 día laborable en procesarse</li>
-                    <li>• Los costes dependen de tu banco</li>
-                  </ul>
+                  <p className="font-semibold text-blue-900">Pasos a seguir:</p>
+                  <ol className="space-y-1 text-blue-800 list-decimal list-inside">
+                    <li>Realiza la transferencia al IBAN indicado</li>
+                    <li>Indica como concepto: <strong>{selectedPlanData.name}</strong></li>
+                    <li>Envía el comprobante de transferencia a:</li>
+                  </ol>
+                  <div className="flex items-center justify-between gap-2 mt-2 bg-white p-3 rounded-lg border border-blue-200">
+                    <a href="mailto:personaltrainerjesustorres@gmail.com" className="text-sm font-semibold text-blue-900 hover:underline">
+                      personaltrainerjesustorres@gmail.com
+                    </a>
+                    <button
+                      onClick={() => copyToClipboard("personaltrainerjesustorres@gmail.com")}
+                      className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+                    >
+                      <Copy className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
                 </div>
 
                 <p className="text-xs text-gray-500 text-center">
-                  Una vez realizada la transferencia, nos pondremos en contacto contigo
+                  Una vez recibido el comprobante, confirmaremos tu plan en un máximo de 24h
                 </p>
               </div>
             )}

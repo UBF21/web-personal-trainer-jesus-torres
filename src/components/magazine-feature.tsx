@@ -10,7 +10,7 @@ export function MagazineFeature() {
         <div className="max-w-5xl mx-auto">
           <div className="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 sm:p-8 md:p-10 shadow-lg">
             <div className="text-center mb-8">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-3">
+              <h3 translate="no" className="notranslate text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-3">
                 {t.credentials.magazine.title}
               </h3>
               <p className="text-gray-600 text-lg">

@@ -64,7 +64,7 @@ export function PartnersCarousel() {
 
         {/* Nombre */}
         <div className="relative z-10 flex-1 flex items-center justify-center px-2">
-          <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight text-black">{partner.name}</h3>
+          <h3 translate="no" className="notranslate text-base sm:text-lg lg:text-xl font-bold tracking-wider text-center leading-tight text-black">{partner.name}</h3>
         </div>
 
         <div className="relative z-10 text-center mt-auto pb-4">

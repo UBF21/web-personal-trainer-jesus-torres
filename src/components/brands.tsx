@@ -103,7 +103,7 @@ export function Brands() {
                   }`}
                 />
                 {/* Brand name tooltip */}
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
+                <div translate="no" className="notranslate absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
                   {partner.name}
                 </div>
               </div>
@@ -122,7 +122,7 @@ export function Brands() {
                   className="w-full h-auto object-contain max-h-14 sm:max-h-16 md:max-h-20 transition-all duration-500 opacity-70 group-hover:opacity-100"
                 />
                 {/* Brand name tooltip */}
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
+                <div translate="no" className="notranslate absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 group-hover:-bottom-4 transition-all duration-300 whitespace-nowrap shadow-lg">
                   {partner.name}
                 </div>
               </div>

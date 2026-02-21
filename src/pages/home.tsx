@@ -183,7 +183,7 @@ export default function HomePage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 hover:bg-white text-gray-300 hover:text-black transition-colors"
                 >
                   <Instagram size={18} />
-                  <span className="text-sm font-medium">@jjttrainer</span>
+                  <span translate="no" className="notranslate text-sm font-medium">@jjttrainer</span>
                 </a>
                 <a
                   href="https://www.instagram.com/julitojesustorres/"
@@ -192,7 +192,7 @@ export default function HomePage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 hover:bg-white text-gray-300 hover:text-black transition-colors"
                 >
                   <Instagram size={18} />
-                  <span className="text-sm font-medium">@julitojesustorres</span>
+                  <span translate="no" className="notranslate text-sm font-medium">@julitojesustorres</span>
                 </a>
                 <a
                   href="https://www.instagram.com/fit.blood/"
@@ -201,7 +201,7 @@ export default function HomePage() {
                   className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 hover:bg-white text-gray-300 hover:text-black transition-colors"
                 >
                   <Instagram size={18} />
-                  <span className="text-sm font-medium">@fit.blood</span>
+                  <span translate="no" className="notranslate text-sm font-medium">@fit.blood</span>
                 </a>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function HomePage() {
                   href="mailto:personaltrainerjesustorres@gmail.com"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  personaltrainerjesustorres@gmail.com
+                  <span translate="no" className="notranslate">personaltrainerjesustorres@gmail.com</span>
                 </a>
               </div>
             </div>
