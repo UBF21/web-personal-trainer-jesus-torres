@@ -14,6 +14,7 @@ const partners = [
   { name: "TrainerStudio", code: null, logo: "/trainerstudio-logo.png", link: "https://www.trainerstudio.com", isDiscount: false },
   { name: "GREAT I AM", code: null, logo: "/greatiam-logo.png", link: "https://greatiamwear.com/es/", isDiscount: false },
   { name: "Diamond Shine", code: null, logo: "/diamondshine-logo.jpeg", link: "https://www.instagram.com/diamondshinemarbella/", isDiscount: false },
+  { name: "Emigrando Estética", code: null, logo: "/emigrando-estetica-logo.png", link: "https://www.instagram.com/emigrando.estetica/", isDiscount: false },
 ]
 
 export function PartnersCarousel() {
