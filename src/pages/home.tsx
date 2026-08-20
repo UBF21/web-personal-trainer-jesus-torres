@@ -81,14 +81,14 @@ export default function HomePage() {
                 >
                   {t.home.exploreRecipes}
                 </Link>
-                <a
+                {/* <a
                   href="https://www.amazon.es/dp/B0GMD97XMT"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white font-semibold border border-white hover:bg-white hover:text-black transition-colors"
                 >
                   {t.home.buyRecipeBook}
-                </a>
+                </a> */}
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-400">

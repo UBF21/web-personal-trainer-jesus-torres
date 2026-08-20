@@ -193,7 +193,7 @@ export default function RecetasPage() {
             </div>
           )}
 
-          {/* Comprar Recetario Button */}
+          {/* Comprar Recetario Button
           <div className="flex justify-center mt-12 sm:mt-16">
             <a
               href="https://www.amazon.es/dp/B0GMD97XMT"
@@ -204,6 +204,7 @@ export default function RecetasPage() {
               {t.recetas.buyComplete}
             </a>
           </div>
+          */}
         </div>
       </section>
     </div>
