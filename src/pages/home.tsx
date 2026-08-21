@@ -9,6 +9,7 @@ import { TrainingPlans } from "../components/training-plans"
 import { Doctor } from "../components/doctor"
 import { Navigation } from "../components/navigation"
 import { PartnersCarousel } from "../components/partners-carousel"
+import { TrainerGallery } from "../components/trainer-gallery"
 import { Contact } from "../components/contact"
 import { Link } from "react-router-dom"
 import { Instagram } from "lucide-react"
@@ -45,6 +46,8 @@ export default function HomePage() {
       <PartnersCarousel />
       <div className="border-t border-gray-200" />
       <About />
+      <div className="border-t border-gray-200" />
+      <TrainerGallery />
       <div className="border-t border-gray-200" />
       <Services />
       <div className="border-t border-gray-200" />

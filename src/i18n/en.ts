@@ -31,6 +31,12 @@ export const en: Translations = {
     statsSuccess: "98%",
     statsSuccessLabel: "Success Rate",
   },
+  gallery: {
+    badge: "Gallery",
+    titleLine1: "A Glimpse Into",
+    titleLine2: "My Work",
+    description: "Moments that reflect the discipline and passion behind every transformation.",
+  },
   services: {
     badge: "Services",
     titleLine1: "A Comprehensive Approach at",
@@ -54,12 +60,27 @@ export const en: Translations = {
       "Fitness Instructor",
       "Specialist in Sports Nutrition, Supplementation and Ergogenic Aids",
     ],
-    magazine: {
-      title: "Exclusive Life Magazine",
-      subtitle: "Featured in the luxury lifestyle magazine",
-      instagramButton: "View on Instagram",
-      magazineButton: "Read Magazine",
-    },
+  },
+  magazine: {
+    badge: "In the Media",
+    titleLine1: "Featured in",
+    titleLine2: "Luxury Media",
+    description: "Recognized by international lifestyle, wellness, and health publications.",
+    readButton: "Read More",
+    items: [
+      {
+        title: "Exclusive Life Magazine 24",
+        subtitle: "Featured in the luxury lifestyle magazine",
+      },
+      {
+        title: "Nutrition, Training, and Longevity",
+        subtitle: "A comprehensive approach to living better",
+      },
+      {
+        title: "Exclusive Life Magazine 30",
+        subtitle: "Special edition featuring Cayetana Grande de España · Pages 206-207",
+      },
+    ],
   },
   brands: {
     badge: "Collaborations",

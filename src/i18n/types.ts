@@ -29,6 +29,12 @@ export interface Translations {
     statsSuccess: string
     statsSuccessLabel: string
   }
+  gallery: {
+    badge: string
+    titleLine1: string
+    titleLine2: string
+    description: string
+  }
   services: {
     badge: string
     titleLine1: string
@@ -45,6 +51,17 @@ export interface Translations {
     titleLine2: string
     subtitle: string
     certifications: string[]
+  }
+  magazine: {
+    badge: string
+    titleLine1: string
+    titleLine2: string
+    description: string
+    readButton: string
+    items: Array<{
+      title: string
+      subtitle: string
+    }>
   }
   brands: {
     badge: string
