@@ -1,9 +1,11 @@
+import { useEffect, useRef, useState } from "react"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel"
 import { useTranslation } from "@/contexts/language-context"
 
@@ -12,9 +14,24 @@ const GALLERY_IMAGES = Array.from(
   (_, i) => `/gallery/trainer-${String(i + 1).padStart(2, "0")}.jpg`,
 )
 
+const AUTOPLAY_INTERVAL_MS = 3500
+
 export function TrainerGallery() {
   const { t } = useTranslation()
   const total = GALLERY_IMAGES.length
+  const [api, setApi] = useState<CarouselApi>()
+  const isHovering = useRef(false)
+
+  useEffect(() => {
+    if (!api) return
+
+    const interval = setInterval(() => {
+      if (isHovering.current) return
+      api.scrollNext()
+    }, AUTOPLAY_INTERVAL_MS)
+
+    return () => clearInterval(interval)
+  }, [api])
 
   return (
     <section className="relative overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32 bg-black text-white">
@@ -36,7 +53,17 @@ export function TrainerGallery() {
           <p className="text-gray-400 leading-relaxed text-pretty">{t.gallery.description}</p>
         </div>
 
-        <Carousel opts={{ loop: true, align: "start" }} className="max-w-6xl mx-auto">
+        <Carousel
+          opts={{ loop: true, align: "start" }}
+          setApi={setApi}
+          className="group/carousel max-w-6xl mx-auto"
+          onMouseEnter={() => {
+            isHovering.current = true
+          }}
+          onMouseLeave={() => {
+            isHovering.current = false
+          }}
+        >
           <CarouselContent className="-ml-4 sm:-ml-6">
             {GALLERY_IMAGES.map((image, index) => (
               <CarouselItem key={index} className="pl-4 sm:pl-6 basis-[78%] sm:basis-1/2 lg:basis-1/3">
@@ -56,10 +83,12 @@ export function TrainerGallery() {
             ))}
           </CarouselContent>
 
-          <div className="flex items-center justify-center gap-4 mt-8 sm:mt-10">
-            <CarouselPrevious className="static translate-y-0 left-auto right-auto rounded-none size-11 border-white/30 bg-transparent text-white hover:bg-white hover:text-black" />
-            <CarouselNext className="static translate-y-0 left-auto right-auto rounded-none size-11 border-white/30 bg-transparent text-white hover:bg-white hover:text-black" />
-          </div>
+          <CarouselPrevious
+            className="hidden sm:flex left-2 lg:-left-5 top-1/2 -translate-y-1/2 rounded-none size-10 lg:size-11 border-white/30 bg-black/40 backdrop-blur-sm text-white opacity-0 group-hover/carousel:opacity-100 hover:bg-white hover:text-black transition-opacity"
+          />
+          <CarouselNext
+            className="hidden sm:flex right-2 lg:-right-5 top-1/2 -translate-y-1/2 rounded-none size-10 lg:size-11 border-white/30 bg-black/40 backdrop-blur-sm text-white opacity-0 group-hover/carousel:opacity-100 hover:bg-white hover:text-black transition-opacity"
+          />
         </Carousel>
       </div>
     </section>
