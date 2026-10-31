@@ -212,4 +212,11 @@ export interface Translations {
     sendEmail: string
     copyright: string
   }
+  payment: {
+    successTitle: string
+    successBody: string
+    cancelTitle: string
+    cancelBody: string
+    backHome: string
+  }
 }

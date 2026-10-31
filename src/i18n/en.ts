@@ -385,4 +385,11 @@ export const en: Translations = {
     sendEmail: "Send Email",
     copyright: "Jesus Torres Training. All rights reserved.",
   },
+  payment: {
+    successTitle: "Payment received!",
+    successBody: "Thanks for your purchase. You'll receive your plan confirmation by email shortly.",
+    cancelTitle: "Payment cancelled",
+    cancelBody: "The payment wasn't completed. You can try again whenever you'd like.",
+    backHome: "Back to home",
+  },
 }
