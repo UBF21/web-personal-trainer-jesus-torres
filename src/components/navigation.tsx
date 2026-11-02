@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitch } from "@/components/language-switch"
 import { useTranslation } from "@/contexts/language-context"
+import { useAuth } from "@/contexts/auth-context"
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -13,6 +14,7 @@ export function Navigation() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+  const { user } = useAuth()
 
   // Si no estamos en home, siempre mostrar navbar con fondo
   const isHomePage = location.pathname === "/"
@@ -97,6 +99,13 @@ export function Navigation() {
             >
               {t.nav.contact}
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(user ? "/panel" : "/login")}
+              className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+            >
+              {user ? t.auth.myPanel : t.nav.login}
+            </Button>
             <LanguageSwitch />
           </div>
 
@@ -144,6 +153,16 @@ export function Navigation() {
               className="w-full bg-white text-black hover:bg-gray-200"
             >
               {t.nav.contact}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsMobileMenuOpen(false)
+                navigate(user ? "/panel" : "/login")
+              }}
+              className="w-full border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+            >
+              {user ? t.auth.myPanel : t.nav.login}
             </Button>
             <div className="flex justify-center pt-2">
               <LanguageSwitch />

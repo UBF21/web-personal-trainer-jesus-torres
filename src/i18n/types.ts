@@ -6,6 +6,7 @@ export interface Translations {
     plans: string
     recipes: string
     contact: string
+    login: string
   }
   hero: {
     titleLine1: string
@@ -106,6 +107,33 @@ export interface Translations {
       label: string
       values: (boolean | string)[]
     }>
+  }
+  auth: {
+    title: string
+    subtitle: string
+    email: string
+    password: string
+    submit: string
+    back: string
+    unavailable: string
+    tabLogin: string
+    tabRegister: string
+    registerTitle: string
+    registerSubtitle: string
+    name: string
+    confirmPassword: string
+    registerSubmit: string
+    passwordMismatch: string
+    imageTagline: string
+    registerTagline: string
+    googleLogin: string
+    googleRegister: string
+    or: string
+    identifier: string
+    invalidCredentials: string
+    userExists: string
+    demoTitle: string
+    myPanel: string
   }
   contact: {
     badge: string
