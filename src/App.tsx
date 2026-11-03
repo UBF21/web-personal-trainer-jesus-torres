@@ -34,13 +34,12 @@ function App() {
   }, [])
 
   if (maintenance === null) return null
-  if (maintenance) {
-    return <MaintenancePage />
-  }
 
+  // El mantenimiento solo bloquea las páginas públicas — /login y /panel
+  // quedan siempre accesibles, si no nadie podría entrar a apagarlo.
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={maintenance ? <MaintenancePage /> : <HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/panel" element={<PanelLayout />}>
         <Route index element={<PanelOverview />} />
@@ -55,8 +54,8 @@ function App() {
         <Route path="usuarios" element={<RequireRole roles={["webmaster"]}><WebmasterUsers /></RequireRole>} />
         <Route path="sitio" element={<RequireRole roles={["webmaster"]}><WebmasterSite /></RequireRole>} />
       </Route>
-      <Route path="/recetas" element={<RecetasPage />} />
-      <Route path="/recetas/:id" element={<RecipeDetailPage />} />
+      <Route path="/recetas" element={maintenance ? <MaintenancePage /> : <RecetasPage />} />
+      <Route path="/recetas/:id" element={maintenance ? <MaintenancePage /> : <RecipeDetailPage />} />
       <Route path="/pago/exito" element={<PaymentSuccessPage />} />
       <Route path="/pago/cancelado" element={<PaymentCancelledPage />} />
     </Routes>
