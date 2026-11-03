@@ -330,7 +330,9 @@ export const api = {
       return { success: true, data: mapPendingRow(data) }
     },
     approvePending: async (id: string): Promise<ApiResponse<ApiClient>> => {
-      const { data, error } = await supabase.rpc("approve_pending_subscription", { pending_id: id }).single()
+      // La función devuelve un único registro "clients" (no setof), así que
+      // PostgREST ya lo entrega sin envolver en un arreglo — sin .single().
+      const { data, error } = await supabase.rpc("approve_pending_subscription", { pending_id: id })
       if (error || !data) return { success: false, error: error?.message || "No se pudo aprobar la suscripción" }
       return { success: true, data: mapClientRow(data) }
     },
