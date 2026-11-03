@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react"
 import { Routes, Route } from "react-router-dom"
+import { api } from "@/config/api"
 import HomePage from "./pages/home"
 import RecetasPage from "./pages/recetas"
 import RecipeDetailPage from "./pages/recipe-detail"
@@ -16,10 +18,23 @@ import MaintenancePage from "./pages/maintenance"
 import PaymentSuccessPage from "./pages/payment-success"
 import PaymentCancelledPage from "./pages/payment-cancelled"
 
-const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === "true"
-
 function App() {
-  if (isMaintenanceMode) {
+  // Null mientras se confirma el valor real en Supabase — evita el
+  // parpadeo de mostrar el sitio normal un instante antes de bloquearlo.
+  const [maintenance, setMaintenance] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let active = true
+    api.settings.getMaintenanceMode().then((res) => {
+      if (active) setMaintenance(res.success ? !!res.data : false)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (maintenance === null) return null
+  if (maintenance) {
     return <MaintenancePage />
   }
 

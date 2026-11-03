@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ROLE_LABEL, type Role } from "@/contexts/auth-context"
+import { api } from "@/config/api"
+import { toast } from "@/hooks/use-toast"
 import { CLIENTS, SITE_SECTIONS } from "@/lib/mock-data"
 import { MockNotice, PageHeader } from "./panel-ui"
 
@@ -97,7 +99,35 @@ export function WebmasterUsers() {
 
 export function WebmasterSite() {
   const [maintenance, setMaintenance] = useState(false)
+  const [loadingMaintenance, setLoadingMaintenance] = useState(true)
+  const [savingMaintenance, setSavingMaintenance] = useState(false)
   const [sections, setSections] = useState(SITE_SECTIONS)
+
+  useEffect(() => {
+    api.settings.getMaintenanceMode().then((res) => {
+      if (res.success) setMaintenance(!!res.data)
+      setLoadingMaintenance(false)
+    })
+  }, [])
+
+  async function handleMaintenanceToggle(checked: boolean) {
+    setMaintenance(checked)
+    setSavingMaintenance(true)
+    const res = await api.settings.setMaintenanceMode(checked)
+    setSavingMaintenance(false)
+
+    if (!res.success) {
+      setMaintenance(!checked)
+      toast({
+        title: "No se pudo actualizar el modo mantenimiento",
+        description: res.error,
+        variant: "destructive",
+      })
+      return
+    }
+
+    toast({ title: checked ? "Modo mantenimiento activado" : "Modo mantenimiento desactivado" })
+  }
 
   const toggle = (id: string) =>
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s)))
@@ -112,7 +142,12 @@ export function WebmasterSite() {
             <p className="font-semibold">Modo mantenimiento</p>
             <p className="text-sm text-muted-foreground">Muestra una página de mantenimiento a los visitantes.</p>
           </div>
-          <Switch checked={maintenance} onCheckedChange={setMaintenance} aria-label="Modo mantenimiento" />
+          <Switch
+            checked={maintenance}
+            onCheckedChange={handleMaintenanceToggle}
+            disabled={loadingMaintenance || savingMaintenance}
+            aria-label="Modo mantenimiento"
+          />
         </CardContent>
       </Card>
 
@@ -128,9 +163,11 @@ export function WebmasterSite() {
               <Switch checked={s.visible} onCheckedChange={() => toggle(s.id)} aria-label={s.name} />
             </div>
           ))}
+          <p className="pt-1 text-xs text-muted-foreground">
+            Maqueta: estos interruptores todavía no ocultan nada en la web real.
+          </p>
         </CardContent>
       </Card>
-      <MockNotice />
     </>
   )
 }

@@ -342,4 +342,23 @@ export const api = {
       return { success: true }
     },
   },
+  settings: {
+    getMaintenanceMode: async (): Promise<ApiResponse<boolean>> => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("maintenance_mode")
+        .eq("id", "default")
+        .maybeSingle()
+      if (error) return { success: false, error: error.message }
+      return { success: true, data: data?.maintenance_mode ?? false }
+    },
+    setMaintenanceMode: async (enabled: boolean): Promise<ApiResponse<boolean>> => {
+      const { error } = await supabase
+        .from("site_settings")
+        .update({ maintenance_mode: enabled, updated_at: new Date().toISOString() })
+        .eq("id", "default")
+      if (error) return { success: false, error: error.message }
+      return { success: true, data: enabled }
+    },
+  },
 }
