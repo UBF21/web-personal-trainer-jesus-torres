@@ -1,20 +1,23 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import type { User } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
+import { API_URL } from "@/config/api"
 
-// MAQUETA: la autenticación es simulada y vive en localStorage. Se reemplaza por Supabase más adelante.
+// Login real con Supabase Auth. El rol vive en app_metadata (no lo puede
+// editar el usuario desde el cliente, a diferencia de user_metadata) — solo
+// se asigna desde el backend con la service_role key (ver /auth/register
+// y el script que crea cuentas de webmaster/administrador a mano).
 
 export type Role = "webmaster" | "administrador" | "cliente"
 
 export interface AuthUser {
+  /** = email; se mantiene el nombre de campo por compatibilidad con el resto del panel. */
   username: string
   name: string
   email: string
   role: Role
-}
-
-interface StoredUser extends AuthUser {
-  password: string
 }
 
 export const ROLE_LABEL: Record<Role, string> = {
@@ -23,105 +26,93 @@ export const ROLE_LABEL: Record<Role, string> = {
   cliente: "Cliente",
 }
 
-// Cuentas de demostración (usuario / contraseña)
-export const DEMO_ACCOUNTS: { username: string; password: string; role: Role }[] = [
-  { username: "webmaster", password: "webmaster", role: "webmaster" },
-  { username: "admin", password: "admin", role: "administrador" },
-  { username: "cliente", password: "cliente", role: "cliente" },
-]
-
-const SEED_USERS: StoredUser[] = [
-  { username: "webmaster", password: "webmaster", name: "Webmaster JT", email: "webmaster@jttraining.com", role: "webmaster" },
-  { username: "admin", password: "admin", name: "Jesús Torres", email: "admin@jttraining.com", role: "administrador" },
-  { username: "cliente", password: "cliente", name: "Carlos Mendoza", email: "cliente@jttraining.com", role: "cliente" },
-]
-
-const USERS_KEY = "jt-mock-users"
-const SESSION_KEY = "jt-mock-session"
-
-function readJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
-  }
-}
-
-function writeJson(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    // sin almacenamiento: la sesión solo dura mientras la página siga abierta
-  }
-}
-
-function loadUsers(): StoredUser[] {
-  const stored = readJson<StoredUser[]>(USERS_KEY, [])
-  const extra = stored.filter((u) => !SEED_USERS.some((s) => s.username === u.username))
-  return [...SEED_USERS, ...extra]
-}
-
 export type AuthResult = { ok: true } | { ok: false; error: "invalid" | "exists" }
 
 interface AuthContextValue {
   user: AuthUser | null
-  login: (identifier: string, password: string) => AuthResult
-  register: (name: string, email: string, password: string) => AuthResult
-  logout: () => void
+  loading: boolean
+  login: (email: string, password: string) => Promise<AuthResult>
+  register: (name: string, email: string, password: string) => Promise<AuthResult>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthResult>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-const toPublic = ({ password: _password, ...user }: StoredUser): AuthUser => user
+function mapSupabaseUser(user: User): AuthUser {
+  const role = (user.app_metadata?.role as Role | undefined) ?? "cliente"
+  const name = (user.user_metadata?.name as string | undefined) ?? user.email ?? ""
+  return { username: user.email ?? "", name, email: user.email ?? "", role }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => readJson<AuthUser | null>(SESSION_KEY, null))
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const startSession = useCallback((next: AuthUser) => {
-    setUser(next)
-    writeJson(SESSION_KEY, next)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+      setLoading(false)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+    })
+
+    return () => listener.subscription.unsubscribe()
   }, [])
 
-  const login = useCallback(
-    (identifier: string, password: string): AuthResult => {
-      const id = identifier.trim().toLowerCase()
-      const found = loadUsers().find(
-        (u) => (u.username.toLowerCase() === id || u.email.toLowerCase() === id) && u.password === password,
-      )
-      if (!found) return { ok: false, error: "invalid" }
-      startSession(toPublic(found))
-      return { ok: true }
-    },
-    [startSession],
-  )
+  const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    if (error) return { ok: false, error: "invalid" }
+    return { ok: true }
+  }, [])
 
-  // Todo registro nuevo es un cliente
+  // Todo registro nuevo es un cliente — el rol lo asigna el backend, nunca el navegador.
   const register = useCallback(
-    (name: string, email: string, password: string): AuthResult => {
-      const mail = email.trim().toLowerCase()
-      const users = loadUsers()
-      if (users.some((u) => u.email.toLowerCase() === mail || u.username.toLowerCase() === mail)) {
-        return { ok: false, error: "exists" }
+    async (name: string, email: string, password: string): Promise<AuthResult> => {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      })
+      const body = await res.json().catch(() => null)
+
+      if (!res.ok || !body?.success) {
+        return { ok: false, error: res.status === 409 ? "exists" : "invalid" }
       }
-      const created: StoredUser = { username: mail, password, name: name.trim(), email: mail, role: "cliente" }
-      writeJson(USERS_KEY, [...users.filter((u) => !SEED_USERS.includes(u)), created])
-      startSession(toPublic(created))
-      return { ok: true }
+
+      return login(email, password)
     },
-    [startSession],
+    [login],
   )
 
-  const logout = useCallback(() => {
-    setUser(null)
-    try {
-      localStorage.removeItem(SESSION_KEY)
-    } catch {
-      // nada que limpiar
-    }
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
+      if (!user) return { ok: false, error: "invalid" }
+
+      // Reautenticamos con la contraseña actual antes de permitir el cambio.
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      })
+      if (reauthError) return { ok: false, error: "invalid" }
+
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) return { ok: false, error: "invalid" }
+      return { ok: true }
+    },
+    [user],
+  )
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut()
   }, [])
 
-  const value = useMemo(() => ({ user, login, register, logout }), [user, login, register, logout])
+  const value = useMemo(
+    () => ({ user, loading, login, register, changePassword, logout }),
+    [user, loading, login, register, changePassword, logout],
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

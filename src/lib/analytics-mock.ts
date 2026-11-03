@@ -3,6 +3,15 @@
 
 import { type MockClient, PLANS } from "@/lib/mock-data"
 
+/** Hash determinista simple: el id real ahora es un uuid (string), no un número. */
+function hashId(id: string): number {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash)
+}
+
 export type Period = 7 | 30
 
 export interface DayPoint {
@@ -107,7 +116,7 @@ export function getPlanPopularity(planSelections: number, clients: MockClient[])
 }
 
 export interface FrequentUser {
-  id: number
+  id: string
   name: string
   plan: string
   /** Veces que inició sesión en el periodo. */
@@ -124,13 +133,14 @@ const LAST_ACCESS = ["Hoy", "Ayer", "Hace 2 días", "Hace 3 días", "Hace 4 día
 export function getUserActivity(clients: MockClient[], period: Period): FrequentUser[] {
   const scale = period / 30
   return clients.map((c) => {
-    const lastAccessDays = [0, 1, 2, 3, 4, 5, 6, 8, 12][(c.id * 5) % 9]
+    const h = hashId(c.id)
+    const lastAccessDays = [0, 1, 2, 3, 4, 5, 6, 8, 12][(h * 5) % 9]
     return {
       id: c.id,
       name: c.name,
       plan: c.plan,
-      logins: Math.max(1, Math.round((10 + ((c.id * 7) % 23)) * scale)),
-      sessions: Math.max(0, Math.round((4 + ((c.id * 3) % 11)) * scale)),
+      logins: Math.max(1, Math.round((10 + ((h * 7) % 23)) * scale)),
+      sessions: Math.max(0, Math.round((4 + ((h * 3) % 11)) * scale)),
       lastAccess: LAST_ACCESS.find((_, i) => [0, 1, 2, 3, 4, 5, 6, 8, 12][i] === lastAccessDays) ?? "Hoy",
       lastAccessDays,
     }

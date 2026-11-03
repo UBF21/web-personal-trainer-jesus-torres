@@ -9,14 +9,14 @@ import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useClients } from "@/contexts/clients-context"
 import { toast } from "@/hooks/use-toast"
-import { APPOINTMENTS, PLANS, type PendingSubscription } from "@/lib/mock-data"
+import { APPOINTMENTS, type PendingSubscription } from "@/lib/mock-data"
 import { MockNotice, PageHeader } from "./panel-ui"
 
 const STATUS_VARIANT = { Activo: "default", Nuevo: "secondary", Pausado: "outline" } as const
 
 type ClientsTab = "clientes" | "pendientes"
 
-const isPdf = (file: string) => file.toLowerCase().endsWith(".pdf")
+const isPdf = (file?: string) => !!file && file.toLowerCase().endsWith(".pdf")
 
 function VoucherDialog({
   item,
@@ -43,9 +43,18 @@ function VoucherDialog({
 
             {/* Vista previa del comprobante adjunto (en la maqueta es una imagen simulada) */}
             <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/50 text-muted-foreground">
-              {isPdf(item.voucher) ? <FileText className="h-10 w-10" /> : <FileImage className="h-10 w-10" />}
-              <span className="text-sm font-medium text-foreground">{item.voucher}</span>
-              <span className="text-xs">Comprobante de transferencia adjunto</span>
+              {item.voucher ? (
+                <>
+                  {isPdf(item.voucher) ? <FileText className="h-10 w-10" /> : <FileImage className="h-10 w-10" />}
+                  <span className="text-sm font-medium text-foreground">{item.voucher}</span>
+                  <span className="text-xs">Comprobante de transferencia adjunto</span>
+                </>
+              ) : (
+                <>
+                  <FileImage className="h-10 w-10" />
+                  <span className="text-xs">Todavía no envió el comprobante — revisá por correo.</span>
+                </>
+              )}
             </div>
 
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
@@ -59,11 +68,11 @@ function VoucherDialog({
               </div>
               <div>
                 <dt className="text-muted-foreground">Banco de origen</dt>
-                <dd className="font-medium">{item.bank}</dd>
+                <dd className="font-medium">{item.bank || "—"}</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">N.º de operación</dt>
-                <dd className="font-medium">{item.operation}</dd>
+                <dd className="font-medium">{item.operation || "—"}</dd>
               </div>
               <div className="col-span-2">
                 <dt className="text-muted-foreground">Enviado</dt>
@@ -255,15 +264,23 @@ export function AdminClients() {
     setApproving(item)
   }
 
-  const handleApprovalFinished = (item: PendingSubscription) => {
-    approve(item.id)
-    toast({ title: "Suscripción aprobada", description: `${item.name} ya es cliente del ${item.plan}.` })
+  const handleApprovalFinished = async (item: PendingSubscription) => {
+    const ok = await approve(item.id)
+    if (ok) {
+      toast({ title: "Suscripción aprobada", description: `${item.name} ya es cliente del ${item.plan}.` })
+    } else {
+      toast({ title: "No se pudo aprobar la suscripción", variant: "destructive" })
+    }
   }
 
-  const handleReject = (item: PendingSubscription) => {
-    reject(item.id)
+  const handleReject = async (item: PendingSubscription) => {
     setReviewing(null)
-    toast({ title: "Suscripción rechazada", description: `Se descartó la solicitud de ${item.name}.` })
+    const ok = await reject(item.id)
+    if (ok) {
+      toast({ title: "Suscripción rechazada", description: `Se descartó la solicitud de ${item.name}.` })
+    } else {
+      toast({ title: "No se pudo rechazar la solicitud", variant: "destructive" })
+    }
   }
 
   const tabs: { id: ClientsTab; label: string; count: number }[] = [
@@ -405,51 +422,12 @@ export function AdminClients() {
   )
 }
 
-export function AdminPlans() {
-  const { clients } = useClients()
-
-  return (
-    <>
-      <PageHeader title="Planes" description="Los mismos planes que se muestran en la web." />
-      <div className="grid items-stretch gap-4 lg:grid-cols-3">
-        {PLANS.map((p) => (
-          <Card key={p.id} className={p.popular ? "border-2 border-black" : ""}>
-            <CardHeader>
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-xl">{p.name}</CardTitle>
-                {p.popular && <Badge>Más popular</Badge>}
-              </div>
-              <p className="text-sm text-muted-foreground">{p.description}</p>
-              <p className="pt-2 text-4xl font-bold">
-                {p.price}€<span className="ml-2 text-sm font-normal text-muted-foreground">EUR</span>
-              </p>
-              <p className="text-sm text-muted-foreground">{p.duration}</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-2 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Badge variant="secondary">{clients.filter((c) => c.plan === p.name).length} clientes</Badge>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <MockNotice />
-    </>
-  )
-}
-
 export function AdminAgenda() {
   const days = Array.from(new Set(APPOINTMENTS.map((a) => a.day)))
 
   return (
     <>
-      <PageHeader title="Agenda" description="Sesiones programadas con tus clientes." />
+      <PageHeader title="Calendario" description="Sesiones programadas con tus clientes." />
       <div className="space-y-6">
         {days.map((day) => (
           <div key={day}>

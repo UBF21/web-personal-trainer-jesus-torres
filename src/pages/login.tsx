@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useTranslation } from "@/contexts/language-context"
-import { DEMO_ACCOUNTS, ROLE_LABEL, useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/contexts/auth-context"
 
 type Mode = "login" | "register"
 
@@ -22,7 +22,7 @@ function GoogleIcon() {
 
 export default function LoginPage() {
   const { t } = useTranslation()
-  const { user, login, register } = useAuth()
+  const { user, loading, login, register } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>("login")
   const [identifier, setIdentifier] = useState("")
@@ -31,6 +31,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [message, setMessage] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
   const isRegister = mode === "register"
 
@@ -40,35 +41,32 @@ export default function LoginPage() {
   }
 
   // Ya con sesión iniciada, /login lleva directo al panel
-  if (user) return <Navigate to="/panel" replace />
+  if (!loading && user) return <Navigate to="/panel" replace />
 
-  // MAQUETA: la autenticación es simulada (ver contexts/auth-context.tsx).
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitting(true)
     if (isRegister) {
       if (password !== confirm) {
         setMessage(t.auth.passwordMismatch)
+        setSubmitting(false)
         return
       }
-      const result = register(name, email, password)
+      const result = await register(name, email, password)
+      setSubmitting(false)
       if (!result.ok) {
-        setMessage(t.auth.userExists)
+        setMessage(result.error === "exists" ? t.auth.userExists : t.auth.invalidCredentials)
         return
       }
     } else {
-      const result = login(identifier, password)
+      const result = await login(identifier, password)
+      setSubmitting(false)
       if (!result.ok) {
         setMessage(t.auth.invalidCredentials)
         return
       }
     }
     navigate("/panel")
-  }
-
-  const fillDemo = (username: string, pass: string) => {
-    setIdentifier(username)
-    setPassword(pass)
-    setMessage("")
   }
 
   // Aún no hay backend de autenticación: el acceso con Google solo avisa que llegará pronto.
@@ -173,29 +171,14 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="mx-auto w-full max-w-sm space-y-5">
             <div className="space-y-2">
               <Label htmlFor="login-id">{t.auth.identifier}</Label>
-              <Input id="login-id" type="text" autoComplete="username" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+              <Input id="login-id" type="email" autoComplete="email" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">{t.auth.password}</Label>
               <Input id="login-password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full">{t.auth.submit}</Button>
+            <Button type="submit" disabled={submitting} className="w-full">{t.auth.submit}</Button>
             {googleButton(t.auth.googleLogin)}
-            <div className="space-y-2 rounded-xl border border-dashed border-border p-3">
-              <p className="text-center text-xs font-semibold text-muted-foreground">{t.auth.demoTitle}</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {DEMO_ACCOUNTS.map((a) => (
-                  <button
-                    key={a.username}
-                    type="button"
-                    onClick={() => fillDemo(a.username, a.password)}
-                    className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-black hover:text-white"
-                  >
-                    {ROLE_LABEL[a.role]} · {a.username}/{a.password}
-                  </button>
-                ))}
-              </div>
-            </div>
             {message && !isRegister && <p className="text-center text-sm text-muted-foreground">{message}</p>}
           </form>
         </div>
@@ -228,7 +211,7 @@ export default function LoginPage() {
               <Label htmlFor="reg-confirm">{t.auth.confirmPassword}</Label>
               <Input id="reg-confirm" type="password" autoComplete="new-password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full">{t.auth.registerSubmit}</Button>
+            <Button type="submit" disabled={submitting} className="w-full">{t.auth.registerSubmit}</Button>
             {googleButton(t.auth.googleRegister)}
             {message && isRegister && <p className="text-center text-sm text-muted-foreground">{message}</p>}
           </form>

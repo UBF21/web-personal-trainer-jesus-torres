@@ -8,11 +8,11 @@ import {
   Dumbbell,
   Globe,
   Home,
+  Images,
   LayoutDashboard,
   LogOut,
   Menu,
   ShieldCheck,
-  User,
   Users,
   X,
   type LucideIcon,
@@ -31,38 +31,42 @@ interface NavItem {
 const OVERVIEW: NavItem = { to: "/panel", label: "Resumen", icon: LayoutDashboard, end: true }
 // Administrador y webmaster: en lugar del resumen del cliente, el dashboard de la plataforma
 const DASHBOARD: NavItem = { to: "/panel", label: "Dashboard", icon: BarChart3, end: true }
-const PROFILE: NavItem = { to: "/panel/perfil", label: "Mi perfil", icon: User }
 
 const ADMIN_ITEMS: NavItem[] = [
+  // Oculto por ahora a pedido — la ruta /panel/agenda sigue activa, solo
+  // no aparece en el menú. Descomentar para volver a mostrarlo.
+  // { to: "/panel/agenda", label: "Calendario", icon: CalendarCheck },
   { to: "/panel/clientes", label: "Clientes", icon: Users },
   { to: "/panel/planes", label: "Planes", icon: ClipboardList },
-  { to: "/panel/agenda", label: "Agenda", icon: CalendarCheck },
+  { to: "/panel/galeria", label: "Galería", icon: Images },
 ]
 
 // El webmaster ve todo lo del administrador y además la gestión del sitio y de los usuarios.
+// "Mi perfil" ya no está acá — se accede tocando el bloque de nombre/avatar del header.
 const MENU: Record<Role, NavItem[]> = {
   cliente: [
     OVERVIEW,
     { to: "/panel/plan", label: "Mi plan", icon: Dumbbell },
     { to: "/panel/citas", label: "Mis citas", icon: CalendarDays },
-    PROFILE,
   ],
-  administrador: [DASHBOARD, ...ADMIN_ITEMS, PROFILE],
+  administrador: [DASHBOARD, ...ADMIN_ITEMS],
   webmaster: [
     DASHBOARD,
     { to: "/panel/usuarios", label: "Usuarios y roles", icon: ShieldCheck },
     { to: "/panel/sitio", label: "Sitio web", icon: Globe },
     ...ADMIN_ITEMS,
-    PROFILE,
   ],
 }
 
 export default function PanelLayout() {
-  const { user, logout } = useAuth()
+  const { user, loading, logout } = useAuth()
   const { pending } = useClients()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
+  // Mientras se confirma si ya hay sesión (p. ej. al recargar la página),
+  // no redirigir a /login todavía — si no, una sesión real se "cerraría" sola.
+  if (loading) return null
   if (!user) return <Navigate to="/login" replace />
 
   const items = MENU[user.role]
@@ -73,8 +77,8 @@ export default function PanelLayout() {
     .join("")
     .toUpperCase()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     navigate("/login")
   }
 
@@ -145,11 +149,11 @@ export default function PanelLayout() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="hidden md:block" />
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-muted-foreground hover:text-foreground">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Cerrar sesión</span>
-            </Button>
+          <button
+            type="button"
+            onClick={() => navigate("/panel/perfil")}
+            className="flex items-center gap-3 transition-opacity hover:opacity-70"
+          >
             <div className="text-right leading-tight">
               <p className="text-sm font-semibold text-foreground">{user.name}</p>
               <p className="text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
@@ -157,7 +161,7 @@ export default function PanelLayout() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
               {initials}
             </div>
-          </div>
+          </button>
         </header>
 
         <main className="p-4 md:p-8">

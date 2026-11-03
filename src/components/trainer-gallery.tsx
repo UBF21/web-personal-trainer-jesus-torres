@@ -7,20 +7,44 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel"
-import { useTranslation } from "@/contexts/language-context"
+import { api as backendApi } from "@/config/api"
 
-const GALLERY_IMAGES = Array.from(
+// Respaldo si todavía no se subió ninguna foto desde el panel, o si la API
+// no responde — así la sección nunca se queda vacía.
+const FALLBACK_IMAGES = Array.from(
   { length: 24 },
   (_, i) => `/gallery/trainer-${String(i + 1).padStart(2, "0")}.jpg`,
 )
 
 const AUTOPLAY_INTERVAL_MS = 3500
 
-export function TrainerGallery() {
-  const { t } = useTranslation()
-  const total = GALLERY_IMAGES.length
+interface TrainerGalleryProps {
+  // Si se pasa (p. ej. la vista previa en el panel), se usa tal cual y no
+  // se hace fetch propio — así la vista previa siempre refleja el estado
+  // en memoria del admin, sin esperar a guardar.
+  images?: string[]
+}
+
+export function TrainerGallery({ images: controlledImages }: TrainerGalleryProps = {}) {
+  const [fetchedImages, setFetchedImages] = useState<string[]>(FALLBACK_IMAGES)
+  const images = controlledImages ?? fetchedImages
   const [api, setApi] = useState<CarouselApi>()
   const isHovering = useRef(false)
+
+  useEffect(() => {
+    if (controlledImages) return
+
+    backendApi.images
+      .getByCategory("gallery", true)
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setFetchedImages(res.data.map((img) => img.url))
+        }
+      })
+      .catch(() => {
+        // sin conexión al backend: se queda con las fotos de respaldo
+      })
+  }, [controlledImages])
 
   useEffect(() => {
     if (!api) return
@@ -40,19 +64,6 @@ export function TrainerGallery() {
       <div className="absolute -z-0 bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
 
       <div className="relative container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14 space-y-4">
-          <div className="inline-block">
-            <span className="text-xs font-bold tracking-widest text-white uppercase border border-white/30 px-3 py-1">
-              {t.gallery.badge}
-            </span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-white">
-            {t.gallery.titleLine1}
-            <span className="block text-gray-400">{t.gallery.titleLine2}</span>
-          </h2>
-          <p className="text-gray-400 leading-relaxed text-pretty">{t.gallery.description}</p>
-        </div>
-
         <Carousel
           opts={{ loop: true, align: "start" }}
           setApi={setApi}
@@ -65,7 +76,7 @@ export function TrainerGallery() {
           }}
         >
           <CarouselContent className="-ml-4 sm:-ml-6">
-            {GALLERY_IMAGES.map((image, index) => (
+            {images.map((image, index) => (
               <CarouselItem key={index} className="pl-4 sm:pl-6 basis-[78%] sm:basis-1/2 lg:basis-1/3">
                 <div className="group relative aspect-[3/4] overflow-hidden border border-white/10">
                   <img
@@ -75,9 +86,6 @@ export function TrainerGallery() {
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <span className="absolute bottom-4 left-4 text-xs font-bold tracking-widest text-white/80">
-                    {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-                  </span>
                 </div>
               </CarouselItem>
             ))}

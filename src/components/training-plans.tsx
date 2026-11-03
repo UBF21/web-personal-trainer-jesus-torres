@@ -1,11 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { Check, Building2, Copy, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Check, Building2, Copy, Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslation } from "@/contexts/language-context"
+import { useClients } from "@/contexts/clients-context"
+import { api as backendApi, type Plan } from "@/config/api"
 
 const PRICES = [400, 1200, 3000]
 const POPULAR_INDEX = 1
@@ -18,16 +22,54 @@ interface SelectedPlanData {
 export function TrainingPlans() {
   const [selectedPlanData, setSelectedPlanData] = useState<SelectedPlanData | null>(null)
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
+  const { requestPlan } = useClients()
+  const [backendPlans, setBackendPlans] = useState<Plan[] | null>(null)
+  const [requestName, setRequestName] = useState("")
+  const [requestEmail, setRequestEmail] = useState("")
+  const [requestSubmitting, setRequestSubmitting] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
 
-  const plans = t.plans.items.map((item, i) => ({
+  useEffect(() => {
+    backendApi.plans
+      .getAll()
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) setBackendPlans(res.data)
+      })
+      .catch(() => {
+        // sin conexión al backend: se queda con los planes fijos de respaldo
+      })
+  }, [])
+
+  // Respaldo: los planes fijos de i18n, por si el backend no responde o
+  // todavía no tiene ningún plan cargado.
+  const fallbackPlans = t.plans.items.map((item, i) => ({
     ...item,
     price: PRICES[i],
     popular: i === POPULAR_INDEX,
   }))
 
+  const plans = backendPlans
+    ? backendPlans.map((p) => ({
+        name: (language === "en" && p.nameEn) || p.name,
+        duration: (language === "en" && p.durationEn) || p.duration,
+        description: (language === "en" && p.descriptionEn) || p.description,
+        features: (language === "en" && p.featuresEn) || p.features,
+        price: p.price,
+        popular: p.popular,
+      }))
+    : fallbackPlans
+
+  // La vista de comparación en tabla usa filas fijas (t.plans.tableRows) que
+  // asumen exactamente 3 planes en ese orden — si el admin agrega/quita
+  // planes, la ocultamos para no mostrar una tabla desalineada.
+  const canShowTable = plans.length === t.plans.tableRows[0]?.values.length
+
   const handlePlanSelect = (planName: string, price: number) => {
     setSelectedPlanData({ name: planName, price })
+    setRequestName("")
+    setRequestEmail("")
+    setRequestSent(false)
   }
 
   const closeModal = () => {
@@ -36,6 +78,21 @@ export function TrainingPlans() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
+  }
+
+  async function handleRequestSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!selectedPlanData) return
+
+    setRequestSubmitting(true)
+    const ok = await requestPlan({
+      name: requestName.trim(),
+      email: requestEmail.trim(),
+      plan: selectedPlanData.name,
+      amount: selectedPlanData.price,
+    })
+    setRequestSubmitting(false)
+    if (ok) setRequestSent(true)
   }
 
   return (
@@ -54,26 +111,28 @@ export function TrainingPlans() {
           </p>
         </div>
 
-        <div className="flex justify-center mb-8 sm:mb-10 md:mb-12">
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")} className="w-auto">
-            <TabsList className="bg-white border border-gray-300">
-              <TabsTrigger
-                value="cards"
-                className="data-[state=active]:bg-black data-[state=active]:text-white"
-              >
-                {t.plans.viewCards}
-              </TabsTrigger>
-              <TabsTrigger
-                value="table"
-                className="data-[state=active]:bg-black data-[state=active]:text-white"
-              >
-                {t.plans.viewTable}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        {canShowTable && (
+          <div className="flex justify-center mb-8 sm:mb-10 md:mb-12">
+            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")} className="w-auto">
+              <TabsList className="bg-white border border-gray-300">
+                <TabsTrigger
+                  value="cards"
+                  className="data-[state=active]:bg-black data-[state=active]:text-white"
+                >
+                  {t.plans.viewCards}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="table"
+                  className="data-[state=active]:bg-black data-[state=active]:text-white"
+                >
+                  {t.plans.viewTable}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
 
-        {viewMode === "cards" && (
+        {(viewMode === "cards" || !canShowTable) && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-8 max-w-7xl mx-auto">
             {plans.map((plan, index) => (
               <Card
@@ -130,7 +189,7 @@ export function TrainingPlans() {
           </div>
         )}
 
-        {viewMode === "table" && (
+        {viewMode === "table" && canShowTable && (
           <div className="max-w-5xl mx-auto overflow-x-auto bg-white border border-gray-200">
             <table className="w-full text-sm">
               <thead>
@@ -232,6 +291,40 @@ export function TrainingPlans() {
                 <p className="text-sm text-gray-600 mt-2">Transferencia Bancaria</p>
               </div>
 
+              {!requestSent ? (
+                <form onSubmit={handleRequestSubmit} className="space-y-3">
+                  <p className="text-sm text-gray-600 text-center">
+                    Déjanos tus datos para registrar tu solicitud de este plan:
+                  </p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="plan-request-name">Nombre</Label>
+                    <Input
+                      id="plan-request-name"
+                      value={requestName}
+                      onChange={(e) => setRequestName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="plan-request-email">Correo</Label>
+                    <Input
+                      id="plan-request-email"
+                      type="email"
+                      value={requestEmail}
+                      onChange={(e) => setRequestEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" disabled={requestSubmitting} className="w-full gap-2 bg-black text-white hover:bg-gray-800">
+                    {requestSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Registrar solicitud
+                  </Button>
+                </form>
+              ) : (
+              <>
+              <p className="text-sm font-semibold text-green-700 text-center">
+                ✓ Solicitud registrada — ahora realiza la transferencia:
+              </p>
               <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
                 <div>
                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">IBAN</label>
@@ -270,6 +363,8 @@ export function TrainingPlans() {
               <p className="text-xs text-gray-500 text-center">
                 Una vez recibido el comprobante, confirmaremos tu plan en un máximo de 24h
               </p>
+              </>
+              )}
 
               <button
                 onClick={closeModal}

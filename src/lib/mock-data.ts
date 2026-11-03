@@ -2,7 +2,7 @@
 import { es } from "@/i18n"
 
 export interface MockClient {
-  id: number
+  id: string
   name: string
   email: string
   plan: string
@@ -11,15 +11,18 @@ export interface MockClient {
   progress: number
 }
 
+// Usada hoy solo por la lista de "Usuarios y roles" del webmaster (ver
+// webmaster-pages.tsx) — los clientes reales ahora vienen del backend
+// (ver clients-context.tsx), esto quedó como contenido de ejemplo.
 export const CLIENTS: MockClient[] = [
-  { id: 1, name: "Carlos Mendoza", email: "cliente@jttraining.com", plan: "Plan Avanzado", status: "Activo", since: "Sep 2026", progress: 17 },
-  { id: 2, name: "Laura Gómez", email: "laura.gomez@mail.com", plan: "Plan VIP", status: "Activo", since: "Ago 2026", progress: 25 },
-  { id: 3, name: "Andrés Ruiz", email: "andres.ruiz@mail.com", plan: "Plan Básico", status: "Activo", since: "Oct 2026", progress: 33 },
-  { id: 4, name: "Marta Vidal", email: "marta.vidal@mail.com", plan: "Plan Avanzado", status: "Pausado", since: "Jun 2026", progress: 42 },
-  { id: 5, name: "Diego Fernández", email: "diego.f@mail.com", plan: "Plan VIP", status: "Activo", since: "Jul 2026", progress: 33 },
-  { id: 6, name: "Sofía Ramírez", email: "sofia.r@mail.com", plan: "Plan Básico", status: "Nuevo", since: "Nov 2026", progress: 5 },
-  { id: 7, name: "Javier Prieto", email: "javier.prieto@mail.com", plan: "Plan Avanzado", status: "Activo", since: "Oct 2026", progress: 8 },
-  { id: 8, name: "Elena Castro", email: "elena.castro@mail.com", plan: "Plan Básico", status: "Nuevo", since: "Nov 2026", progress: 8 },
+  { id: "1", name: "Carlos Mendoza", email: "cliente@jttraining.com", plan: "Plan Avanzado", status: "Activo", since: "Sep 2026", progress: 17 },
+  { id: "2", name: "Laura Gómez", email: "laura.gomez@mail.com", plan: "Plan VIP", status: "Activo", since: "Ago 2026", progress: 25 },
+  { id: "3", name: "Andrés Ruiz", email: "andres.ruiz@mail.com", plan: "Plan Básico", status: "Activo", since: "Oct 2026", progress: 33 },
+  { id: "4", name: "Marta Vidal", email: "marta.vidal@mail.com", plan: "Plan Avanzado", status: "Pausado", since: "Jun 2026", progress: 42 },
+  { id: "5", name: "Diego Fernández", email: "diego.f@mail.com", plan: "Plan VIP", status: "Activo", since: "Jul 2026", progress: 33 },
+  { id: "6", name: "Sofía Ramírez", email: "sofia.r@mail.com", plan: "Plan Básico", status: "Nuevo", since: "Nov 2026", progress: 5 },
+  { id: "7", name: "Javier Prieto", email: "javier.prieto@mail.com", plan: "Plan Avanzado", status: "Activo", since: "Oct 2026", progress: 8 },
+  { id: "8", name: "Elena Castro", email: "elena.castro@mail.com", plan: "Plan Básico", status: "Nuevo", since: "Nov 2026", progress: 8 },
 ]
 
 export interface MockPlan {
@@ -123,53 +126,19 @@ export const SITE_SECTIONS: { id: string; name: string; visible: boolean }[] = [
 ]
 
 export interface PendingSubscription {
-  id: number
+  id: string
   name: string
   email: string
   plan: string
   amount: number
   requestedAt: string
-  bank: string
-  operation: string
-  voucher: string
+  // Hoy el formulario público solo pide nombre + correo + plan elegido,
+  // así que estos quedan vacíos en una solicitud real — el admin confirma
+  // el resto a mano cuando llega el comprobante por correo.
+  bank?: string
+  operation?: string
+  voucher?: string
 }
-
-// Personas que compraron un plan por transferencia bancaria y ya adjuntaron su comprobante
-export const PENDING_SUBSCRIPTIONS: PendingSubscription[] = [
-  {
-    id: 101,
-    name: "Pablo Nieto",
-    email: "pablo.nieto@mail.com",
-    plan: "Plan VIP",
-    amount: 3000,
-    requestedAt: "Hoy, 10:42",
-    bank: "BBVA",
-    operation: "TRF-2026-110231",
-    voucher: "comprobante-pablo-nieto.jpg",
-  },
-  {
-    id: 102,
-    name: "Irene Soler",
-    email: "irene.soler@mail.com",
-    plan: "Plan Avanzado",
-    amount: 1200,
-    requestedAt: "Hoy, 08:15",
-    bank: "CaixaBank",
-    operation: "TRF-2026-110198",
-    voucher: "voucher-irene.png",
-  },
-  {
-    id: 103,
-    name: "Raúl Campos",
-    email: "raul.campos@mail.com",
-    plan: "Plan Básico",
-    amount: 400,
-    requestedAt: "Ayer, 19:30",
-    bank: "Santander",
-    operation: "TRF-2026-109874",
-    voucher: "transferencia-raul.pdf",
-  },
-]
 
 export interface TrainingProgram {
   goal: string
@@ -213,6 +182,15 @@ export const PHASE_NAMES = PHASES.map((p) => p.name)
 const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
 const SESSIONS_PER_WEEK = [2, 2, 3] // Básico, Avanzado, VIP
 
+/** Hash determinista simple: el id real es un uuid (string), no un número. */
+function hashId(id: string): number {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash)
+}
+
 /** Suma meses a una etiqueta tipo "Sep 2026". */
 function addMonths(label: string, n: number): string {
   const [m, y] = label.split(" ")
@@ -225,6 +203,7 @@ function addMonths(label: string, n: number): string {
 // MAQUETA: el detalle se deriva de forma determinista del cliente (mismo cliente, mismos números).
 // Con Supabase saldrá de las tablas de suscripciones, sesiones y mediciones.
 export function getClientDetail(client: MockClient): ClientDetail {
+  const h = hashId(client.id)
   const plan = PLANS.find((p) => p.name === client.plan)
   const weeks = plan ? Math.round(plan.months * 4.33) : 13
   const perWeek = plan ? SESSIONS_PER_WEEK[PLANS.indexOf(plan)] : 2
@@ -232,14 +211,14 @@ export function getClientDetail(client: MockClient): ClientDetail {
   const weeksDone = Math.round((client.progress / 100) * weeks)
   const sessionsDone = Math.round((client.progress / 100) * sessionsTotal)
 
-  const startWeight = 70 + ((client.id * 7) % 25)
-  const goalWeight = startWeight - (6 + (client.id % 5))
+  const startWeight = 70 + ((h * 7) % 25)
+  const goalWeight = startWeight - (6 + (h % 5))
   const currentWeight = Math.round((startWeight - ((startWeight - goalWeight) * client.progress) / 100) * 10) / 10
 
   const points = 7
   const weightSeries = Array.from({ length: points }, (_, i) => {
     const t = i / (points - 1)
-    const wiggle = Math.sin(client.id * 3 + i * 1.7) * 0.4
+    const wiggle = Math.sin(h * 3 + i * 1.7) * 0.4
     const kg = startWeight - (startWeight - currentWeight) * t + (i === 0 || i === points - 1 ? 0 : wiggle)
     return { label: i === points - 1 ? "Hoy" : `Sem ${i + 1}`, kg: Math.round(kg * 10) / 10 }
   })
@@ -250,14 +229,14 @@ export function getClientDetail(client: MockClient): ClientDetail {
   const recentSessions = dates.slice(0, Math.min(dates.length, sessionsDone)).map((date, i) => ({
     id: i,
     date,
-    type: focuses[(client.id + i) % focuses.length],
-    status: (client.id % 4 === 0 && i === 2 ? "Falta" : "Completada") as "Completada" | "Falta",
+    type: focuses[(h + i) % focuses.length],
+    status: (h % 4 === 0 && i === 2 ? "Falta" : "Completada") as "Completada" | "Falta",
   }))
 
   const phaseIdx = client.progress < 25 ? 0 : client.progress < 60 ? 1 : 2
   const program: TrainingProgram = {
-    goal: GOALS[client.id % GOALS.length],
-    level: client.progress < 25 ? LEVELS[(client.id % 2)] : LEVELS[1 + (client.id % 2)],
+    goal: GOALS[h % GOALS.length],
+    level: client.progress < 25 ? LEVELS[(h % 2)] : LEVELS[1 + (h % 2)],
     perWeek,
     phase: PHASES[phaseIdx].name,
     phaseNumber: phaseIdx + 1,
@@ -273,8 +252,8 @@ export function getClientDetail(client: MockClient): ClientDetail {
     weeksDone,
     sessionsTotal,
     sessionsDone,
-    attendance: sessionsDone > 0 ? 80 + ((client.id * 3) % 19) : null,
-    streakWeeks: Math.min(weeksDone, 3 + (client.id % 6)),
+    attendance: sessionsDone > 0 ? 80 + ((h * 3) % 19) : null,
+    streakWeeks: Math.min(weeksDone, 3 + (h % 6)),
     startWeight,
     currentWeight,
     goalWeight,
