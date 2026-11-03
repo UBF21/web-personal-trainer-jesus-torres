@@ -97,7 +97,7 @@ function VoucherDialog({
   )
 }
 
-// MAQUETA: los 3 pasos son una animación. Con Supabase se ejecutarán de verdad y en este orden:
+// Los 3 pasos ya son reales (vía la Edge Function approve-subscription):
 // 1) marcar la suscripción como aprobada, 2) crear el usuario de Auth con rol cliente, 3) enviar el correo con sus credenciales.
 const APPROVAL_STEPS: { icon: LucideIcon; title: string; doneTitle: string; detail: string }[] = [
   {
@@ -265,12 +265,19 @@ export function AdminClients() {
   }
 
   const handleApprovalFinished = async (item: PendingSubscription) => {
-    const ok = await approve(item.id)
-    if (ok) {
-      toast({ title: "Suscripción aprobada", description: `${item.name} ya es cliente del ${item.plan}.` })
-    } else {
+    const { ok, warning } = await approve(item.id)
+    if (!ok) {
       toast({ title: "No se pudo aprobar la suscripción", variant: "destructive" })
+      return
     }
+    if (warning) {
+      toast({ title: "Suscripción aprobada, con un detalle", description: warning, variant: "destructive" })
+      return
+    }
+    toast({
+      title: "Suscripción aprobada",
+      description: `${item.name} ya es cliente del ${item.plan} — le mandamos su acceso por correo.`,
+    })
   }
 
   const handleReject = async (item: PendingSubscription) => {

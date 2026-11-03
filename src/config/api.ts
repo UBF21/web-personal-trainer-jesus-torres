@@ -330,11 +330,15 @@ export const api = {
       return { success: true, data: mapPendingRow(data) }
     },
     approvePending: async (id: string): Promise<ApiResponse<ApiClient>> => {
-      // La función devuelve un único registro "clients" (no setof), así que
-      // PostgREST ya lo entrega sin envolver en un arreglo — sin .single().
-      const { data, error } = await supabase.rpc("approve_pending_subscription", { pending_id: id })
-      if (error || !data) return { success: false, error: error?.message || "No se pudo aprobar la suscripción" }
-      return { success: true, data: mapClientRow(data) }
+      // Edge Function (no una llamada directa a la tabla): crear la cuenta
+      // de acceso del cliente y mandar el correo requiere la service_role
+      // key, que no puede vivir en el navegador.
+      const { data, error } = await supabase.functions.invoke("approve-subscription", {
+        body: { pending_id: id },
+      })
+      if (error) return { success: false, error: error.message }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo aprobar la suscripción" }
+      return { success: true, data: mapClientRow(data.data), message: data.warning }
     },
     rejectPending: async (id: string): Promise<ApiResponse<null>> => {
       const { error } = await supabase.from("pending_subscriptions").delete().eq("id", id)

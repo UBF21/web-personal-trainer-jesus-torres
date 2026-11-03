@@ -29,7 +29,8 @@ interface ClientsContextValue {
   refresh: () => Promise<void>
   /** Alguien elige un plan en la web pública: crea una solicitud pendiente real. */
   requestPlan: (input: PendingSubscriptionInput) => Promise<boolean>
-  approve: (id: string) => Promise<boolean>
+  /** warning: la aprobación en sí funcionó, pero algo del correo/la cuenta no. */
+  approve: (id: string) => Promise<{ ok: boolean; warning?: string }>
   reject: (id: string) => Promise<boolean>
   /** Programa de entrenamiento a medida de cada cliente; sin entrada = aún no tiene uno. */
   programs: Record<string, TrainingProgram | undefined>
@@ -107,7 +108,7 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
     async (id: string) => {
       const res = await api.clients.approvePending(id)
       if (res.success) await refresh()
-      return res.success
+      return { ok: res.success, warning: res.success ? res.message : undefined }
     },
     [refresh],
   )
