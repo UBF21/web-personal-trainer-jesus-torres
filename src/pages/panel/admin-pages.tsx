@@ -265,13 +265,13 @@ export function AdminClients() {
   }
 
   const handleApprovalFinished = async (item: PendingSubscription) => {
-    const { ok, warning } = await approve(item.id)
+    const { ok, detail } = await approve(item.id)
     if (!ok) {
-      toast({ title: "No se pudo aprobar la suscripción", variant: "destructive" })
+      toast({ title: "No se pudo aprobar la suscripción", description: detail, variant: "destructive" })
       return
     }
-    if (warning) {
-      toast({ title: "Suscripción aprobada, con un detalle", description: warning, variant: "destructive" })
+    if (detail) {
+      toast({ title: "Suscripción aprobada, con un detalle", description: detail, variant: "destructive" })
       return
     }
     toast({
