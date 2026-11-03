@@ -313,21 +313,14 @@ export const api = {
       return { success: true, data: data.map(mapPendingRow) }
     },
     createPending: async (input: PendingSubscriptionInput): Promise<ApiResponse<PendingSubscription>> => {
-      const { data, error } = await supabase
-        .from("pending_subscriptions")
-        .insert({
-          name: input.name,
-          email: input.email,
-          plan: input.plan,
-          amount: input.amount,
-          bank: input.bank ?? null,
-          operation: input.operation ?? null,
-          voucher: input.voucher ?? null,
-        })
-        .select("*")
-        .single()
-      if (error || !data) return { success: false, error: error?.message || "No se pudo registrar la solicitud" }
-      return { success: true, data: mapPendingRow(data) }
+      // Edge Function (no un insert directo): además de guardar la
+      // solicitud, manda la confirmación al comprador y avisa al negocio
+      // por correo — eso necesita la API key de Resend, que no puede
+      // vivir en el navegador.
+      const { data, error } = await supabase.functions.invoke("request-subscription", { body: input })
+      if (error) return { success: false, error: error.message }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo registrar la solicitud" }
+      return { success: true, data: mapPendingRow(data.data), message: data.warning }
     },
     approvePending: async (id: string): Promise<ApiResponse<ApiClient>> => {
       // Edge Function (no una llamada directa a la tabla): crear la cuenta

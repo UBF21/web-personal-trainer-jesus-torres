@@ -11,7 +11,8 @@
 //
 // Deploy: pegar este archivo completo en Supabase Dashboard > Edge
 // Functions > Deploy a new function > nombre: "approve-subscription".
-// Secrets necesarios (Edge Functions > Manage secrets):
+// Secrets necesarios (Edge Functions > Secrets, son compartidos por todas
+// las funciones del proyecto):
 //   RESEND_API_KEY        — API key de Resend
 //   APPROVAL_EMAIL_FROM   — remitente verificado, ej. "JT Training <no-reply@tudominio.com>"
 //   PANEL_URL             — ej. "https://juliojesustorres.com" (opcional, hay un valor por defecto)
@@ -26,10 +27,18 @@ const PANEL_URL = Deno.env.get("PANEL_URL") ?? "https://juliojesustorres.com"
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
+// El navegador manda un preflight OPTIONS antes de cada invoke() — sin
+// estos headers, Supabase igual ejecuta la función pero el navegador
+// bloquea la respuesta antes de que el código de la app la vea.
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
   })
 }
 
@@ -77,6 +86,7 @@ async function sendApprovalEmail(to: string, name: string, plan: string, passwor
 }
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS_HEADERS })
   if (req.method !== "POST") return json({ success: false, error: "Method not allowed" }, 405)
 
   const authHeader = req.headers.get("Authorization")
