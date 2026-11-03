@@ -55,7 +55,13 @@ export default function LoginPage() {
       const result = await register(name, email, password)
       setSubmitting(false)
       if (!result.ok) {
-        setMessage(result.error === "exists" ? t.auth.userExists : t.auth.invalidCredentials)
+        setMessage(
+          result.error === "exists"
+            ? t.auth.userExists
+            : result.error === "confirm"
+              ? t.auth.confirmEmail
+              : t.auth.invalidCredentials,
+        )
         return
       }
     } else {

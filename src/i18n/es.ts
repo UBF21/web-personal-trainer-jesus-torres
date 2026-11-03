@@ -205,6 +205,7 @@ export const es: Translations = {
     identifier: "Correo electrónico",
     invalidCredentials: "Correo o contraseña incorrectos.",
     userExists: "Ya existe una cuenta con ese correo.",
+    confirmEmail: "Revisa tu correo y confirma tu cuenta antes de iniciar sesión.",
     demoTitle: "Cuentas de demostración",
     myPanel: "MI PANEL",
   },

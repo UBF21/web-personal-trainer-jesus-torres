@@ -132,6 +132,7 @@ export interface Translations {
     identifier: string
     invalidCredentials: string
     userExists: string
+    confirmEmail: string
     demoTitle: string
     myPanel: string
   }

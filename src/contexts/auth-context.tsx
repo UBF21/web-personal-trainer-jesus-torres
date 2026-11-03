@@ -3,7 +3,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import type { User } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
-import { API_URL } from "@/config/api"
 
 // Login real con Supabase Auth. El rol vive en app_metadata (no lo puede
 // editar el usuario desde el cliente, a diferencia de user_metadata) — solo
@@ -26,7 +25,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   cliente: "Cliente",
 }
 
-export type AuthResult = { ok: true } | { ok: false; error: "invalid" | "exists" }
+export type AuthResult = { ok: true } | { ok: false; error: "invalid" | "exists" | "confirm" }
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -68,23 +67,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true }
   }, [])
 
-  // Todo registro nuevo es un cliente — el rol lo asigna el backend, nunca el navegador.
+  // Todo registro nuevo queda sin rol en app_metadata — el navegador nunca
+  // puede fijarlo (solo el dashboard de Supabase o la Admin API pueden), así
+  // que mapSupabaseUser lo trata como "cliente" por defecto. Elevarlo a
+  // administrador/webmaster se hace a mano desde Supabase, nunca desde aquí.
   const register = useCallback(
     async (name: string, email: string, password: string): Promise<AuthResult> => {
-      const res = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { data: { name: name.trim() } },
       })
-      const body = await res.json().catch(() => null)
 
-      if (!res.ok || !body?.success) {
-        return { ok: false, error: res.status === 409 ? "exists" : "invalid" }
+      if (error) {
+        return { ok: false, error: error.message.toLowerCase().includes("already") ? "exists" : "invalid" }
       }
 
-      return login(email, password)
+      // Si el proyecto exige confirmar el correo antes de iniciar sesión,
+      // signUp no devuelve una sesión activa todavía.
+      if (!data.session) {
+        return { ok: false, error: "confirm" }
+      }
+
+      return { ok: true }
     },
-    [login],
+    [],
   )
 
   const changePassword = useCallback(

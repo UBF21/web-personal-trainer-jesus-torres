@@ -205,6 +205,7 @@ export const en: Translations = {
     identifier: "Email",
     invalidCredentials: "Incorrect email or password.",
     userExists: "An account with that email already exists.",
+    confirmEmail: "Check your email and confirm your account before signing in.",
     demoTitle: "Demo accounts",
     myPanel: "MY PANEL",
   },
