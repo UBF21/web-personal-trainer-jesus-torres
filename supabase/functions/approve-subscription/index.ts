@@ -24,6 +24,7 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!
 const EMAIL_FROM = Deno.env.get("APPROVAL_EMAIL_FROM") ?? "JT Training <no-reply@juliojesustorres.com>"
 const PANEL_URL = Deno.env.get("PANEL_URL") ?? "https://juliojesustorres.com"
+const LOGO_URL = `${PANEL_URL}/jt-logo-white.png`
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
@@ -49,23 +50,59 @@ function randomPassword(): string {
   return out
 }
 
+// --- Piezas de diseño del correo (mismo criterio que los emails de FitBlood,
+// en blanco y negro para la marca de JT Training). ---
+
+function emailShell(bodyHtml: string): string {
+  return `
+<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;background:#f1f1f1;padding:40px 16px;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);">
+    <div style="background:#000000;padding:28px 36px;text-align:center;">
+      <img src="${LOGO_URL}" alt="JT Training" width="140" style="display:inline-block;height:auto;max-width:160px;" />
+    </div>
+    <div style="padding:36px;color:#111;font-size:15px;line-height:1.6;">
+      ${bodyHtml}
+    </div>
+    <div style="background:#fafafa;padding:20px 36px;border-top:1px solid #eee;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#999;">JT Training — Entrenamiento personal</p>
+      <p style="margin:6px 0 0;font-size:12px;">
+        <a href="mailto:personaltrainerjesustorres@gmail.com" style="color:#000;text-decoration:none;font-weight:600;">personaltrainerjesustorres@gmail.com</a>
+      </p>
+    </div>
+  </div>
+</div>`
+}
+
+function ctaButton(href: string, label: string): string {
+  return `
+    <div style="text-align:center;margin:28px 0 8px;">
+      <a href="${href}" style="background:#000;color:#fff;text-decoration:none;padding:14px 30px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;display:inline-block;border-radius:6px;">
+        ${label}
+      </a>
+    </div>`
+}
+
+function highlightBox(html: string): string {
+  return `<div style="background:#f4f4f4;border-radius:8px;padding:16px 18px;margin:16px 0;font-size:14px;">${html}</div>`
+}
+
 async function sendApprovalEmail(to: string, name: string, plan: string, password: string | null) {
   const body = password
     ? `
-      <h2 style="margin:0 0 12px">¡Bienvenido/a, ${name}!</h2>
-      <p>Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
-      <p>Ya puedes entrar a tu panel de cliente con estos datos:</p>
-      <p style="background:#f4f4f4;padding:12px 16px;border-radius:8px">
-        Correo: <strong>${to}</strong><br/>
-        Contraseña temporal: <strong>${password}</strong>
-      </p>
-      <p><a href="${PANEL_URL}/login" style="color:#000">Entrar a mi panel →</a></p>
-      <p style="color:#777;font-size:13px">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
+      <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
+      <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
+      <p style="margin:0 0 4px;">Ya puedes entrar a tu panel de cliente con estos datos:</p>
+      ${highlightBox(`
+        <p style="margin:0 0 6px;"><strong>Correo:</strong> ${to}</p>
+        <p style="margin:0;"><strong>Contraseña temporal:</strong> ${password}</p>
+      `)}
+      ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
+      <p style="color:#999;font-size:13px;margin:20px 0 0;">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
     `
     : `
-      <h2 style="margin:0 0 12px">¡Tu plan fue aprobado, ${name}!</h2>
-      <p>Tu plan <strong>${plan}</strong> ya está activo. Entra con tu cuenta de siempre:</p>
-      <p><a href="${PANEL_URL}/login" style="color:#000">Entrar a mi panel →</a></p>
+      <h2 style="margin:0 0 4px;font-size:22px;">¡Tu plan fue aprobado, ${name}!</h2>
+      <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> ya está activo. Entra con tu cuenta de siempre.</p>
+      ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
     `
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -78,7 +115,7 @@ async function sendApprovalEmail(to: string, name: string, plan: string, passwor
       from: EMAIL_FROM,
       to,
       subject: "Tu plan fue aprobado — JT Training",
-      html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">${body}</div>`,
+      html: emailShell(body),
     }),
   })
 
