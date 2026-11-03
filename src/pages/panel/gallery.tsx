@@ -125,7 +125,7 @@ export default function PanelGallery() {
           <p className="bg-black py-3 text-center text-xs font-bold uppercase tracking-widest text-white/50">
             Vista previa — así se ve en la página principal
           </p>
-          <TrainerGallery images={activeImages.map((img) => img.url)} />
+          <TrainerGallery images={activeImages.map((img) => img.url)} hideHeading />
         </div>
       )}
 

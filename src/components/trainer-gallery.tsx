@@ -8,6 +8,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import { api as backendApi } from "@/config/api"
+import { useTranslation } from "@/contexts/language-context"
 
 // Respaldo si todavía no se subió ninguna foto desde el panel, o si la API
 // no responde — así la sección nunca se queda vacía.
@@ -23,9 +24,13 @@ interface TrainerGalleryProps {
   // se hace fetch propio — así la vista previa siempre refleja el estado
   // en memoria del admin, sin esperar a guardar.
   images?: string[]
+  // La vista previa del panel ya tiene su propio título arriba ("Vista
+  // previa — así se ve..."); en la web pública sí va el encabezado.
+  hideHeading?: boolean
 }
 
-export function TrainerGallery({ images: controlledImages }: TrainerGalleryProps = {}) {
+export function TrainerGallery({ images: controlledImages, hideHeading = false }: TrainerGalleryProps = {}) {
+  const { t } = useTranslation()
   const [fetchedImages, setFetchedImages] = useState<string[]>(FALLBACK_IMAGES)
   const images = controlledImages ?? fetchedImages
   const [api, setApi] = useState<CarouselApi>()
@@ -64,6 +69,21 @@ export function TrainerGallery({ images: controlledImages }: TrainerGalleryProps
       <div className="absolute -z-0 bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
 
       <div className="relative container mx-auto px-4">
+        {!hideHeading && (
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14 space-y-4">
+            <div className="inline-block">
+              <span className="text-xs font-bold tracking-widest text-white uppercase border border-white/30 px-3 py-1">
+                {t.gallery.badge}
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance text-white">
+              {t.gallery.titleLine1}
+              <span className="block text-gray-400">{t.gallery.titleLine2}</span>
+            </h2>
+            <p className="text-gray-400 leading-relaxed text-pretty">{t.gallery.description}</p>
+          </div>
+        )}
+
         <Carousel
           opts={{ loop: true, align: "start" }}
           setApi={setApi}
