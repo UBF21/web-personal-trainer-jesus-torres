@@ -48,13 +48,25 @@ function json(body: unknown, status = 200) {
 // en blanco y negro para la marca de JT Training). ---
 
 function emailShell(bodyHtml: string): string {
-  return `
+  // Gmail/Apple Mail en modo oscuro invierten los colores de los correos
+  // que no avisan explícitamente que son de tema claro — sin esto, el
+  // header negro con logo blanco se vuelve blanco sobre blanco (invisible)
+  // y el fondo blanco del cuerpo se vuelve negro.
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="color-scheme" content="light" />
+  <meta name="supported-color-schemes" content="light" />
+  <style>:root { color-scheme: light; supported-color-schemes: light; }</style>
+</head>
+<body style="margin:0;background:#f1f1f1;">
 <div style="font-family:-apple-system,Helvetica,Arial,sans-serif;background:#f1f1f1;padding:40px 16px;">
   <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);">
     <div style="background:#000000;padding:28px 36px;text-align:center;">
       <img src="${LOGO_URL}" alt="JT Training" width="140" style="display:inline-block;height:auto;max-width:160px;" />
     </div>
-    <div style="padding:36px;color:#111;font-size:15px;line-height:1.6;">
+    <div style="padding:36px;color:#111111;font-size:15px;line-height:1.6;background:#ffffff;">
       ${bodyHtml}
     </div>
     <div style="background:#fafafa;padding:20px 36px;border-top:1px solid #eee;text-align:center;">
@@ -64,7 +76,9 @@ function emailShell(bodyHtml: string): string {
       </p>
     </div>
   </div>
-</div>`
+</div>
+</body>
+</html>`
 }
 
 function ctaButton(href: string, label: string): string {
