@@ -104,7 +104,16 @@ export interface ChatMessage {
   senderRole: ChatSenderRole
   senderName: string
   body: string
+  attachmentUrl?: string | null
+  attachmentName?: string | null
+  attachmentType?: string | null
   createdAt: string
+}
+
+export interface ChatAttachment {
+  url: string
+  name: string
+  type: string
 }
 
 function mapImageRow(row: any): GalleryImage {
@@ -158,7 +167,10 @@ function mapMessageRow(row: any): ChatMessage {
     clientId: row.client_id,
     senderRole: row.sender_role,
     senderName: row.sender_name,
-    body: row.body,
+    body: row.body ?? "",
+    attachmentUrl: row.attachment_url,
+    attachmentName: row.attachment_name,
+    attachmentType: row.attachment_type,
     createdAt: row.created_at,
   }
 }
@@ -413,14 +425,33 @@ export const api = {
       senderRole: ChatSenderRole,
       senderName: string,
       body: string,
+      attachment?: ChatAttachment,
     ): Promise<ApiResponse<ChatMessage>> => {
       const { data, error } = await supabase
         .from("messages")
-        .insert({ client_id: clientId, sender_role: senderRole, sender_name: senderName, body })
+        .insert({
+          client_id: clientId,
+          sender_role: senderRole,
+          sender_name: senderName,
+          body: body || null,
+          attachment_url: attachment?.url ?? null,
+          attachment_name: attachment?.name ?? null,
+          attachment_type: attachment?.type ?? null,
+        })
         .select("*")
         .single()
       if (error || !data) return { success: false, error: error?.message || "No se pudo enviar el mensaje" }
       return { success: true, data: mapMessageRow(data) }
+    },
+    uploadAttachment: async (clientId: string, file: File): Promise<ApiResponse<ChatAttachment>> => {
+      const path = `chat/${clientId}/${Date.now()}-${file.name}`
+      const { data, error } = await supabase.storage
+        .from("chat-attachments")
+        .upload(path, file, { contentType: file.type })
+      if (error) return { success: false, error: error.message }
+
+      const { data: urlData } = supabase.storage.from("chat-attachments").getPublicUrl(data.path)
+      return { success: true, data: { url: urlData.publicUrl, name: file.name, type: file.type } }
     },
   },
 }
