@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { api, type ChatMessage, type ChatSenderRole } from "@/config/api"
 import { toast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { VideoCallDialog } from "./video-call-dialog"
 
 interface ChatThreadProps {
   clientId: string
@@ -22,6 +23,7 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
   const [draft, setDraft] = useState("")
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [callOpen, setCallOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -192,7 +194,14 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
         </Button>
-        <Button type="button" size="icon" variant="outline" disabled title="Videollamadas — próximamente" aria-label="Videollamada (próximamente)">
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          onClick={() => setCallOpen(true)}
+          title="Iniciar videollamada"
+          aria-label="Iniciar videollamada"
+        >
           <Video className="h-4 w-4" />
         </Button>
         <Textarea
@@ -212,6 +221,13 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </form>
+
+      <VideoCallDialog
+        open={callOpen}
+        onClose={() => setCallOpen(false)}
+        roomName={`JTTraining-${clientId}`}
+        displayName={senderName}
+      />
     </div>
   )
 }
