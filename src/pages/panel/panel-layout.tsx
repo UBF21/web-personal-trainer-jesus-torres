@@ -12,13 +12,13 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  MessageCircle,
   ShieldCheck,
   Users,
   X,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ClientChatBubble, StaffChatBubble } from "@/components/chat-bubble"
 import { ROLE_LABEL, useAuth, type Role } from "@/contexts/auth-context"
 import { useClients } from "@/contexts/clients-context"
 
@@ -49,7 +49,6 @@ const MENU: Record<Role, NavItem[]> = {
     OVERVIEW,
     { to: "/panel/plan", label: "Mi plan", icon: Dumbbell },
     { to: "/panel/citas", label: "Mis citas", icon: CalendarDays },
-    { to: "/panel/chat", label: "Chat con mi entrenador", icon: MessageCircle },
   ],
   administrador: [DASHBOARD, ...ADMIN_ITEMS],
   webmaster: [
@@ -62,7 +61,7 @@ const MENU: Record<Role, NavItem[]> = {
 
 export default function PanelLayout() {
   const { user, loading, logout } = useAuth()
-  const { pending } = useClients()
+  const { pending, clients } = useClients()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -170,6 +169,16 @@ export default function PanelLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Chat flotante, visible en todo el panel sin importar la página activa. */}
+      {user.role === "cliente" ? (
+        (() => {
+          const myClient = clients.find((c) => c.email === user.email)
+          return myClient ? <ClientChatBubble clientId={myClient.id} senderName={user.name} /> : null
+        })()
+      ) : (
+        <StaffChatBubble clients={clients} staffName="Jesús Torres" />
+      )}
     </div>
   )
 }

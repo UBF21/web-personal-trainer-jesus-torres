@@ -5,7 +5,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChatBubble } from "@/components/chat-bubble"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -612,9 +611,6 @@ export default function ClientDetailPage() {
           toast({ title: "Programa creado", description: `${client.name} ya tiene su programa de entrenamiento a medida.` })
         }}
       />
-
-      <ChatBubble title={`Chat con ${client.name}`} clientId={client.id} senderRole="entrenador" senderName="Jesús Torres" />
-
 
       <MockNotice />
     </>
