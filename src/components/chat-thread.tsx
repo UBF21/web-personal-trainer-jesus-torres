@@ -11,9 +11,11 @@ interface ChatThreadProps {
   senderRole: ChatSenderRole
   senderName: string
   emptyHint?: string
+  /** Para cuando ya va dentro de otro contenedor con su propio borde (ej. ChatBubble). */
+  className?: string
 }
 
-export function ChatThread({ clientId, senderRole, senderName, emptyHint }: ChatThreadProps) {
+export function ChatThread({ clientId, senderRole, senderName, emptyHint, className = "h-[480px] rounded-xl border border-border" }: ChatThreadProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [draft, setDraft] = useState("")
@@ -90,7 +92,7 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint }: Chat
   }
 
   return (
-    <div className="flex h-[480px] flex-col rounded-xl border border-border">
+    <div className={`flex flex-col ${className}`}>
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {loading && <p className="py-10 text-center text-sm text-muted-foreground">Cargando mensajes…</p>}
 
