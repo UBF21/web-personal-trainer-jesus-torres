@@ -9,6 +9,7 @@ import PanelLayout, { RequireRole } from "./pages/panel/panel-layout"
 import PanelOverview from "./pages/panel/overview"
 import PanelProfile from "./pages/panel/profile"
 import { ClientAppointments, ClientPlan } from "./pages/panel/client-pages"
+import { ClientChat } from "./pages/panel/client-chat"
 import { AdminAgenda, AdminClients } from "./pages/panel/admin-pages"
 import { AdminPlans } from "./pages/panel/plans"
 import { WebmasterSite, WebmasterUsers } from "./pages/panel/webmaster-pages"
@@ -46,6 +47,7 @@ function App() {
         <Route path="perfil" element={<PanelProfile />} />
         <Route path="plan" element={<RequireRole roles={["cliente"]}><ClientPlan /></RequireRole>} />
         <Route path="citas" element={<RequireRole roles={["cliente"]}><ClientAppointments /></RequireRole>} />
+        <Route path="chat" element={<RequireRole roles={["cliente"]}><ClientChat /></RequireRole>} />
         <Route path="clientes" element={<RequireRole roles={["administrador", "webmaster"]}><AdminClients /></RequireRole>} />
         <Route path="clientes/:id" element={<RequireRole roles={["administrador", "webmaster"]}><ClientDetailPage /></RequireRole>} />
         <Route path="planes" element={<RequireRole roles={["administrador", "webmaster"]}><AdminPlans /></RequireRole>} />

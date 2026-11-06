@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
-import { ArrowLeft, CalendarClock, ClipboardList, Clock, Droplets, Layers, Pencil, Pill, Plus, Repeat, Salad, Signal, Target, type LucideIcon } from "lucide-react"
+import { ArrowLeft, CalendarClock, ClipboardList, Clock, Droplets, Layers, MessageCircle, Pencil, Pill, Plus, Repeat, Salad, Signal, Target, type LucideIcon } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChatThread } from "@/components/chat-thread"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -599,6 +600,10 @@ export default function ClientDetailPage() {
               toast({ title: "Guía actualizada", description: `Se guardaron los cambios de la guía de nutrición de ${client.name}.` })
             }}
           />
+        </ModuleItem>
+
+        <ModuleItem value="chat" icon={MessageCircle} title="Chat con el cliente" description="Conversación directa, en tiempo real.">
+          <ChatThread clientId={client.id} senderRole="entrenador" senderName="Jesús Torres" />
         </ModuleItem>
       </Accordion>
       <CreateProgramDialog

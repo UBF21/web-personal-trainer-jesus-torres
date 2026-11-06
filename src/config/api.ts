@@ -96,6 +96,17 @@ export interface PendingSubscriptionInput {
   voucher?: string | null
 }
 
+export type ChatSenderRole = "cliente" | "entrenador"
+
+export interface ChatMessage {
+  id: string
+  clientId: string
+  senderRole: ChatSenderRole
+  senderName: string
+  body: string
+  createdAt: string
+}
+
 function mapImageRow(row: any): GalleryImage {
   return {
     id: row.id,
@@ -137,6 +148,17 @@ function mapClientRow(row: any): ApiClient {
     plan: row.plan,
     status: row.status,
     progress: row.progress,
+    createdAt: row.created_at,
+  }
+}
+
+function mapMessageRow(row: any): ChatMessage {
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    senderRole: row.sender_role,
+    senderName: row.sender_name,
+    body: row.body,
     createdAt: row.created_at,
   }
 }
@@ -374,6 +396,31 @@ export const api = {
         .eq("id", "default")
       if (error) return { success: false, error: error.message }
       return { success: true, data: enabled }
+    },
+  },
+  messages: {
+    getByClient: async (clientId: string): Promise<ApiResponse<ChatMessage[]>> => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: true })
+      if (error) return { success: false, error: error.message }
+      return { success: true, data: data.map(mapMessageRow) }
+    },
+    send: async (
+      clientId: string,
+      senderRole: ChatSenderRole,
+      senderName: string,
+      body: string,
+    ): Promise<ApiResponse<ChatMessage>> => {
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({ client_id: clientId, sender_role: senderRole, sender_name: senderName, body })
+        .select("*")
+        .single()
+      if (error || !data) return { success: false, error: error?.message || "No se pudo enviar el mensaje" }
+      return { success: true, data: mapMessageRow(data) }
     },
   },
 }

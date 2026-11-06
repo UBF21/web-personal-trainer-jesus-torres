@@ -10,7 +10,7 @@ import { APPOINTMENTS, getClientDetail } from "@/lib/mock-data"
 import { MockNotice, PageHeader } from "./panel-ui"
 
 /** El cliente con sesión, buscado por correo; null si aún no tiene un plan aprobado. */
-function useMyClient() {
+export function useMyClient() {
   const { user } = useAuth()
   const { clients } = useClients()
   return clients.find((c) => c.email === user?.email) ?? null

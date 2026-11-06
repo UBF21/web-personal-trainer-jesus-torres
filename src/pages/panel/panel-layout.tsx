@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  MessageCircle,
   ShieldCheck,
   Users,
   X,
@@ -48,6 +49,7 @@ const MENU: Record<Role, NavItem[]> = {
     OVERVIEW,
     { to: "/panel/plan", label: "Mi plan", icon: Dumbbell },
     { to: "/panel/citas", label: "Mis citas", icon: CalendarDays },
+    { to: "/panel/chat", label: "Chat con mi entrenador", icon: MessageCircle },
   ],
   administrador: [DASHBOARD, ...ADMIN_ITEMS],
   webmaster: [
