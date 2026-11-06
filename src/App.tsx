@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Routes, Route } from "react-router-dom"
 import { api } from "@/config/api"
+import { PageViewTracker } from "@/components/page-view-tracker"
 import HomePage from "./pages/home"
 import RecetasPage from "./pages/recetas"
 import RecipeDetailPage from "./pages/recipe-detail"
@@ -38,7 +39,9 @@ function App() {
   // El mantenimiento solo bloquea las páginas públicas — /login y /panel
   // quedan siempre accesibles, si no nadie podría entrar a apagarlo.
   return (
-    <Routes>
+    <>
+      <PageViewTracker />
+      <Routes>
       <Route path="/" element={maintenance ? <MaintenancePage /> : <HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/panel" element={<PanelLayout />}>
@@ -58,7 +61,8 @@ function App() {
       <Route path="/recetas/:id" element={maintenance ? <MaintenancePage /> : <RecipeDetailPage />} />
       <Route path="/pago/exito" element={<PaymentSuccessPage />} />
       <Route path="/pago/cancelado" element={<PaymentCancelledPage />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }
 

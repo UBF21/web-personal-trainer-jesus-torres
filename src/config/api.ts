@@ -96,6 +96,25 @@ export interface PendingSubscriptionInput {
   voucher?: string | null
 }
 
+export interface DashboardStats {
+  days: number
+  from: string
+  to: string
+  visits: number
+  visitors: number
+  visitsPrev: number
+  visitorsPrev: number
+  newClients: number
+  newClientsPrev: number
+  revenue: number
+  pendingNow: number
+  visitsSeries: { day: string; visits: number; visitors: number }[]
+  clientsSeries: { day: string; clients: number }[]
+  topPlans: { plan: string; n: number }[]
+  topPages: { path: string; views: number; visitors: number }[]
+  sources: { source: string; visitors: number }[]
+}
+
 export type ChatSenderRole = "cliente" | "entrenador"
 
 export interface ChatMessage {
@@ -452,6 +471,37 @@ export const api = {
 
       const { data: urlData } = supabase.storage.from("chat-attachments").getPublicUrl(data.path)
       return { success: true, data: { url: urlData.publicUrl, name: file.name, type: file.type } }
+    },
+  },
+  analytics: {
+    trackPageView: async (path: string, visitorId: string, referrer: string | null): Promise<void> => {
+      await supabase.from("page_views").insert({ path, visitor_id: visitorId, referrer })
+    },
+    getDashboard: async (days: number): Promise<ApiResponse<DashboardStats>> => {
+      const { data, error } = await supabase.rpc("admin_dashboard_stats", { p_days: days })
+      if (error) return { success: false, error: error.message }
+      const d = data as Record<string, any>
+      return {
+        success: true,
+        data: {
+          days: d.days,
+          from: d.from,
+          to: d.to,
+          visits: d.visits,
+          visitors: d.visitors,
+          visitsPrev: d.visits_prev,
+          visitorsPrev: d.visitors_prev,
+          newClients: d.new_clients,
+          newClientsPrev: d.new_clients_prev,
+          revenue: Number(d.revenue),
+          pendingNow: d.pending_now,
+          visitsSeries: d.visits_series ?? [],
+          clientsSeries: d.clients_series ?? [],
+          topPlans: (d.top_plans ?? []).map((p: any) => ({ plan: p.plan, n: p.n })),
+          topPages: d.top_pages ?? [],
+          sources: d.sources ?? [],
+        },
+      }
     },
   },
 }
