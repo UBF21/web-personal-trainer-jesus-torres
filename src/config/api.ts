@@ -8,6 +8,24 @@ import { supabase } from "@/lib/supabase"
 
 const BUCKET_NAME = "jt-Images"
 
+// Cuando una Edge Function responde con un status que no es 2xx,
+// supabase-js la trata como error y su .message es siempre el mismo texto
+// genérico ("Edge Function returned a non-2xx status code") — el motivo
+// real queda en el cuerpo de la respuesta (error.context), hay que leerlo
+// aparte.
+async function functionErrorMessage(error: unknown): Promise<string> {
+  const ctx = (error as { context?: Response })?.context
+  if (ctx && typeof ctx.json === "function") {
+    try {
+      const body = await ctx.clone().json()
+      if (body?.error) return body.error as string
+    } catch {
+      // el cuerpo no era JSON — se usa el mensaje genérico de abajo
+    }
+  }
+  return error instanceof Error ? error.message : "No se pudo completar la operación"
+}
+
 export interface GalleryImage {
   id: string
   name: string
@@ -318,7 +336,7 @@ export const api = {
       // por correo — eso necesita la API key de Resend, que no puede
       // vivir en el navegador.
       const { data, error } = await supabase.functions.invoke("request-subscription", { body: input })
-      if (error) return { success: false, error: error.message }
+      if (error) return { success: false, error: await functionErrorMessage(error) }
       if (!data?.success) return { success: false, error: data?.error || "No se pudo registrar la solicitud" }
       return { success: true, data: mapPendingRow(data.data), message: data.warning }
     },
@@ -329,7 +347,7 @@ export const api = {
       const { data, error } = await supabase.functions.invoke("approve-subscription", {
         body: { pending_id: id },
       })
-      if (error) return { success: false, error: error.message }
+      if (error) return { success: false, error: await functionErrorMessage(error) }
       if (!data?.success) return { success: false, error: data?.error || "No se pudo aprobar la suscripción" }
       return { success: true, data: mapClientRow(data.data), message: data.warning }
     },
