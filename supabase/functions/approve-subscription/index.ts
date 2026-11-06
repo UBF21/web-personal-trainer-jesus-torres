@@ -2,9 +2,12 @@
 //
 // Hace lo que la animación de 3 pasos del panel prometía pero nunca hacía:
 // 1) pasa la solicitud pendiente a la tabla "clients" (Activo),
-// 2) crea (o reutiliza) su cuenta de acceso con rol "cliente",
-// 3) le manda un correo con sus credenciales (o avisándole que ya puede
-//    entrar, si la cuenta ya existía).
+// 2) crea su cuenta de acceso con rol "cliente" — o, si el correo ya
+//    tenía una cuenta de cliente de antes, le pone una contraseña nueva
+//    (nunca sabemos si la anterior la recuerda, así que siempre se
+//    manda una conocida). Si el correo pertenece a una cuenta de
+//    administrador/webmaster, no se le toca la contraseña.
+// 3) le manda esa contraseña por correo.
 //
 // Corre acá (y no en el navegador) porque crear usuarios con rol requiere
 // la service_role key, que nunca debe llegar al frontend.
@@ -48,6 +51,12 @@ function randomPassword(): string {
   let out = ""
   for (let i = 0; i < 12; i++) out += chars[Math.floor(Math.random() * chars.length)]
   return out
+}
+
+async function findUserByEmail(email: string) {
+  const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+  if (error) return null
+  return data.users.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ?? null
 }
 
 // --- Piezas de diseño del correo (mismo criterio que los emails de FitBlood,
@@ -100,24 +109,18 @@ function highlightBox(html: string): string {
   return `<div style="background:#f4f4f4;border-radius:8px;padding:16px 18px;margin:16px 0;font-size:14px;">${html}</div>`
 }
 
-async function sendApprovalEmail(to: string, name: string, plan: string, password: string | null) {
-  const body = password
-    ? `
-      <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
-      <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
-      <p style="margin:0 0 4px;">Ya puedes entrar a tu panel de cliente con estos datos:</p>
-      ${highlightBox(`
-        <p style="margin:0 0 6px;"><strong>Correo:</strong> ${to}</p>
-        <p style="margin:0;"><strong>Contraseña temporal:</strong> ${password}</p>
-      `)}
-      ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
-      <p style="color:#999;font-size:13px;margin:20px 0 0;">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
-    `
-    : `
-      <h2 style="margin:0 0 4px;font-size:22px;">¡Tu plan fue aprobado, ${name}!</h2>
-      <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> ya está activo. Entra con tu cuenta de siempre.</p>
-      ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
-    `
+async function sendApprovalEmail(to: string, name: string, plan: string, password: string) {
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
+    <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
+    <p style="margin:0 0 4px;">Ya puedes entrar a tu panel de cliente con estos datos:</p>
+    ${highlightBox(`
+      <p style="margin:0 0 6px;"><strong>Correo:</strong> ${to}</p>
+      <p style="margin:0;"><strong>Contraseña:</strong> ${password}</p>
+    `)}
+    ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
+    <p style="color:#999;font-size:13px;margin:20px 0 0;">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
+  `
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -194,32 +197,56 @@ Deno.serve(async (req) => {
     app_metadata: { role: "cliente" },
   })
 
-  const accountAlreadyExisted = !!createError && /already|registered|existe/i.test(createError.message)
+  if (createError) {
+    const accountAlreadyExisted = /already|registered|existe/i.test(createError.message)
+    if (!accountAlreadyExisted) {
+      // La aprobación en "clients" ya quedó hecha — no la revertimos solo
+      // porque falló crear el acceso. Se avisa para resolverlo a mano.
+      return json({
+        success: true,
+        data: client,
+        warning: `Cliente aprobado, pero no se pudo crear su acceso: ${createError.message}`,
+      })
+    }
 
-  if (createError && !accountAlreadyExisted) {
-    // La aprobación en "clients" ya quedó hecha — no la revertimos solo
-    // porque falló crear el acceso. Se avisa para resolverlo a mano.
-    return json({
-      success: true,
-      data: client,
-      warning: `Cliente aprobado, pero no se pudo crear su acceso: ${createError.message}`,
-    })
+    const existingUser = await findUserByEmail(pending.email)
+    if (!existingUser) {
+      return json({
+        success: true,
+        data: client,
+        warning: "Cliente aprobado, pero no se pudo restablecer su acceso (no se encontró la cuenta).",
+      })
+    }
+
+    const existingRole = existingUser.app_metadata?.role
+    if (existingRole === "administrador" || existingRole === "webmaster") {
+      // Cuenta de staff, no de cliente — nunca se le pisa la contraseña
+      // desde una solicitud pública. Se avisa para resolverlo a mano.
+      return json({
+        success: true,
+        data: client,
+        warning: `Cliente aprobado. Ese correo ya es una cuenta de ${existingRole} — no se tocó su contraseña; avísale manualmente si necesita entrar como cliente.`,
+      })
+    }
+
+    // La cuenta de cliente ya existía (de una aprobación anterior, por
+    // ejemplo) — no sabemos si recuerda esa contraseña, así que se le
+    // pone una nueva conocida y se la mandamos igual que si fuera nueva.
+    const { error: updateError } = await admin.auth.admin.updateUserById(existingUser.id, { password })
+    if (updateError) {
+      return json({
+        success: true,
+        data: client,
+        warning: `Cliente aprobado, pero no se pudo restablecer su contraseña: ${updateError.message}`,
+      })
+    }
   }
 
-  const emailResult = await sendApprovalEmail(
-    pending.email,
-    pending.name,
-    pending.plan,
-    accountAlreadyExisted ? null : password,
-  )
+  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password)
 
   return json({
     success: true,
     data: client,
-    warning: !emailResult.ok
-      ? "Cliente aprobado y cuenta creada, pero el correo no se pudo enviar."
-      : accountAlreadyExisted
-        ? "Ya existía una cuenta con ese correo; se avisó por correo sin contraseña nueva."
-        : undefined,
+    warning: !emailResult.ok ? "Cliente aprobado y con acceso, pero el correo no se pudo enviar." : undefined,
   })
 })
