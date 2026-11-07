@@ -194,16 +194,18 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
         </Button>
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          onClick={() => setCallOpen(true)}
-          title="Iniciar videollamada"
-          aria-label="Iniciar videollamada"
-        >
-          <Video className="h-4 w-4" />
-        </Button>
+        {senderRole === "entrenador" && (
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={() => setCallOpen(true)}
+            title="Iniciar videollamada"
+            aria-label="Iniciar videollamada"
+          >
+            <Video className="h-4 w-4" />
+          </Button>
+        )}
         <Textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
