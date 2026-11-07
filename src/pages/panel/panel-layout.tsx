@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ClientChatBubble, StaffChatBubble } from "@/components/chat-bubble"
+import { IncomingCallPrompt } from "@/components/incoming-call-prompt"
 import { ROLE_LABEL, useAuth, type Role } from "@/contexts/auth-context"
 import { useClients } from "@/contexts/clients-context"
 
@@ -174,7 +175,13 @@ export default function PanelLayout() {
       {user.role === "cliente" ? (
         (() => {
           const myClient = clients.find((c) => c.email === user.email)
-          return myClient ? <ClientChatBubble clientId={myClient.id} senderName={user.name} /> : null
+          if (!myClient) return null
+          return (
+            <>
+              <ClientChatBubble clientId={myClient.id} senderName={user.name} />
+              <IncomingCallPrompt clientId={myClient.id} myName={user.name} />
+            </>
+          )
         })()
       ) : (
         <StaffChatBubble clients={clients} staffName="Jesús Torres" />

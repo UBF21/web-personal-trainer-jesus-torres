@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { FileText, Loader2, Paperclip, Send, Video } from "lucide-react"
+import { FileText, Loader2, Paperclip, Phone, Send, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { api, type ChatMessage, type ChatSenderRole } from "@/config/api"
@@ -104,6 +104,22 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
     }
   }
 
+  async function handleStartCall() {
+    setCallOpen(true)
+    if (senderRole !== "entrenador") return
+
+    // Avisa al cliente en el chat (y, si está en el panel, le aparece
+    // además la pantalla de "llamada entrante" — ver IncomingCallPrompt).
+    const res = await api.messages.send(clientId, senderRole, senderName, "Inició una videollamada.", {
+      url: `JTTraining-${clientId}`,
+      name: "Videollamada",
+      type: "video-call",
+    })
+    if (res.success && res.data) {
+      setMessages((prev) => (prev.some((m) => m.id === res.data!.id) ? prev : [...prev, res.data!]))
+    }
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ""
@@ -141,6 +157,28 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
         {messages.map((m) => {
           const isMine = m.senderRole === senderRole
           const isImage = m.attachmentType?.startsWith("image/")
+          const isCallInvite = m.attachmentType === "video-call"
+
+          if (isCallInvite) {
+            return (
+              <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                <div className="max-w-[75%] rounded-2xl border border-border bg-background px-4 py-3 text-sm shadow-sm">
+                  <p className="mb-2 flex items-center gap-2 font-semibold">
+                    <Phone className="h-4 w-4" />
+                    {isMine ? "Iniciaste una videollamada" : `${m.senderName} te invitó a una videollamada`}
+                  </p>
+                  <Button type="button" size="sm" className="w-full gap-2" onClick={() => setCallOpen(true)}>
+                    <Video className="h-4 w-4" />
+                    Unirme a la llamada
+                  </Button>
+                  <p className="mt-1.5 text-[10px] text-muted-foreground">
+                    {new Date(m.createdAt).toLocaleString("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            )
+          }
+
           return (
             <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${isMine ? "bg-black text-white" : "bg-muted"}`}>
@@ -199,7 +237,7 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
             type="button"
             size="icon"
             variant="outline"
-            onClick={() => setCallOpen(true)}
+            onClick={handleStartCall}
             title="Iniciar videollamada"
             aria-label="Iniciar videollamada"
           >
