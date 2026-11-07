@@ -23,7 +23,10 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
   const [draft, setDraft] = useState("")
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [callOpen, setCallOpen] = useState(false)
+  // Sala activa de Jitsi (null = diálogo cerrado). Una sala nueva en cada
+  // llamada — reusar siempre el mismo nombre hacía que Jitsi la tratara
+  // como "ya usada" y pidiera iniciar sesión para ser moderador.
+  const [activeCallRoom, setActiveCallRoom] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -105,13 +108,14 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
   }
 
   async function handleStartCall() {
-    setCallOpen(true)
+    const roomName = `JTTraining-${clientId}-${Date.now().toString(36)}`
+    setActiveCallRoom(roomName)
     if (senderRole !== "entrenador") return
 
     // Avisa al cliente en el chat (y, si está en el panel, le aparece
     // además la pantalla de "llamada entrante" — ver IncomingCallPrompt).
     const res = await api.messages.send(clientId, senderRole, senderName, "Inició una videollamada.", {
-      url: `JTTraining-${clientId}`,
+      url: roomName,
       name: "Videollamada",
       type: "video-call",
     })
@@ -167,7 +171,7 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
                     <Phone className="h-4 w-4" />
                     {isMine ? "Iniciaste una videollamada" : `${m.senderName} te invitó a una videollamada`}
                   </p>
-                  <Button type="button" size="sm" className="w-full gap-2" onClick={() => setCallOpen(true)}>
+                  <Button type="button" size="sm" className="w-full gap-2" onClick={() => setActiveCallRoom(m.attachmentUrl ?? null)}>
                     <Video className="h-4 w-4" />
                     Unirme a la llamada
                   </Button>
@@ -263,9 +267,9 @@ export function ChatThread({ clientId, senderRole, senderName, emptyHint, classN
       </form>
 
       <VideoCallDialog
-        open={callOpen}
-        onClose={() => setCallOpen(false)}
-        roomName={`JTTraining-${clientId}`}
+        open={!!activeCallRoom}
+        onClose={() => setActiveCallRoom(null)}
+        roomName={activeCallRoom ?? ""}
         displayName={senderName}
       />
     </div>

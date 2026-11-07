@@ -13,6 +13,7 @@ import { VideoCallDialog } from "./video-call-dialog"
  */
 export function IncomingCallPrompt({ clientId, myName }: { clientId: string; myName: string }) {
   const [callerName, setCallerName] = useState<string | null>(null)
+  const [roomName, setRoomName] = useState<string | null>(null)
   const [joined, setJoined] = useState(false)
 
   useEffect(() => {
@@ -22,10 +23,16 @@ export function IncomingCallPrompt({ clientId, myName }: { clientId: string; myN
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `client_id=eq.${clientId}` },
         (payload) => {
-          const row = payload.new as { sender_role: string; sender_name: string; attachment_type: string | null }
+          const row = payload.new as {
+            sender_role: string
+            sender_name: string
+            attachment_type: string | null
+            attachment_url: string | null
+          }
           if (row.sender_role === "entrenador" && row.attachment_type === "video-call") {
             setJoined(false)
             setCallerName(row.sender_name)
+            setRoomName(row.attachment_url)
           }
         },
       )
@@ -38,6 +45,7 @@ export function IncomingCallPrompt({ clientId, myName }: { clientId: string; myN
 
   function dismiss() {
     setCallerName(null)
+    setRoomName(null)
     setJoined(false)
   }
 
@@ -63,9 +71,7 @@ export function IncomingCallPrompt({ clientId, myName }: { clientId: string; myN
         </DialogContent>
       </Dialog>
 
-      {callerName && (
-        <VideoCallDialog open={joined} onClose={dismiss} roomName={`JTTraining-${clientId}`} displayName={myName} />
-      )}
+      {callerName && roomName && <VideoCallDialog open={joined} onClose={dismiss} roomName={roomName} displayName={myName} />}
     </>
   )
 }
