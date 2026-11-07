@@ -65,6 +65,7 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
             status: c.status,
             progress: c.progress,
             since: formatSince(c.createdAt),
+            lastReadByStaffAt: c.lastReadByStaffAt,
           })),
         )
       }

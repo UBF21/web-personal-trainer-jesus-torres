@@ -9,6 +9,8 @@ export interface MockClient {
   status: "Activo" | "Pausado" | "Nuevo"
   since: string
   progress: number
+  /** Cuándo el staff vio por última vez el chat de este cliente — null = nunca. */
+  lastReadByStaffAt?: string | null
 }
 
 // Usada hoy solo por la lista de "Usuarios y roles" del webmaster (ver

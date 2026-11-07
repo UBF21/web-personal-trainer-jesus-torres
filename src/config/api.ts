@@ -72,6 +72,7 @@ export interface ApiClient {
   status: "Activo" | "Pausado" | "Nuevo"
   progress: number
   createdAt: string
+  lastReadByStaffAt?: string | null
 }
 
 export interface PendingSubscription {
@@ -177,6 +178,7 @@ function mapClientRow(row: any): ApiClient {
     status: row.status,
     progress: row.progress,
     createdAt: row.created_at,
+    lastReadByStaffAt: row.last_read_by_staff_at,
   }
 }
 
@@ -409,6 +411,14 @@ export const api = {
       if (error) return { success: false, error: error.message }
       return { success: true }
     },
+    markReadByStaff: async (clientId: string): Promise<ApiResponse<null>> => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ last_read_by_staff_at: new Date().toISOString() })
+        .eq("id", clientId)
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
   },
   settings: {
     getMaintenanceMode: async (): Promise<ApiResponse<boolean>> => {
@@ -471,6 +481,17 @@ export const api = {
 
       const { data: urlData } = supabase.storage.from("chat-attachments").getPublicUrl(data.path)
       return { success: true, data: { url: urlData.publicUrl, name: file.name, type: file.type } }
+    },
+    /** Fecha de cada mensaje DEL CLIENTE, agrupadas por client_id — para que
+     * el panel calcule cuántas son más nuevas que el último "leído" del staff. */
+    getClientMessageTimestamps: async (): Promise<ApiResponse<Record<string, string[]>>> => {
+      const { data, error } = await supabase.from("messages").select("client_id, created_at").eq("sender_role", "cliente")
+      if (error) return { success: false, error: error.message }
+      const grouped: Record<string, string[]> = {}
+      for (const row of data as { client_id: string; created_at: string }[]) {
+        ;(grouped[row.client_id] ??= []).push(row.created_at)
+      }
+      return { success: true, data: grouped }
     },
   },
   analytics: {
