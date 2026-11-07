@@ -7,6 +7,7 @@ declare global {
   interface Window {
     JitsiMeetExternalAPI?: new (domain: string, options: Record<string, unknown>) => {
       dispose: () => void
+      on: (event: string, listener: () => void) => void
     }
   }
 }
@@ -38,11 +39,15 @@ interface VideoCallDialogProps {
 
 export function VideoCallDialog({ open, onClose, roomName, displayName }: VideoCallDialogProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  // onClose casi siempre es una función nueva en cada render del padre —
+  // una ref evita que eso reinicie la llamada en curso.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
     let cancelled = false
-    let api: { dispose: () => void } | null = null
+    let api: { dispose: () => void; on: (event: string, listener: () => void) => void } | null = null
 
     loadJitsiScript().then(() => {
       if (cancelled || !containerRef.current || !window.JitsiMeetExternalAPI) return
@@ -54,6 +59,8 @@ export function VideoCallDialog({ open, onClose, roomName, displayName }: VideoC
         userInfo: { displayName },
         configOverwrite: { prejoinPageEnabled: false },
       })
+      // Colgar desde el propio Jitsi (botón rojo) cierra también el diálogo.
+      api.on("readyToClose", () => onCloseRef.current())
     })
 
     return () => {
@@ -64,7 +71,11 @@ export function VideoCallDialog({ open, onClose, roomName, displayName }: VideoC
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="h-[85vh] max-w-4xl gap-0 overflow-hidden p-0 sm:max-w-4xl">
+      <DialogContent
+        className="h-[85vh] max-w-4xl gap-0 overflow-hidden p-0 sm:max-w-4xl"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogTitle className="sr-only">Videollamada</DialogTitle>
         <div ref={containerRef} className="h-full w-full bg-black" />
       </DialogContent>
