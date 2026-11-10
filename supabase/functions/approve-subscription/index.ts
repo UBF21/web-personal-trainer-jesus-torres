@@ -198,29 +198,54 @@ function invoiceHtml(inv: InvoiceRow, name: string, email: string, plan: string)
 async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, plan: string): Promise<Uint8Array> {
   const doc = await PDFDocument.create()
   const page = doc.addPage([595.28, 841.89]) // A4
+  const { width: pageWidth, height: pageHeight } = page.getSize()
   const font = await doc.embedFont(StandardFonts.Helvetica)
   const bold = await doc.embedFont(StandardFonts.HelveticaBold)
   const black = rgb(0, 0, 0)
+  const white = rgb(1, 1, 1)
   const gray = rgb(0.45, 0.45, 0.45)
+  const lightGray = rgb(0.96, 0.96, 0.96)
   const line = rgb(0.85, 0.85, 0.85)
 
-  let y = 780
+  // Header negro con el logo blanco — mismo criterio que el correo. Si no
+  // se puede traer el logo, sigue igual solo con el bloque negro.
+  const HEADER_H = 70
+  page.drawRectangle({ x: 0, y: pageHeight - HEADER_H, width: pageWidth, height: HEADER_H, color: black })
+  try {
+    const logoBytes = await fetch(LOGO_URL).then((r) => r.arrayBuffer())
+    const logo = await doc.embedPng(logoBytes)
+    const logoH = 32
+    const logoW = (logo.width / logo.height) * logoH
+    page.drawImage(logo, {
+      x: (pageWidth - logoW) / 2,
+      y: pageHeight - HEADER_H + (HEADER_H - logoH) / 2,
+      width: logoW,
+      height: logoH,
+    })
+  } catch (e) {
+    console.error("No se pudo incrustar el logo en el PDF", e)
+    page.drawText("JT TRAINING", { x: 50, y: pageHeight - HEADER_H / 2 - 6, size: 16, font: bold, color: white })
+  }
+
+  let y = pageHeight - HEADER_H - 40
 
   function text(str: string, x: number, size: number, f: typeof font = font, color = black) {
     page.drawText(str, { x, y, size, font: f, color })
   }
 
-  text(`FACTURA PROFORMA Nº ${inv.number}`, 50, 18, bold)
+  text(`FACTURA PROFORMA Nº ${inv.number}`, 50, 19, bold)
   y -= 22
   const date = new Date(inv.issued_at).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
   text(`Fecha: ${date}   ·   Forma de pago: Transferencia bancaria`, 50, 10, font, gray)
-  y -= 40
+  y -= 16
+  page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 1, color: line })
+  y -= 32
 
   text("EMISOR", 50, 9, bold, gray)
   text("FACTURADO A", 320, 9, bold, gray)
   y -= 16
-  text(ISSUER.name, 50, 11)
-  text(name, 320, 11)
+  text(ISSUER.name, 50, 11, bold)
+  text(name, 320, 11, bold)
   y -= 14
   text(ISSUER.address, 50, 11)
   text(email, 320, 11)
@@ -230,23 +255,47 @@ async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, 
 
   text("Descripción", 50, 11, bold)
   text("Importe", 480, 11, bold)
-  y -= 6
-  page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 1, color: line })
-  y -= 18
+  y -= 10
+  page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 1, color: black })
+  y -= 22
   text(`${plan} — JT Training`, 50, 11)
   text(eur(inv.subtotal), 480, 11)
+  y -= 14
+  page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 0.5, color: line })
   y -= 30
 
-  text("Subtotal", 420, 10, font, gray)
+  // Totales sobre una caja gris clara, para que resalten como en el correo.
+  const boxTop = y + 12
+  const boxBottom = y - 54
+  page.drawRectangle({ x: 330, y: boxBottom, width: 215, height: boxTop - boxBottom, color: lightGray })
+
+  text("Subtotal", 345, 10, font, gray)
   text(eur(inv.subtotal), 480, 10, font, gray)
   y -= 16
-  text("21% IVA", 420, 10, font, gray)
+  text("21% IVA", 345, 10, font, gray)
   text(eur(inv.iva), 480, 10, font, gray)
-  y -= 8
-  page.drawLine({ start: { x: 420, y }, end: { x: 545, y }, thickness: 1.2, color: black })
+  y -= 10
+  page.drawLine({ start: { x: 345, y }, end: { x: 530, y }, thickness: 1, color: black })
   y -= 18
-  text("Total", 420, 13, bold)
+  text("Total", 345, 13, bold)
   text(eur(inv.total), 480, 13, bold)
+
+  // Pie, mismo texto que el footer del correo.
+  page.drawLine({ start: { x: 50, y: 70 }, end: { x: 545, y: 70 }, thickness: 1, color: line })
+  page.drawText("JT Training — Entrenamiento personal", {
+    x: pageWidth / 2 - 90,
+    y: 50,
+    size: 9,
+    font,
+    color: gray,
+  })
+  page.drawText("personaltrainerjesustorres@gmail.com", {
+    x: pageWidth / 2 - 85,
+    y: 36,
+    size: 9,
+    font,
+    color: gray,
+  })
 
   return doc.save()
 }
