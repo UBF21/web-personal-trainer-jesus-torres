@@ -22,6 +22,7 @@
 //   PANEL_URL             — ej. "https://juliojesustorres.com" (opcional, hay un valor por defecto)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1"
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -191,7 +192,84 @@ function invoiceHtml(inv: InvoiceRow, name: string, email: string, plan: string)
   `
 }
 
-async function sendApprovalEmail(to: string, name: string, plan: string, password: string, invoiceBlock: string) {
+/** Mismos datos que invoiceHtml, pero dibujados a mano en un PDF (pdf-lib
+ * no entiende HTML/CSS — no hay motor de render, cada línea va con su
+ * propia coordenada). */
+async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, plan: string): Promise<Uint8Array> {
+  const doc = await PDFDocument.create()
+  const page = doc.addPage([595.28, 841.89]) // A4
+  const font = await doc.embedFont(StandardFonts.Helvetica)
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold)
+  const black = rgb(0, 0, 0)
+  const gray = rgb(0.45, 0.45, 0.45)
+  const line = rgb(0.85, 0.85, 0.85)
+
+  let y = 780
+
+  function text(str: string, x: number, size: number, f: typeof font = font, color = black) {
+    page.drawText(str, { x, y, size, font: f, color })
+  }
+
+  text(`FACTURA PROFORMA Nº ${inv.number}`, 50, 18, bold)
+  y -= 22
+  const date = new Date(inv.issued_at).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
+  text(`Fecha: ${date}   ·   Forma de pago: Transferencia bancaria`, 50, 10, font, gray)
+  y -= 40
+
+  text("EMISOR", 50, 9, bold, gray)
+  text("FACTURADO A", 320, 9, bold, gray)
+  y -= 16
+  text(ISSUER.name, 50, 11)
+  text(name, 320, 11)
+  y -= 14
+  text(ISSUER.address, 50, 11)
+  text(email, 320, 11)
+  y -= 14
+  text(ISSUER.phone, 50, 11)
+  y -= 40
+
+  text("Descripción", 50, 11, bold)
+  text("Importe", 480, 11, bold)
+  y -= 6
+  page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 1, color: line })
+  y -= 18
+  text(`${plan} — JT Training`, 50, 11)
+  text(eur(inv.subtotal), 480, 11)
+  y -= 30
+
+  text("Subtotal", 420, 10, font, gray)
+  text(eur(inv.subtotal), 480, 10, font, gray)
+  y -= 16
+  text("21% IVA", 420, 10, font, gray)
+  text(eur(inv.iva), 480, 10, font, gray)
+  y -= 8
+  page.drawLine({ start: { x: 420, y }, end: { x: 545, y }, thickness: 1.2, color: black })
+  y -= 18
+  text("Total", 420, 13, bold)
+  text(eur(inv.total), 480, 13, bold)
+
+  return doc.save()
+}
+
+/** btoa() no acepta un Uint8Array grande directo sin desbordar la pila —
+ * se arma el string binario por partes. */
+function uint8ToBase64(bytes: Uint8Array): string {
+  let binary = ""
+  const chunkSize = 0x8000
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize))
+  }
+  return btoa(binary)
+}
+
+async function sendApprovalEmail(
+  to: string,
+  name: string,
+  plan: string,
+  password: string,
+  invoiceBlock: string,
+  pdfAttachment: { filename: string; content: string } | null,
+) {
   const body = `
     <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
     <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
@@ -216,6 +294,7 @@ async function sendApprovalEmail(to: string, name: string, plan: string, passwor
       to,
       subject: "Tu plan fue aprobado — JT Training",
       html: emailShell(body),
+      ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
     }),
   })
 
@@ -328,7 +407,17 @@ Deno.serve(async (req) => {
   const invoice = await createInvoice(client.id, pending.name, pending.email, pending.plan, Number(pending.amount))
   const invoiceBlock = invoice ? invoiceHtml(invoice, pending.name, pending.email, pending.plan) : ""
 
-  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password, invoiceBlock)
+  let pdfAttachment: { filename: string; content: string } | null = null
+  if (invoice) {
+    try {
+      const pdfBytes = await generateInvoicePdf(invoice, pending.name, pending.email, pending.plan)
+      pdfAttachment = { filename: `factura-proforma-${invoice.number}.pdf`, content: uint8ToBase64(pdfBytes) }
+    } catch (e) {
+      console.error("No se pudo generar el PDF de la factura", e)
+    }
+  }
+
+  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password, invoiceBlock, pdfAttachment)
 
   return json({
     success: true,
