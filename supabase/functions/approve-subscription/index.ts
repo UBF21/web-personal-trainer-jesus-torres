@@ -7,7 +7,8 @@
 //    (nunca sabemos si la anterior la recuerda, así que siempre se
 //    manda una conocida). Si el correo pertenece a una cuenta de
 //    administrador/webmaster, no se le toca la contraseña.
-// 3) le manda esa contraseña por correo.
+// 3) le manda esa contraseña por correo, junto con la factura proforma
+//    del plan (número correlativo, guardado en la tabla "invoices").
 //
 // Corre acá (y no en el navegador) porque crear usuarios con rol requiere
 // la service_role key, que nunca debe llegar al frontend.
@@ -30,6 +31,15 @@ const PANEL_URL = Deno.env.get("PANEL_URL") ?? "https://juliojesustorres.com"
 const LOGO_URL = `${PANEL_URL}/jt-logo-white.png`
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+
+// Datos del emisor de la factura proforma — confirmados a mano, no
+// inventar ni completar con nada que no haya dado el propio Jesús.
+const ISSUER = {
+  name: "Julio Jesús Torres",
+  address: "Marbella, España",
+  phone: "+34 662 24 55 62",
+}
+const IVA_RATE = 0.21
 
 // El navegador manda un preflight OPTIONS antes de cada invoke() — sin
 // estos headers, Supabase igual ejecuta la función pero el navegador
@@ -109,7 +119,79 @@ function highlightBox(html: string): string {
   return `<div style="background:#f4f4f4;border-radius:8px;padding:16px 18px;margin:16px 0;font-size:14px;">${html}</div>`
 }
 
-async function sendApprovalEmail(to: string, name: string, plan: string, password: string) {
+function eur(n: number): string {
+  return `${n.toFixed(2).replace(".", ",")} €`
+}
+
+type InvoiceRow = { number: number; subtotal: number; iva: number; total: number; issued_at: string }
+
+/** El precio ya incluye el 21% de IVA — se separa para mostrarlo desglosado. */
+async function createInvoice(clientId: string, name: string, email: string, plan: string, total: number): Promise<InvoiceRow | null> {
+  const subtotal = Math.round((total / (1 + IVA_RATE)) * 100) / 100
+  const iva = Math.round((total - subtotal) * 100) / 100
+
+  const { data, error } = await admin
+    .from("invoices")
+    .insert({ client_id: clientId, client_name: name, client_email: email, plan, subtotal, iva, total })
+    .select("number, subtotal, iva, total, issued_at")
+    .single()
+
+  if (error || !data) {
+    console.error("No se pudo registrar la factura", error?.message)
+    return null
+  }
+  return data as InvoiceRow
+}
+
+function invoiceHtml(inv: InvoiceRow, name: string, email: string, plan: string): string {
+  const date = new Date(inv.issued_at).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
+  return `
+    <div style="margin-top:28px;border-top:1px solid #eee;padding-top:24px;">
+      <p style="margin:0 0 2px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#999;">
+        Factura proforma Nº ${inv.number}
+      </p>
+      <p style="margin:0 0 16px;font-size:12px;color:#999;">Fecha: ${date} · Forma de pago: Transferencia bancaria</p>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;">
+        <tr>
+          <td style="padding:2px 0;color:#777;vertical-align:top;width:90px;">Emisor</td>
+          <td style="padding:2px 0;text-align:right;">${ISSUER.name}<br/>${ISSUER.address}<br/>${ISSUER.phone}</td>
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+        <tr>
+          <td style="padding:2px 0;color:#777;vertical-align:top;width:90px;">Facturado a</td>
+          <td style="padding:2px 0;text-align:right;">${name}<br/>${email}</td>
+        </tr>
+      </table>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:8px 0;font-weight:700;">Descripción</td>
+          <td style="padding:8px 0;font-weight:700;text-align:right;">Importe</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:8px 0;">${plan} — JT Training</td>
+          <td style="padding:8px 0;text-align:right;">${eur(inv.subtotal)}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="padding:4px 0;text-align:right;color:#777;">Subtotal: ${eur(inv.subtotal)}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="padding:4px 0;text-align:right;color:#777;">21% IVA: ${eur(inv.iva)}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="padding:10px 0 0;text-align:right;font-weight:700;border-top:2px solid #000;">Total: ${eur(inv.total)}</td>
+        </tr>
+      </table>
+    </div>
+  `
+}
+
+async function sendApprovalEmail(to: string, name: string, plan: string, password: string, invoiceBlock: string) {
   const body = `
     <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
     <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
@@ -120,6 +202,7 @@ async function sendApprovalEmail(to: string, name: string, plan: string, passwor
     `)}
     ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
     <p style="color:#999;font-size:13px;margin:20px 0 0;">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
+    ${invoiceBlock}
   `
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -242,7 +325,10 @@ Deno.serve(async (req) => {
     }
   }
 
-  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password)
+  const invoice = await createInvoice(client.id, pending.name, pending.email, pending.plan, Number(pending.amount))
+  const invoiceBlock = invoice ? invoiceHtml(invoice, pending.name, pending.email, pending.plan) : ""
+
+  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password, invoiceBlock)
 
   return json({
     success: true,
