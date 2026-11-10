@@ -207,24 +207,24 @@ async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, 
   const lightGray = rgb(0.96, 0.96, 0.96)
   const line = rgb(0.85, 0.85, 0.85)
 
-  // Header negro con el logo blanco — mismo criterio que el correo. Si no
-  // se puede traer el logo, sigue igual solo con el bloque negro.
-  const HEADER_H = 70
+  // Header negro con el logo blanco a la izquierda — mismo criterio que
+  // el correo. Si no se puede traer el logo, sigue igual solo con texto.
+  const HEADER_H = 100
   page.drawRectangle({ x: 0, y: pageHeight - HEADER_H, width: pageWidth, height: HEADER_H, color: black })
   try {
     const logoBytes = await fetch(LOGO_URL).then((r) => r.arrayBuffer())
     const logo = await doc.embedPng(logoBytes)
-    const logoH = 32
+    const logoH = 60
     const logoW = (logo.width / logo.height) * logoH
     page.drawImage(logo, {
-      x: (pageWidth - logoW) / 2,
+      x: 50,
       y: pageHeight - HEADER_H + (HEADER_H - logoH) / 2,
       width: logoW,
       height: logoH,
     })
   } catch (e) {
     console.error("No se pudo incrustar el logo en el PDF", e)
-    page.drawText("JT TRAINING", { x: 50, y: pageHeight - HEADER_H / 2 - 6, size: 16, font: bold, color: white })
+    page.drawText("JT TRAINING", { x: 50, y: pageHeight - HEADER_H / 2 - 6, size: 20, font: bold, color: white })
   }
 
   let y = pageHeight - HEADER_H - 40
@@ -280,21 +280,22 @@ async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, 
   text("Total", 345, 13, bold)
   text(eur(inv.total), 480, 13, bold)
 
-  // Pie, mismo texto que el footer del correo.
-  page.drawLine({ start: { x: 50, y: 70 }, end: { x: 545, y: 70 }, thickness: 1, color: line })
+  // Pie negro, igual que el header — mismo texto que el footer del correo.
+  const FOOTER_H = 50
+  page.drawRectangle({ x: 0, y: 0, width: pageWidth, height: FOOTER_H, color: black })
   page.drawText("JT Training — Entrenamiento personal", {
-    x: pageWidth / 2 - 90,
-    y: 50,
-    size: 9,
-    font,
-    color: gray,
+    x: pageWidth / 2 - 100,
+    y: 30,
+    size: 10,
+    font: bold,
+    color: white,
   })
   page.drawText("personaltrainerjesustorres@gmail.com", {
-    x: pageWidth / 2 - 85,
-    y: 36,
+    x: pageWidth / 2 - 92,
+    y: 14,
     size: 9,
     font,
-    color: gray,
+    color: rgb(0.75, 0.75, 0.75),
   })
 
   return doc.save()
