@@ -34,11 +34,11 @@ const LOGO_URL = `${PANEL_URL}/jt-logo-white.png`
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
 // Datos del emisor de la factura proforma — confirmados a mano, no
-// inventar ni completar con nada que no haya dado el propio Jesús.
+// inventar ni completar con nada que no haya dado el propio Jesús. Ya no
+// se muestran nombre ni teléfono, solo dirección + correo de contacto.
 const ISSUER = {
-  name: "Julio Jesús Torres",
   address: "Marbella, España",
-  phone: "+34 662 24 55 62",
+  email: "personaltrainerjesustorres@gmail.com",
 }
 const IVA_RATE = 0.21
 
@@ -156,7 +156,7 @@ function invoiceHtml(inv: InvoiceRow, name: string, email: string, plan: string)
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;">
         <tr>
           <td style="padding:2px 0;color:#777;vertical-align:top;width:90px;">Emisor</td>
-          <td style="padding:2px 0;text-align:right;">${ISSUER.name}<br/>${ISSUER.address}<br/>${ISSUER.phone}</td>
+          <td style="padding:2px 0;text-align:right;">Pedido Nº ${inv.number}<br/>${ISSUER.address}<br/>${ISSUER.email}</td>
         </tr>
       </table>
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
@@ -244,13 +244,13 @@ async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, 
   text("EMISOR", 50, 9, bold, gray)
   text("FACTURADO A", 320, 9, bold, gray)
   y -= 16
-  text(ISSUER.name, 50, 11, bold)
+  text(`Pedido Nº ${inv.number}`, 50, 11, bold)
   text(name, 320, 11, bold)
   y -= 14
   text(ISSUER.address, 50, 11)
   text(email, 320, 11)
   y -= 14
-  text(ISSUER.phone, 50, 11)
+  text(ISSUER.email, 50, 11)
   y -= 40
 
   text("Descripción", 50, 11, bold)
