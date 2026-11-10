@@ -7,8 +7,11 @@
 //    (nunca sabemos si la anterior la recuerda, así que siempre se
 //    manda una conocida). Si el correo pertenece a una cuenta de
 //    administrador/webmaster, no se le toca la contraseña.
-// 3) le manda esa contraseña por correo, junto con la factura proforma
-//    del plan (número correlativo, guardado en la tabla "invoices").
+// 3) le manda esa contraseña por correo.
+// 4) genera la factura proforma del plan (número correlativo, en la
+//    tabla "invoices") y la manda en PDF — pero al staff
+//    (administrador/webmaster), no al cliente; si alguien del equipo
+//    quiere, se la reenvía él mismo.
 //
 // Corre acá (y no en el navegador) porque crear usuarios con rol requiere
 // la service_role key, que nunca debe llegar al frontend.
@@ -41,6 +44,9 @@ const ISSUER = {
   email: "personaltrainerjesustorres@gmail.com",
 }
 const IVA_RATE = 0.21
+// La factura proforma ya no se manda al cliente — se genera para el
+// staff, y si alguno quiere, se la reenvía a mano al cliente.
+const STAFF_EMAILS = ["personaltrainerjesustorres@gmail.com", "josephmori28@gmail.com"]
 
 // El navegador manda un preflight OPTIONS antes de cada invoke() — sin
 // estos headers, Supabase igual ejecuta la función pero el navegador
@@ -312,14 +318,7 @@ function uint8ToBase64(bytes: Uint8Array): string {
   return btoa(binary)
 }
 
-async function sendApprovalEmail(
-  to: string,
-  name: string,
-  plan: string,
-  password: string,
-  invoiceBlock: string,
-  pdfAttachment: { filename: string; content: string } | null,
-) {
+async function sendApprovalEmail(to: string, name: string, plan: string, password: string) {
   const body = `
     <h2 style="margin:0 0 4px;font-size:22px;">¡Bienvenido/a, ${name}!</h2>
     <p style="color:#555;margin:0 0 20px;">Tu plan <strong>${plan}</strong> fue aprobado y ya está activo.</p>
@@ -330,7 +329,6 @@ async function sendApprovalEmail(
     `)}
     ${ctaButton(`${PANEL_URL}/login`, "Entrar a mi panel")}
     <p style="color:#999;font-size:13px;margin:20px 0 0;">Por seguridad, cambia esta contraseña ni bien ingreses, desde "Mi perfil".</p>
-    ${invoiceBlock}
   `
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -344,7 +342,39 @@ async function sendApprovalEmail(
       to,
       subject: "Tu plan fue aprobado — JT Training",
       html: emailShell(body),
-      ...(pdfAttachment ? { attachments: [pdfAttachment] } : {}),
+    }),
+  })
+
+  return { ok: res.ok, status: res.status, body: res.ok ? null : await res.text().catch(() => null) }
+}
+
+/** La factura va al staff, no al cliente — si Jesús (o quien aprobó)
+ * quiere mandársela al cliente, la reenvía él mismo desde su correo. */
+async function sendStaffInvoiceEmail(
+  invoice: InvoiceRow,
+  clientName: string,
+  clientEmail: string,
+  plan: string,
+  pdfAttachment: { filename: string; content: string },
+) {
+  const body = `
+    <h2 style="margin:0 0 4px;font-size:20px;">Factura proforma generada</h2>
+    <p style="color:#555;margin:0 0 20px;">Se aprobó la suscripción de <strong>${clientName}</strong> (${clientEmail}) — adjunta va su factura proforma en PDF. Si quieres, reenvíasela tú mismo.</p>
+    ${invoiceHtml(invoice, clientName, clientEmail, plan)}
+  `
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to: STAFF_EMAILS,
+      subject: `Factura proforma Nº ${invoice.number} — ${clientName}`,
+      html: emailShell(body),
+      attachments: [pdfAttachment],
     }),
   })
 
@@ -454,24 +484,27 @@ Deno.serve(async (req) => {
     }
   }
 
-  const invoice = await createInvoice(client.id, pending.name, pending.email, pending.plan, Number(pending.amount))
-  const invoiceBlock = invoice ? invoiceHtml(invoice, pending.name, pending.email, pending.plan) : ""
+  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password)
 
-  let pdfAttachment: { filename: string; content: string } | null = null
+  const invoice = await createInvoice(client.id, pending.name, pending.email, pending.plan, Number(pending.amount))
+  let invoiceWarning: string | undefined
   if (invoice) {
     try {
       const pdfBytes = await generateInvoicePdf(invoice, pending.name, pending.email, pending.plan)
-      pdfAttachment = { filename: `factura-proforma-${invoice.number}.pdf`, content: uint8ToBase64(pdfBytes) }
+      const pdfAttachment = { filename: `factura-proforma-${invoice.number}.pdf`, content: uint8ToBase64(pdfBytes) }
+      const staffEmailResult = await sendStaffInvoiceEmail(invoice, pending.name, pending.email, pending.plan, pdfAttachment)
+      if (!staffEmailResult.ok) invoiceWarning = "No se pudo mandar la factura proforma al staff."
     } catch (e) {
-      console.error("No se pudo generar el PDF de la factura", e)
+      console.error("No se pudo generar/mandar el PDF de la factura", e)
+      invoiceWarning = "No se pudo generar la factura proforma."
     }
   }
-
-  const emailResult = await sendApprovalEmail(pending.email, pending.name, pending.plan, password, invoiceBlock, pdfAttachment)
 
   return json({
     success: true,
     data: client,
-    warning: !emailResult.ok ? "Cliente aprobado y con acceso, pero el correo no se pudo enviar." : undefined,
+    warning: !emailResult.ok
+      ? "Cliente aprobado y con acceso, pero el correo no se pudo enviar."
+      : invoiceWarning,
   })
 })
