@@ -8,7 +8,7 @@ const partners = [
   { name: "Raph-Corp", code: null, logo: "/isotipo-solido-alt.png", link: "https://raph-corp.com", isDiscount: false },
   { name: "Zumub", code: null, logo: "/zumub-logo.png", link: "http://zumu.be/JESUSTORRES", isDiscount: true },
   { name: "Biolab", code: null, logo: "/biolab-logo.jpg", link: "https://biolabshop.co.uk", isDiscount: false },
-  { name: "Fitblood", code: null, logo: "/fitblood-logo.png", link: "https://instagram.com/fit.blood", isDiscount: false },
+  { name: "Fitblood", code: null, logo: "/fitblood-logo.png", link: "https://www.fit-blood.com", isDiscount: false },
   { name: "Gaspar", code: null, logo: "/gaspar-logo.jpeg", link: "https://www.instagram.com/gaspar.microcapilar", isDiscount: false },
   { name: "Jose Bulnes", code: null, logo: "/josebulnes-logo.png", link: "https://www.josebulnes.com", isDiscount: false },
   { name: "TrainerStudio", code: null, logo: "/trainerstudio-logo.png", link: "https://www.trainerstudio.com", isDiscount: false },
