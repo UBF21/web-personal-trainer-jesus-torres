@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
 import { ArrowLeft, CalendarClock, ClipboardList, Clock, Droplets, KeyRound, Layers, Loader2, Pencil, Pill, Plus, Repeat, Salad, Signal, Target, type LucideIcon } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -14,7 +14,17 @@ import { api } from "@/config/api"
 import { useAuth } from "@/contexts/auth-context"
 import { useClients } from "@/contexts/clients-context"
 import { toast } from "@/hooks/use-toast"
-import { GOALS, LEVELS, baseRoutine, buildNutritionGuide, getClientDetail, type NutritionGuide, type TrainingProgram } from "@/lib/mock-data"
+import {
+  GOALS,
+  LEVELS,
+  baseRoutine,
+  buildNutritionGuide,
+  buildWeightSeries,
+  getClientDetail,
+  type MockClient,
+  type NutritionGuide,
+  type TrainingProgram,
+} from "@/lib/mock-data"
 import { NutritionEditor, ProgramEditor, SELECT_CLASS } from "./client-editors"
 import { MockNotice } from "./panel-ui"
 
@@ -104,6 +114,140 @@ function ResetClientPasswordCard({ email }: { email: string }) {
         {error && <p className="w-full text-sm text-destructive">{error}</p>}
       </CardContent>
     </Card>
+  )
+}
+
+/** Peso real del cliente (clients.start_weight/goal_weight + weight_logs) —
+ * antes esto se fabricaba con un hash del id, ahora sale de Supabase. */
+function WeightTrackingCard({
+  client,
+  logs,
+  canEdit,
+  onSetTargets,
+  onAddLog,
+}: {
+  client: MockClient
+  logs: { weight: number; loggedAt: string }[]
+  canEdit: boolean
+  onSetTargets: (start: number, goal: number) => Promise<boolean>
+  onAddLog: (weight: number) => Promise<boolean>
+}) {
+  const [startInput, setStartInput] = useState(client.startWeight?.toString() ?? "")
+  const [goalInput, setGoalInput] = useState(client.goalWeight?.toString() ?? "")
+  const [savingTargets, setSavingTargets] = useState(false)
+  const [newWeight, setNewWeight] = useState("")
+  const [savingLog, setSavingLog] = useState(false)
+
+  const currentWeight = logs.length > 0 ? logs[logs.length - 1].weight : (client.startWeight ?? null)
+  const toGoal =
+    currentWeight != null && client.goalWeight != null
+      ? Math.round((currentWeight - client.goalWeight) * 10) / 10
+      : null
+  const series = buildWeightSeries(logs)
+
+  async function handleSaveTargets() {
+    const start = Number(startInput)
+    const goal = Number(goalInput)
+    if (!start || !goal) return
+    setSavingTargets(true)
+    await onSetTargets(start, goal)
+    setSavingTargets(false)
+  }
+
+  async function handleAddLog() {
+    const w = Number(newWeight)
+    if (!w) return
+    setSavingLog(true)
+    const ok = await onAddLog(w)
+    setSavingLog(false)
+    if (ok) setNewWeight("")
+  }
+
+  if (client.startWeight == null || client.goalWeight == null) {
+    if (!canEdit) {
+      return <p className="text-sm text-muted-foreground">Todavía no se registró el peso de este cliente.</p>
+    }
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Registra el peso inicial y el objetivo para empezar a seguir su evolución.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="weight-start">Peso inicial (kg)</Label>
+            <Input
+              id="weight-start"
+              type="number"
+              value={startInput}
+              onChange={(e) => setStartInput(e.target.value)}
+              className="w-28"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="weight-goal">Objetivo (kg)</Label>
+            <Input
+              id="weight-goal"
+              type="number"
+              value={goalInput}
+              onChange={(e) => setGoalInput(e.target.value)}
+              className="w-28"
+            />
+          </div>
+          <Button onClick={handleSaveTargets} disabled={savingTargets}>
+            Guardar
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          { label: "Peso inicial", value: `${client.startWeight} kg` },
+          { label: "Peso actual", value: currentWeight != null ? `${currentWeight} kg` : "Sin registros" },
+          {
+            label: "Objetivo",
+            value: `${client.goalWeight} kg`,
+            hint: toGoal == null ? undefined : toGoal > 0 ? `Le faltan ${toGoal} kg` : "¡Objetivo logrado!",
+          },
+        ].map((m) => (
+          <div key={m.label} className="rounded-lg border border-border p-3">
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {m.label === "Objetivo" && <Target className="h-3.5 w-3.5" />}
+              {m.label}
+            </p>
+            <p className="text-lg font-bold">{m.value}</p>
+            {m.hint && <p className="text-xs text-muted-foreground">{m.hint}</p>}
+          </div>
+        ))}
+      </div>
+
+      {series.length >= 2 ? (
+        <WeightChart series={series} goal={client.goalWeight} />
+      ) : (
+        <p className="text-sm text-muted-foreground">Aún no hay suficientes registros para graficar la evolución.</p>
+      )}
+
+      {canEdit && (
+        <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="weight-new">Nuevo registro de peso (kg)</Label>
+            <Input
+              id="weight-new"
+              type="number"
+              value={newWeight}
+              onChange={(e) => setNewWeight(e.target.value)}
+              className="w-28"
+            />
+          </div>
+          <Button type="button" variant="outline" onClick={handleAddLog} disabled={savingLog}>
+            Agregar peso
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -517,15 +661,38 @@ function CreateProgramDialog({
 export default function ClientDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
-  const { clients, programs, createProgram, updateProgram, nutrition: nutritionSaved, saveNutrition } = useClients()
+  const {
+    clients,
+    programs,
+    loadProgram,
+    createProgram,
+    updateProgram,
+    nutrition: nutritionSaved,
+    loadNutrition,
+    saveNutrition,
+    weightLogs,
+    loadWeightLogs,
+    addWeightLog,
+    setWeightTargets,
+  } = useClients()
   const [creating, setCreating] = useState(false)
   const client = clients.find((c) => String(c.id) === id)
+
+  useEffect(() => {
+    if (!client) return
+    loadProgram(client.id)
+    loadNutrition(client.id)
+    loadWeightLogs(client.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client?.id])
 
   if (!client) return <Navigate to="/panel/clientes" replace />
 
   const d = getClientDetail(client)
+  const logs = weightLogs[client.id] ?? []
+  const currentWeight = logs.length > 0 ? logs[logs.length - 1].weight : (client.startWeight ?? 70)
   // La guía se adapta al objetivo del programa (si todavía no hay programa, al objetivo previsto)
-  const nutrition = nutritionSaved[client.id] ?? buildNutritionGuide(d.currentWeight, programs[client.id]?.goal ?? d.program.goal)
+  const nutrition = nutritionSaved[client.id] ?? buildNutritionGuide(currentWeight, programs[client.id]?.goal ?? d.program.goal)
   // Solo el administrador y el webmaster editan el programa y la guía
   const canEdit = user?.role === "administrador" || user?.role === "webmaster"
   const initials = client.name
@@ -534,7 +701,6 @@ export default function ClientDetailPage() {
     .slice(0, 2)
     .join("")
     .toUpperCase()
-  const toGoal = Math.round((d.currentWeight - d.goalWeight) * 10) / 10
 
   return (
     <>
@@ -627,24 +793,13 @@ export default function ClientDetailPage() {
               <Progress value={client.progress} />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { label: "Peso inicial", value: `${d.startWeight} kg` },
-                { label: "Peso actual", value: `${d.currentWeight} kg` },
-                { label: "Objetivo", value: `${d.goalWeight} kg`, hint: toGoal > 0 ? `Le faltan ${toGoal} kg` : "¡Objetivo logrado!" },
-              ].map((m) => (
-                <div key={m.label} className="rounded-lg border border-border p-3">
-                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    {m.label === "Objetivo" && <Target className="h-3.5 w-3.5" />}
-                    {m.label}
-                  </p>
-                  <p className="text-lg font-bold">{m.value}</p>
-                  {m.hint && <p className="text-xs text-muted-foreground">{m.hint}</p>}
-                </div>
-              ))}
-            </div>
-
-            <WeightChart series={d.weightSeries} goal={d.goalWeight} />
+            <WeightTrackingCard
+              client={client}
+              logs={logs}
+              canEdit={canEdit}
+              onSetTargets={(start, goal) => setWeightTargets(client.id, start, goal)}
+              onAddLog={(weight) => addWeightLog(client.id, weight)}
+            />
           </CardContent>
         </Card>
       </div>
@@ -663,9 +818,13 @@ export default function ClientDetailPage() {
             <TrainingProgramContent
               program={programs[client.id]!}
               canEdit={canEdit}
-              onSave={(p) => {
-                updateProgram(client.id, p)
-                toast({ title: "Programa actualizado", description: `Se guardaron los cambios del programa de ${client.name}.` })
+              onSave={async (p) => {
+                const ok = await updateProgram(client.id, p)
+                if (ok) {
+                  toast({ title: "Programa actualizado", description: `Se guardaron los cambios del programa de ${client.name}.` })
+                } else {
+                  toast({ title: "No se pudo guardar el programa", variant: "destructive" })
+                }
               }}
             />
           ) : (
@@ -683,9 +842,13 @@ export default function ClientDetailPage() {
           <NutritionGuideContent
             guide={nutrition}
             canEdit={canEdit}
-            onSave={(g) => {
-              saveNutrition(client.id, g)
-              toast({ title: "Guía actualizada", description: `Se guardaron los cambios de la guía de nutrición de ${client.name}.` })
+            onSave={async (g) => {
+              const ok = await saveNutrition(client.id, g)
+              if (ok) {
+                toast({ title: "Guía actualizada", description: `Se guardaron los cambios de la guía de nutrición de ${client.name}.` })
+              } else {
+                toast({ title: "No se pudo guardar la guía", variant: "destructive" })
+              }
             }}
           />
         </ModuleItem>
@@ -701,10 +864,14 @@ export default function ClientDetailPage() {
         open={creating}
         clientName={client.name}
         onClose={() => setCreating(false)}
-        onCreate={(program) => {
-          createProgram(client.id, program)
+        onCreate={async (program) => {
+          const ok = await createProgram(client.id, program)
           setCreating(false)
-          toast({ title: "Programa creado", description: `${client.name} ya tiene su programa de entrenamiento a medida.` })
+          if (ok) {
+            toast({ title: "Programa creado", description: `${client.name} ya tiene su programa de entrenamiento a medida.` })
+          } else {
+            toast({ title: "No se pudo crear el programa", variant: "destructive" })
+          }
         }}
       />
 

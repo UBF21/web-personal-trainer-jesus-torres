@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +32,12 @@ function NoPlanYet() {
 
 export function ClientPlan() {
   const client = useMyClient()
-  const { programs } = useClients()
+  const { programs, loadProgram } = useClients()
+
+  useEffect(() => {
+    if (client) loadProgram(client.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client?.id])
 
   if (!client) {
     return (

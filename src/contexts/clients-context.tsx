@@ -1,14 +1,12 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { api, type PendingSubscriptionInput } from "@/config/api"
+import { api, type PendingSubscriptionInput, type WeightLog } from "@/config/api"
 import { type MockClient, type NutritionGuide, type PendingSubscription, type TrainingProgram } from "@/lib/mock-data"
 
-// Clientes y solicitudes pendientes ya salen de Supabase (API en Express,
-// ver src/config/api.ts) — es lo que pidió conectar "el flujo completo".
-// Los programas de entrenamiento y las guías de nutrición siguen siendo
-// maqueta en memoria por ahora (se pierden al recargar): persistirlos es
-// un trabajo aparte, más grande, que no se incluyó en este alcance.
+// Clientes, solicitudes pendientes, peso, programa de entrenamiento y guía
+// de nutrición salen todos de Supabase (ver src/config/api.ts) — nada de
+// esto es maqueta en memoria.
 
 function formatRequestedAt(iso: string): string {
   const date = new Date(iso)
@@ -32,13 +30,20 @@ interface ClientsContextValue {
   /** detail: por qué falló (ok=false) o qué detalle quedó pendiente aunque funcionó (ok=true). */
   approve: (id: string) => Promise<{ ok: boolean; detail?: string }>
   reject: (id: string) => Promise<boolean>
-  /** Programa de entrenamiento a medida de cada cliente; sin entrada = aún no tiene uno. */
+  /** Programa de entrenamiento a medida de cada cliente; sin entrada = todavía no se cargó o no tiene uno. */
   programs: Record<string, TrainingProgram | undefined>
-  createProgram: (clientId: string, program: TrainingProgram) => void
-  updateProgram: (clientId: string, program: TrainingProgram) => void
-  /** Guía de nutrición editada por el entrenador; sin entrada = se usa la calculada por defecto. */
+  loadProgram: (clientId: string) => Promise<void>
+  createProgram: (clientId: string, program: TrainingProgram) => Promise<boolean>
+  updateProgram: (clientId: string, program: TrainingProgram) => Promise<boolean>
+  /** Guía de nutrición editada por el entrenador; sin entrada = todavía no se cargó o se usa la calculada por defecto. */
   nutrition: Record<string, NutritionGuide | undefined>
-  saveNutrition: (clientId: string, guide: NutritionGuide) => void
+  loadNutrition: (clientId: string) => Promise<void>
+  saveNutrition: (clientId: string, guide: NutritionGuide) => Promise<boolean>
+  /** Historial de peso de cada cliente; sin entrada = todavía no se cargó. */
+  weightLogs: Record<string, WeightLog[]>
+  loadWeightLogs: (clientId: string) => Promise<void>
+  addWeightLog: (clientId: string, weight: number) => Promise<boolean>
+  setWeightTargets: (clientId: string, startWeight: number, goalWeight: number) => Promise<boolean>
 }
 
 const ClientsContext = createContext<ClientsContextValue | null>(null)
@@ -49,6 +54,7 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [programs, setPrograms] = useState<Record<string, TrainingProgram | undefined>>({})
   const [nutrition, setNutrition] = useState<Record<string, NutritionGuide | undefined>>({})
+  const [weightLogs, setWeightLogs] = useState<Record<string, WeightLog[]>>({})
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -66,6 +72,8 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
             progress: c.progress,
             since: formatSince(c.createdAt),
             lastReadByStaffAt: c.lastReadByStaffAt,
+            startWeight: c.startWeight,
+            goalWeight: c.goalWeight,
           })),
         )
       }
@@ -123,20 +131,49 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
     [refresh],
   )
 
-  const createProgram = useCallback(
-    (clientId: string, program: TrainingProgram) => setPrograms((prev) => ({ ...prev, [clientId]: program })),
-    [],
+  const loadProgram = useCallback(async (clientId: string) => {
+    const res = await api.programs.get(clientId)
+    if (res.success) setPrograms((prev) => ({ ...prev, [clientId]: res.data ?? undefined }))
+  }, [])
+
+  const saveProgram = useCallback(async (clientId: string, program: TrainingProgram) => {
+    const res = await api.programs.save(clientId, program)
+    if (res.success) setPrograms((prev) => ({ ...prev, [clientId]: program }))
+    return res.success
+  }, [])
+
+  const loadNutrition = useCallback(async (clientId: string) => {
+    const res = await api.nutrition.get(clientId)
+    if (res.success) setNutrition((prev) => ({ ...prev, [clientId]: res.data ?? undefined }))
+  }, [])
+
+  const saveNutrition = useCallback(async (clientId: string, guide: NutritionGuide) => {
+    const res = await api.nutrition.save(clientId, guide)
+    if (res.success) setNutrition((prev) => ({ ...prev, [clientId]: guide }))
+    return res.success
+  }, [])
+
+  const loadWeightLogs = useCallback(async (clientId: string) => {
+    const res = await api.clients.getWeightLogs(clientId)
+    if (res.success) setWeightLogs((prev) => ({ ...prev, [clientId]: res.data ?? [] }))
+  }, [])
+
+  const addWeightLog = useCallback(
+    async (clientId: string, weight: number) => {
+      const res = await api.clients.addWeightLog(clientId, weight)
+      if (res.success) await loadWeightLogs(clientId)
+      return res.success
+    },
+    [loadWeightLogs],
   )
 
-  const updateProgram = useCallback(
-    (clientId: string, program: TrainingProgram) => setPrograms((prev) => ({ ...prev, [clientId]: program })),
-    [],
-  )
-
-  const saveNutrition = useCallback(
-    (clientId: string, guide: NutritionGuide) => setNutrition((prev) => ({ ...prev, [clientId]: guide })),
-    [],
-  )
+  const setWeightTargets = useCallback(async (clientId: string, startWeight: number, goalWeight: number) => {
+    const res = await api.clients.setWeightTargets(clientId, startWeight, goalWeight)
+    if (res.success) {
+      setClients((prev) => prev.map((c) => (c.id === clientId ? { ...c, startWeight, goalWeight } : c)))
+    }
+    return res.success
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -148,12 +185,36 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
       approve,
       reject,
       programs,
-      createProgram,
-      updateProgram,
+      loadProgram,
+      createProgram: saveProgram,
+      updateProgram: saveProgram,
       nutrition,
+      loadNutrition,
       saveNutrition,
+      weightLogs,
+      loadWeightLogs,
+      addWeightLog,
+      setWeightTargets,
     }),
-    [clients, pending, loading, refresh, requestPlan, approve, reject, programs, createProgram, updateProgram, nutrition, saveNutrition],
+    [
+      clients,
+      pending,
+      loading,
+      refresh,
+      requestPlan,
+      approve,
+      reject,
+      programs,
+      loadProgram,
+      saveProgram,
+      nutrition,
+      loadNutrition,
+      saveNutrition,
+      weightLogs,
+      loadWeightLogs,
+      addWeightLog,
+      setWeightTargets,
+    ],
   )
 
   return <ClientsContext.Provider value={value}>{children}</ClientsContext.Provider>

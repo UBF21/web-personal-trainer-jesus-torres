@@ -11,6 +11,9 @@ export interface MockClient {
   progress: number
   /** Cuándo el staff vio por última vez el chat de este cliente — null = nunca. */
   lastReadByStaffAt?: string | null
+  /** null = todavía no se le registró peso (ver weight_logs / clients-context). */
+  startWeight?: number | null
+  goalWeight?: number | null
 }
 
 // Usada hoy solo por la lista de "Usuarios y roles" del webmaster (ver
@@ -161,14 +164,23 @@ export interface ClientDetail {
   sessionsDone: number
   attendance: number | null
   streakWeeks: number
-  startWeight: number
-  currentWeight: number
-  goalWeight: number
-  weightSeries: { label: string; kg: number }[]
   recentSessions: { id: number; date: string; type: string; status: "Completada" | "Falta" }[]
   endsOn: string
   program: TrainingProgram
   paymentMethod: string
+}
+
+/** El peso ya no se fabrica acá — sale de clients.start_weight/goal_weight
+ * y de weight_logs (ver clients-context.tsx). Esto solo le da al registro
+ * crudo la forma que pide el gráfico. */
+export function buildWeightSeries(logs: { weight: number; loggedAt: string }[]): { label: string; kg: number }[] {
+  return logs.map((log, i) => ({
+    label:
+      i === logs.length - 1
+        ? "Hoy"
+        : new Date(log.loggedAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+    kg: log.weight,
+  }))
 }
 
 export const GOALS = ["Pérdida de grasa", "Ganancia de masa muscular", "Recomposición corporal", "Rendimiento deportivo"]
@@ -213,18 +225,6 @@ export function getClientDetail(client: MockClient): ClientDetail {
   const weeksDone = Math.round((client.progress / 100) * weeks)
   const sessionsDone = Math.round((client.progress / 100) * sessionsTotal)
 
-  const startWeight = 70 + ((h * 7) % 25)
-  const goalWeight = startWeight - (6 + (h % 5))
-  const currentWeight = Math.round((startWeight - ((startWeight - goalWeight) * client.progress) / 100) * 10) / 10
-
-  const points = 7
-  const weightSeries = Array.from({ length: points }, (_, i) => {
-    const t = i / (points - 1)
-    const wiggle = Math.sin(h * 3 + i * 1.7) * 0.4
-    const kg = startWeight - (startWeight - currentWeight) * t + (i === 0 || i === points - 1 ? 0 : wiggle)
-    return { label: i === points - 1 ? "Hoy" : `Sem ${i + 1}`, kg: Math.round(kg * 10) / 10 }
-  })
-
   const focuses = WEEK_ROUTINE.filter((d) => d.exercises.length > 1).map((d) => d.focus)
   const dates = ["Hoy", "Hace 2 días", "Hace 4 días", "Hace 6 días", "Hace 9 días"]
   // Solo hay sesiones registradas si ya tuvo alguna (un cliente nuevo no tiene historial)
@@ -256,10 +256,6 @@ export function getClientDetail(client: MockClient): ClientDetail {
     sessionsDone,
     attendance: sessionsDone > 0 ? 80 + ((h * 3) % 19) : null,
     streakWeeks: Math.min(weeksDone, 3 + (h % 6)),
-    startWeight,
-    currentWeight,
-    goalWeight,
-    weightSeries,
     recentSessions,
     endsOn: addMonths(client.since, plan?.months ?? 3),
     paymentMethod: "Transferencia bancaria",

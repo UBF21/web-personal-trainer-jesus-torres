@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import { CalendarDays, Dumbbell, Flame, Target } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -11,8 +12,13 @@ import Dashboard from "./dashboard"
 import { MockNotice, PageHeader, StatCard } from "./panel-ui"
 
 function ClientOverview({ name, email }: { name: string; email: string }) {
-  const { clients } = useClients()
+  const { clients, weightLogs, loadWeightLogs } = useClients()
   const client = clients.find((c) => c.email === email)
+
+  useEffect(() => {
+    if (client) loadWeightLogs(client.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client?.id])
 
   // Persona registrada que todavía no tiene un plan aprobado
   if (!client) {
@@ -35,6 +41,8 @@ function ClientOverview({ name, email }: { name: string; email: string }) {
   }
 
   const d = getClientDetail(client)
+  const logs = weightLogs[client.id] ?? []
+  const currentWeight = logs.length > 0 ? logs[logs.length - 1].weight : client.startWeight
   const mine = APPOINTMENTS.filter((a) => a.client === client.name)
   const next = mine[0]
 
@@ -45,7 +53,12 @@ function ClientOverview({ name, email }: { name: string; email: string }) {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Dumbbell} label="Sesiones completadas" value={String(d.sessionsDone)} hint={`de ${d.sessionsTotal} del plan`} />
         <StatCard icon={Flame} label="Racha actual" value={`${d.streakWeeks} ${d.streakWeeks === 1 ? "semana" : "semanas"}`} hint="¡Sigue así!" />
-        <StatCard icon={Target} label="Peso actual" value={`${d.currentWeight} kg`} hint={`Objetivo: ${d.goalWeight} kg`} />
+        <StatCard
+          icon={Target}
+          label="Peso actual"
+          value={currentWeight != null ? `${currentWeight} kg` : "Sin registros"}
+          hint={client.goalWeight != null ? `Objetivo: ${client.goalWeight} kg` : "Sin objetivo"}
+        />
         <StatCard icon={CalendarDays} label="Próxima sesión" value={next ? `${next.day} ${next.time}` : "—"} hint={next?.type ?? "Sin sesiones programadas"} />
       </div>
 

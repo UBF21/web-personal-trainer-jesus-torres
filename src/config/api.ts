@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import type { NutritionGuide, TrainingProgram } from "@/lib/mock-data"
 
 // Ya no hay backend Express de por medio: todo (galería, planes, clientes)
 // habla directo con Supabase. La escritura está protegida por políticas RLS
@@ -88,6 +89,13 @@ export interface ApiClient {
   progress: number
   createdAt: string
   lastReadByStaffAt?: string | null
+  startWeight: number | null
+  goalWeight: number | null
+}
+
+export interface WeightLog {
+  weight: number
+  loggedAt: string
 }
 
 export interface PendingSubscription {
@@ -194,6 +202,8 @@ function mapClientRow(row: any): ApiClient {
     progress: row.progress,
     createdAt: row.created_at,
     lastReadByStaffAt: row.last_read_by_staff_at,
+    startWeight: row.start_weight === null || row.start_weight === undefined ? null : Number(row.start_weight),
+    goalWeight: row.goal_weight === null || row.goal_weight === undefined ? null : Number(row.goal_weight),
   }
 }
 
@@ -392,6 +402,32 @@ export const api = {
       if (error) return { success: false, error: error.message }
       return { success: true, data: data.map(mapClientRow) }
     },
+    getWeightLogs: async (clientId: string): Promise<ApiResponse<WeightLog[]>> => {
+      const { data, error } = await supabase
+        .from("weight_logs")
+        .select("weight, logged_at")
+        .eq("client_id", clientId)
+        .order("logged_at", { ascending: true })
+      if (error) return { success: false, error: error.message }
+      return { success: true, data: data.map((r) => ({ weight: Number(r.weight), loggedAt: r.logged_at })) }
+    },
+    addWeightLog: async (clientId: string, weight: number): Promise<ApiResponse<null>> => {
+      const { error } = await supabase.from("weight_logs").insert({ client_id: clientId, weight })
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
+    setWeightTargets: async (
+      clientId: string,
+      startWeight: number,
+      goalWeight: number,
+    ): Promise<ApiResponse<null>> => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ start_weight: startWeight, goal_weight: goalWeight })
+        .eq("id", clientId)
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
     getPending: async (): Promise<ApiResponse<PendingSubscription[]>> => {
       const { data, error } = await supabase
         .from("pending_subscriptions")
@@ -431,6 +467,86 @@ export const api = {
         .from("clients")
         .update({ last_read_by_staff_at: new Date().toISOString() })
         .eq("id", clientId)
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
+  },
+  programs: {
+    get: async (clientId: string): Promise<ApiResponse<TrainingProgram | null>> => {
+      const { data, error } = await supabase
+        .from("training_programs")
+        .select("*")
+        .eq("client_id", clientId)
+        .maybeSingle()
+      if (error) return { success: false, error: error.message }
+      if (!data) return { success: true, data: null }
+      return {
+        success: true,
+        data: {
+          goal: data.goal,
+          level: data.level,
+          perWeek: data.per_week,
+          phase: data.phase,
+          phaseNumber: data.phase_number,
+          notes: data.notes,
+          updated: new Date(data.updated_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+          routine: data.routine,
+        },
+      }
+    },
+    save: async (clientId: string, program: TrainingProgram): Promise<ApiResponse<null>> => {
+      const { error } = await supabase.from("training_programs").upsert({
+        client_id: clientId,
+        goal: program.goal,
+        level: program.level,
+        per_week: program.perWeek,
+        phase: program.phase,
+        phase_number: program.phaseNumber,
+        notes: program.notes,
+        routine: program.routine,
+        updated_at: new Date().toISOString(),
+      })
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
+  },
+  nutrition: {
+    get: async (clientId: string): Promise<ApiResponse<NutritionGuide | null>> => {
+      const { data, error } = await supabase
+        .from("nutrition_guides")
+        .select("*")
+        .eq("client_id", clientId)
+        .maybeSingle()
+      if (error) return { success: false, error: error.message }
+      if (!data) return { success: true, data: null }
+      return {
+        success: true,
+        data: {
+          calories: data.calories,
+          protein: data.protein,
+          carbs: data.carbs,
+          fats: data.fats,
+          water: data.water,
+          meals: data.meals,
+          supplements: data.supplements,
+          notes: data.notes,
+          updated: new Date(data.updated_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }),
+        },
+      }
+    },
+    save: async (clientId: string, guide: NutritionGuide): Promise<ApiResponse<null>> => {
+      const { error } = await supabase.from("nutrition_guides").upsert({
+        client_id: clientId,
+        calories: guide.calories,
+        protein: guide.protein,
+        carbs: guide.carbs,
+        fats: guide.fats,
+        water: guide.water,
+        meals: guide.meals,
+        supplements: guide.supplements,
+        notes: guide.notes,
+        updated_at: new Date().toISOString(),
+      })
       if (error) return { success: false, error: error.message }
       return { success: true }
     },
