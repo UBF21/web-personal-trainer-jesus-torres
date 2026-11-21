@@ -488,6 +488,17 @@ export const api = {
       if (!data?.success) return { success: false, error: data?.error || "No se pudo restablecer la contraseña" }
       return { success: true }
     },
+    // La tabla "clients" no guarda el id del usuario de Auth, solo el
+    // correo — esta variante lo resuelve del lado de la Edge Function.
+    // Solo funciona sobre cuentas con rol "cliente" (lo valida el servidor).
+    resetClientPassword: async (email: string, password: string): Promise<ApiResponse<null>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "reset-password", email, password },
+      })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo restablecer la contraseña" }
+      return { success: true }
+    },
     remove: async (userId: string): Promise<ApiResponse<null>> => {
       const { data, error } = await supabase.functions.invoke("manage-users", {
         body: { action: "delete", user_id: userId },

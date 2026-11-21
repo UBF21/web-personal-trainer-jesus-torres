@@ -1,14 +1,16 @@
 import { useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
-import { ArrowLeft, CalendarClock, ClipboardList, Clock, Droplets, Layers, Pencil, Pill, Plus, Repeat, Salad, Signal, Target, type LucideIcon } from "lucide-react"
+import { ArrowLeft, CalendarClock, ClipboardList, Clock, Droplets, KeyRound, Layers, Loader2, Pencil, Pill, Plus, Repeat, Salad, Signal, Target, type LucideIcon } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
+import { api } from "@/config/api"
 import { useAuth } from "@/contexts/auth-context"
 import { useClients } from "@/contexts/clients-context"
 import { toast } from "@/hooks/use-toast"
@@ -17,6 +19,61 @@ import { NutritionEditor, ProgramEditor, SELECT_CLASS } from "./client-editors"
 import { MockNotice } from "./panel-ui"
 
 const STATUS_VARIANT = { Activo: "default", Nuevo: "secondary", Pausado: "outline" } as const
+
+/** Le resetea la contraseña de acceso al panel a este cliente (no la del
+ * administrador/webmaster que lo está viendo). Pasa por la Edge Function
+ * manage-users, que la resuelve por correo porque "clients" no guarda el
+ * id del usuario de Auth. */
+function ResetClientPasswordCard({ email }: { email: string }) {
+  const [password, setPassword] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleReset() {
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres")
+      return
+    }
+    setSaving(true)
+    setError(null)
+    const res = await api.users.resetClientPassword(email, password)
+    setSaving(false)
+    if (!res.success) {
+      setError(res.error ?? "Error inesperado")
+      return
+    }
+    setPassword("")
+    toast({ title: "Contraseña restablecida", description: "Ya puede entrar al panel con la nueva contraseña." })
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="h-5 w-5" />
+          Acceso del cliente
+        </CardTitle>
+        <CardDescription>Restablece la contraseña con la que entra a su panel.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap items-end gap-3">
+        <div className="min-w-[220px] flex-1 space-y-1.5">
+          <Label htmlFor="client-new-password">Nueva contraseña</Label>
+          <Input
+            id="client-new-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <Button onClick={handleReset} disabled={saving} className="gap-2">
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+          Restablecer
+        </Button>
+        {error && <p className="w-full text-sm text-destructive">{error}</p>}
+      </CardContent>
+    </Card>
+  )
+}
 
 /** Evolución del peso en las últimas semanas (SVG simple, sin librerías). */
 function WeightChart({ series, goal }: { series: { label: string; kg: number }[]; goal: number }) {
@@ -601,6 +658,13 @@ export default function ClientDetailPage() {
           />
         </ModuleItem>
       </Accordion>
+
+      {canEdit && (
+        <div className="mt-6">
+          <ResetClientPasswordCard email={client.email} />
+        </div>
+      )}
+
       <CreateProgramDialog
         open={creating}
         clientName={client.name}
