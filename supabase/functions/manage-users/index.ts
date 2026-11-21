@@ -111,8 +111,11 @@ Deno.serve(async (req) => {
   const { data: callerData, error: callerError } = await admin.auth.getUser(token)
   const callerRole = callerData?.user?.app_metadata?.role as Role | undefined
 
-  if (callerError || !callerData?.user || (callerRole !== "webmaster" && callerRole !== "administrador")) {
-    return json({ success: false, error: "No autorizado" }, 403)
+  if (callerError || !callerData?.user) {
+    return json({ success: false, error: `No autorizado (sesión inválida: ${callerError?.message ?? "sin usuario"})` }, 403)
+  }
+  if (callerRole !== "webmaster" && callerRole !== "administrador") {
+    return json({ success: false, error: `No autorizado (rol: ${callerRole ?? "ninguno"})` }, 403)
   }
 
   let body: Record<string, unknown> = {}
@@ -130,8 +133,11 @@ Deno.serve(async (req) => {
   // puede resetearle la contraseña a un cliente desde /panel/clientes/:id
   // sin que eso habilite el resto de la gestión de staff.
   if (callerRole !== "webmaster") {
-    if (action !== "reset-password" || !(await administradorHasOperations())) {
-      return json({ success: false, error: "No autorizado" }, 403)
+    if (action !== "reset-password") {
+      return json({ success: false, error: "No autorizado (esa acción es solo del webmaster)" }, 403)
+    }
+    if (!(await administradorHasOperations())) {
+      return json({ success: false, error: "No autorizado (falta el permiso 'operations')" }, 403)
     }
   }
 
