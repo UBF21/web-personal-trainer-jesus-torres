@@ -38,6 +38,13 @@ export interface GalleryImage {
   updatedAt: string
 }
 
+export interface PaymentMethod {
+  method_key: string
+  enabled: boolean
+  iban: string
+  contact_email: string
+}
+
 export interface ApiResponse<T> {
   success: boolean
   data?: T
@@ -437,6 +444,24 @@ export const api = {
         .eq("id", "default")
       if (error) return { success: false, error: error.message }
       return { success: true, data: enabled }
+    },
+  },
+  paymentMethods: {
+    get: async (): Promise<ApiResponse<PaymentMethod[]>> => {
+      const { data, error } = await supabase.from("payment_methods").select("*")
+      if (error) return { success: false, error: error.message }
+      return { success: true, data: (data ?? []) as PaymentMethod[] }
+    },
+    update: async (
+      methodKey: string,
+      fields: Partial<Pick<PaymentMethod, "enabled" | "iban" | "contact_email">>,
+    ): Promise<ApiResponse<null>> => {
+      const { error } = await supabase
+        .from("payment_methods")
+        .update({ ...fields, updated_at: new Date().toISOString() })
+        .eq("method_key", methodKey)
+      if (error) return { success: false, error: error.message }
+      return { success: true }
     },
   },
   messages: {

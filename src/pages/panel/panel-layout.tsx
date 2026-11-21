@@ -2,6 +2,7 @@ import { useState } from "react"
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom"
 import {
   BarChart3,
+  Banknote,
   CalendarCheck,
   CalendarDays,
   ClipboardList,
@@ -41,6 +42,7 @@ const ADMIN_ITEMS: NavItem[] = [
   { to: "/panel/clientes", label: "Clientes", icon: Users },
   { to: "/panel/planes", label: "Planes", icon: ClipboardList },
   { to: "/panel/galeria", label: "Galería", icon: Images },
+  { to: "/panel/metodos-pago", label: "Métodos de pago", icon: Banknote },
 ]
 
 // El webmaster ve todo lo del administrador y además la gestión del sitio y de los usuarios.

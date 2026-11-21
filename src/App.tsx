@@ -10,7 +10,7 @@ import PanelLayout, { RequireRole } from "./pages/panel/panel-layout"
 import PanelOverview from "./pages/panel/overview"
 import PanelProfile from "./pages/panel/profile"
 import { ClientAppointments, ClientPlan } from "./pages/panel/client-pages"
-import { AdminAgenda, AdminClients } from "./pages/panel/admin-pages"
+import { AdminAgenda, AdminClients, AdminPaymentMethods } from "./pages/panel/admin-pages"
 import { AdminPlans } from "./pages/panel/plans"
 import { WebmasterSite, WebmasterUsers } from "./pages/panel/webmaster-pages"
 import PanelGallery from "./pages/panel/gallery"
@@ -54,6 +54,7 @@ function App() {
         <Route path="planes" element={<RequireRole roles={["administrador", "webmaster"]}><AdminPlans /></RequireRole>} />
         <Route path="agenda" element={<RequireRole roles={["administrador", "webmaster"]}><AdminAgenda /></RequireRole>} />
         <Route path="galeria" element={<RequireRole roles={["administrador", "webmaster"]}><PanelGallery /></RequireRole>} />
+        <Route path="metodos-pago" element={<RequireRole roles={["administrador", "webmaster"]}><AdminPaymentMethods /></RequireRole>} />
         <Route path="usuarios" element={<RequireRole roles={["webmaster"]}><WebmasterUsers /></RequireRole>} />
         <Route path="sitio" element={<RequireRole roles={["webmaster"]}><WebmasterSite /></RequireRole>} />
       </Route>

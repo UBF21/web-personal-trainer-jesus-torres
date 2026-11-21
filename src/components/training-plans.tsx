@@ -29,6 +29,18 @@ export function TrainingPlans() {
   const [requestEmail, setRequestEmail] = useState("")
   const [requestSubmitting, setRequestSubmitting] = useState(false)
   const [requestSent, setRequestSent] = useState(false)
+  const [bankDetails, setBankDetails] = useState({
+    enabled: true,
+    iban: "LT02 3130 0101 3018 4834",
+    email: "personaltrainerjesustorres@gmail.com",
+  })
+
+  useEffect(() => {
+    backendApi.paymentMethods.get().then((res) => {
+      const bacs = res.data?.find((m) => m.method_key === "bacs")
+      if (bacs) setBankDetails({ enabled: bacs.enabled, iban: bacs.iban, email: bacs.contact_email })
+    })
+  }, [])
 
   useEffect(() => {
     backendApi.plans
@@ -291,7 +303,11 @@ export function TrainingPlans() {
                 <p className="text-sm text-gray-600 mt-2">Transferencia Bancaria</p>
               </div>
 
-              {!requestSent ? (
+              {!bankDetails.enabled ? (
+                <p className="text-sm text-gray-600 text-center">
+                  Los pagos están temporalmente desactivados. Escríbenos para coordinar tu plan.
+                </p>
+              ) : !requestSent ? (
                 <form onSubmit={handleRequestSubmit} className="space-y-3">
                   <p className="text-sm text-gray-600 text-center">
                     Déjanos tus datos para registrar tu solicitud de este plan:
@@ -329,9 +345,9 @@ export function TrainingPlans() {
                 <div>
                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">IBAN</label>
                   <div className="flex items-center justify-between gap-2 mt-1 bg-white p-3 rounded-lg border border-gray-200">
-                    <span className="font-mono text-sm">LT02 3130 0101 3018 4834</span>
+                    <span className="font-mono text-sm">{bankDetails.iban}</span>
                     <button
-                      onClick={() => copyToClipboard("LT023130010130184834")}
+                      onClick={() => copyToClipboard(bankDetails.iban.replace(/\s+/g, ""))}
                       className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                     >
                       <Copy className="w-4 h-4 text-gray-500" />
@@ -348,11 +364,11 @@ export function TrainingPlans() {
                   <li>Envía el comprobante de transferencia a:</li>
                 </ol>
                 <div className="flex items-center justify-between gap-2 mt-2 bg-white p-3 rounded-lg border border-blue-200">
-                  <a href="mailto:personaltrainerjesustorres@gmail.com" className="text-sm font-semibold text-blue-900 hover:underline">
-                    personaltrainerjesustorres@gmail.com
+                  <a href={`mailto:${bankDetails.email}`} className="text-sm font-semibold text-blue-900 hover:underline">
+                    {bankDetails.email}
                   </a>
                   <button
-                    onClick={() => copyToClipboard("personaltrainerjesustorres@gmail.com")}
+                    onClick={() => copyToClipboard(bankDetails.email)}
                     className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                   >
                     <Copy className="w-4 h-4 text-gray-500" />

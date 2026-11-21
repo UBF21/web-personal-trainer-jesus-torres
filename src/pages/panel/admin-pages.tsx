@@ -5,8 +5,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { api } from "@/config/api"
 import { useClients } from "@/contexts/clients-context"
 import { toast } from "@/hooks/use-toast"
 import { APPOINTMENTS, type PendingSubscription } from "@/lib/mock-data"
@@ -461,6 +465,98 @@ export function AdminAgenda() {
         ))}
       </div>
       <MockNotice />
+    </>
+  )
+}
+
+export function AdminPaymentMethods() {
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [enabled, setEnabled] = useState(true)
+  const [iban, setIban] = useState("")
+  const [contactEmail, setContactEmail] = useState("")
+
+  useEffect(() => {
+    api.paymentMethods.get().then((res) => {
+      const bacs = res.data?.find((m) => m.method_key === "bacs")
+      if (bacs) {
+        setEnabled(bacs.enabled)
+        setIban(bacs.iban)
+        setContactEmail(bacs.contact_email)
+      }
+      setLoading(false)
+    })
+  }, [])
+
+  async function handleToggle(checked: boolean) {
+    setEnabled(checked)
+    const res = await api.paymentMethods.update("bacs", { enabled: checked })
+    if (!res.success) {
+      setEnabled(!checked)
+      toast({ title: "No se pudo actualizar", description: res.error, variant: "destructive" })
+    }
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    const res = await api.paymentMethods.update("bacs", { iban, contact_email: contactEmail })
+    setSaving(false)
+
+    if (!res.success) {
+      toast({ title: "No se pudo guardar", description: res.error, variant: "destructive" })
+      return
+    }
+    toast({ title: "Datos de transferencia actualizados" })
+  }
+
+  if (loading) return null
+
+  return (
+    <>
+      <PageHeader
+        title="Métodos de pago"
+        description="Controla los datos que ven los clientes al comprar un plan por transferencia."
+      />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Banknote className="h-5 w-5" />
+            Transferencia bancaria
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+            <div>
+              <p className="font-semibold">Activo</p>
+              <p className="text-sm text-muted-foreground">
+                Si lo apagas, los clientes no van a poder elegir pagar un plan.
+              </p>
+            </div>
+            <Switch checked={enabled} onCheckedChange={handleToggle} aria-label="Transferencia bancaria activa" />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="payment-iban">IBAN</Label>
+            <Input id="payment-iban" value={iban} onChange={(e) => setIban(e.target.value)} />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="payment-contact-email">Correo para comprobantes</Label>
+            <Input
+              id="payment-contact-email"
+              type="email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+            />
+          </div>
+
+          <Button onClick={handleSave} disabled={saving} className="gap-2 bg-black text-white hover:bg-gray-800">
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            Guardar cambios
+          </Button>
+        </CardContent>
+      </Card>
     </>
   )
 }
