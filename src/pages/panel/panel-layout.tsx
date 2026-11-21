@@ -45,21 +45,30 @@ const ADMIN_ITEMS: NavItem[] = [
   { to: "/panel/metodos-pago", label: "Métodos de pago", icon: Banknote },
 ]
 
-// El webmaster ve todo lo del administrador y además la gestión del sitio y de los usuarios.
-// "Mi perfil" ya no está acá — se accede tocando el bloque de nombre/avatar del header.
-const MENU: Record<Role, NavItem[]> = {
-  cliente: [
-    OVERVIEW,
-    { to: "/panel/plan", label: "Mi plan", icon: Dumbbell },
-    { to: "/panel/citas", label: "Mis citas", icon: CalendarDays },
-  ],
-  administrador: [DASHBOARD, ...ADMIN_ITEMS],
-  webmaster: [
-    DASHBOARD,
-    { to: "/panel/usuarios", label: "Usuarios y roles", icon: ShieldCheck },
-    { to: "/panel/sitio", label: "Sitio web", icon: Globe },
-    ...ADMIN_ITEMS,
-  ],
+const SITE_ITEM: NavItem = { to: "/panel/sitio", label: "Sitio web", icon: Globe }
+
+// El webmaster ve todo. El administrador ve ADMIN_ITEMS/SITE_ITEM solo si
+// el webmaster le dio el permiso correspondiente ("operations"/"site") —
+// "Usuarios y roles" nunca es delegable, se queda exclusivo del webmaster.
+function useMenuItems(): NavItem[] {
+  const { user, can } = useAuth()
+
+  if (!user) return []
+  if (user.role === "cliente") {
+    return [
+      OVERVIEW,
+      { to: "/panel/plan", label: "Mi plan", icon: Dumbbell },
+      { to: "/panel/citas", label: "Mis citas", icon: CalendarDays },
+    ]
+  }
+  if (user.role === "webmaster") {
+    return [DASHBOARD, { to: "/panel/usuarios", label: "Usuarios y roles", icon: ShieldCheck }, SITE_ITEM, ...ADMIN_ITEMS]
+  }
+  // administrador
+  const items = [DASHBOARD]
+  if (can("operations")) items.push(...ADMIN_ITEMS)
+  if (can("site")) items.push(SITE_ITEM)
+  return items
 }
 
 export default function PanelLayout() {
@@ -67,13 +76,12 @@ export default function PanelLayout() {
   const { pending, clients } = useClients()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const items = useMenuItems()
 
   // Mientras se confirma si ya hay sesión (p. ej. al recargar la página),
   // no redirigir a /login todavía — si no, una sesión real se "cerraría" sola.
   if (loading) return null
   if (!user) return <Navigate to="/login" replace />
-
-  const items = MENU[user.role]
   const initials = user.name
     .split(" ")
     .map((p) => p[0])
@@ -192,9 +200,22 @@ export default function PanelLayout() {
   )
 }
 
-/** Protege una ruta del panel: solo entran los roles indicados; el resto vuelve al resumen. */
-export function RequireRole({ roles, children }: { roles: Role[]; children: React.ReactNode }) {
-  const { user } = useAuth()
+/** Protege una ruta del panel: solo entran los roles indicados; el resto vuelve al
+ * resumen. `permission` es un filtro extra para administrador (webmaster siempre
+ * pasa, cliente nunca llega acá) — si el webmaster le quitó ese permiso, no entra. */
+export function RequireRole({
+  roles,
+  permission,
+  children,
+}: {
+  roles: Role[]
+  permission?: string
+  children: React.ReactNode
+}) {
+  const { user, can } = useAuth()
   if (!user || !roles.includes(user.role)) return <Navigate to="/panel" replace />
+  if (permission && user.role === "administrador" && !can(permission)) {
+    return <Navigate to="/panel" replace />
+  }
   return <>{children}</>
 }

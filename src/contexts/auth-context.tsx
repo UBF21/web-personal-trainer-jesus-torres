@@ -30,6 +30,8 @@ export type AuthResult = { ok: true } | { ok: false; error: "invalid" | "exists"
 interface AuthContextValue {
   user: AuthUser | null
   loading: boolean
+  /** webmaster siempre true; administrador según lo que el webmaster configuró en role_permissions; cliente nunca. */
+  can: (permissionKey: string) => boolean
   login: (email: string, password: string) => Promise<AuthResult>
   register: (name: string, email: string, password: string) => Promise<AuthResult>
   changePassword: (currentPassword: string, newPassword: string) => Promise<AuthResult>
@@ -47,19 +49,40 @@ function mapSupabaseUser(user: User): AuthUser {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [rolePermissions, setRolePermissions] = useState<Record<string, boolean>>({})
+
+  const loadPermissions = useCallback(async (role: Role) => {
+    if (role !== "administrador") {
+      setRolePermissions({})
+      return
+    }
+    const { data } = await supabase.from("role_permissions").select("permission_key, administrador")
+    setRolePermissions(Object.fromEntries((data ?? []).map((p) => [p.permission_key, p.administrador])))
+  }, [])
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const mapped = session?.user ? mapSupabaseUser(session.user) : null
+      setUser(mapped)
+      if (mapped) await loadPermissions(mapped.role)
       setLoading(false)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? mapSupabaseUser(session.user) : null)
+      const mapped = session?.user ? mapSupabaseUser(session.user) : null
+      setUser(mapped)
+      if (mapped) loadPermissions(mapped.role)
+      else setRolePermissions({})
     })
 
     return () => listener.subscription.unsubscribe()
-  }, [])
+  }, [loadPermissions])
+
+  const can = useCallback(
+    (permissionKey: string) =>
+      user?.role === "webmaster" ? true : user?.role === "administrador" ? !!rolePermissions[permissionKey] : false,
+    [user?.role, rolePermissions],
+  )
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
@@ -117,8 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, login, register, changePassword, logout }),
-    [user, loading, login, register, changePassword, logout],
+    () => ({ user, loading, can, login, register, changePassword, logout }),
+    [user, loading, can, login, register, changePassword, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

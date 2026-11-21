@@ -49,14 +49,14 @@ function App() {
         <Route path="perfil" element={<PanelProfile />} />
         <Route path="plan" element={<RequireRole roles={["cliente"]}><ClientPlan /></RequireRole>} />
         <Route path="citas" element={<RequireRole roles={["cliente"]}><ClientAppointments /></RequireRole>} />
-        <Route path="clientes" element={<RequireRole roles={["administrador", "webmaster"]}><AdminClients /></RequireRole>} />
-        <Route path="clientes/:id" element={<RequireRole roles={["administrador", "webmaster"]}><ClientDetailPage /></RequireRole>} />
-        <Route path="planes" element={<RequireRole roles={["administrador", "webmaster"]}><AdminPlans /></RequireRole>} />
-        <Route path="agenda" element={<RequireRole roles={["administrador", "webmaster"]}><AdminAgenda /></RequireRole>} />
-        <Route path="galeria" element={<RequireRole roles={["administrador", "webmaster"]}><PanelGallery /></RequireRole>} />
-        <Route path="metodos-pago" element={<RequireRole roles={["administrador", "webmaster"]}><AdminPaymentMethods /></RequireRole>} />
+        <Route path="clientes" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><AdminClients /></RequireRole>} />
+        <Route path="clientes/:id" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><ClientDetailPage /></RequireRole>} />
+        <Route path="planes" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><AdminPlans /></RequireRole>} />
+        <Route path="agenda" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><AdminAgenda /></RequireRole>} />
+        <Route path="galeria" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><PanelGallery /></RequireRole>} />
+        <Route path="metodos-pago" element={<RequireRole roles={["administrador", "webmaster"]} permission="operations"><AdminPaymentMethods /></RequireRole>} />
         <Route path="usuarios" element={<RequireRole roles={["webmaster"]}><WebmasterUsers /></RequireRole>} />
-        <Route path="sitio" element={<RequireRole roles={["webmaster"]}><WebmasterSite /></RequireRole>} />
+        <Route path="sitio" element={<RequireRole roles={["administrador", "webmaster"]} permission="site"><WebmasterSite /></RequireRole>} />
       </Route>
       <Route path="/recetas" element={maintenance ? <MaintenancePage /> : <RecetasPage />} />
       <Route path="/recetas/:id" element={maintenance ? <MaintenancePage /> : <RecipeDetailPage />} />

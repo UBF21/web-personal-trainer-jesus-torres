@@ -38,6 +38,14 @@ export interface GalleryImage {
   updatedAt: string
 }
 
+export interface ManagedUser {
+  id: string
+  email: string
+  name: string
+  role: "cliente" | "administrador" | "webmaster"
+  banned: boolean
+}
+
 export interface PaymentMethod {
   method_key: string
   enabled: boolean
@@ -444,6 +452,49 @@ export const api = {
         .eq("id", "default")
       if (error) return { success: false, error: error.message }
       return { success: true, data: enabled }
+    },
+  },
+  users: {
+    // Pasa por manage-users (Edge Function) y no por una tabla: el rol
+    // vive en app_metadata del usuario de Supabase Auth, y tanto leerlo
+    // para todos los usuarios como escribirlo requiere la service_role key.
+    list: async (): Promise<ApiResponse<ManagedUser[]>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", { body: { action: "list" } })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo cargar la lista" }
+      return { success: true, data: data.data as ManagedUser[] }
+    },
+    setRole: async (userId: string, role: "cliente" | "administrador"): Promise<ApiResponse<null>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "set-role", user_id: userId, role },
+      })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo cambiar el rol" }
+      return { success: true }
+    },
+    setBanned: async (userId: string, banned: boolean): Promise<ApiResponse<null>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: banned ? "ban" : "unban", user_id: userId },
+      })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo actualizar la cuenta" }
+      return { success: true }
+    },
+    resetPassword: async (userId: string, password: string): Promise<ApiResponse<null>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "reset-password", user_id: userId, password },
+      })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo restablecer la contraseña" }
+      return { success: true }
+    },
+    remove: async (userId: string): Promise<ApiResponse<null>> => {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "delete", user_id: userId },
+      })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo eliminar el usuario" }
+      return { success: true }
     },
   },
   paymentMethods: {
