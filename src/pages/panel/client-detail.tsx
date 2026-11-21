@@ -20,14 +20,36 @@ import { MockNotice } from "./panel-ui"
 
 const STATUS_VARIANT = { Activo: "default", Nuevo: "secondary", Pausado: "outline" } as const
 
+// Mismo criterio que usa approve-subscription al generar la contraseña
+// inicial de un cliente nuevo: sin 0/O ni 1/l/I, para que no se confundan
+// al transcribirla a mano.
+function randomPassword(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
+  let out = ""
+  for (let i = 0; i < 12; i++) out += chars[Math.floor(Math.random() * chars.length)]
+  return out
+}
+
 /** Le resetea la contraseña de acceso al panel a este cliente (no la del
  * administrador/webmaster que lo está viendo). Pasa por la Edge Function
  * manage-users, que la resuelve por correo porque "clients" no guarda el
  * id del usuario de Auth. */
 function ResetClientPasswordCard({ email }: { email: string }) {
   const [password, setPassword] = useState("")
+  const [reveal, setReveal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function handleSuggest() {
+    setPassword(randomPassword())
+    setReveal(true)
+  }
+
+  function handleCopy() {
+    if (!password) return
+    navigator.clipboard.writeText(password)
+    toast({ title: "Contraseña copiada" })
+  }
 
   async function handleReset() {
     if (password.length < 6) {
@@ -58,13 +80,23 @@ function ResetClientPasswordCard({ email }: { email: string }) {
       <CardContent className="flex flex-wrap items-end gap-3">
         <div className="min-w-[220px] flex-1 space-y-1.5">
           <Label htmlFor="client-new-password">Nueva contraseña</Label>
-          <Input
-            id="client-new-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="flex gap-2">
+            <Input
+              id="client-new-password"
+              type={reveal ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {password && (
+              <Button type="button" variant="outline" onClick={handleCopy}>
+                Copiar
+              </Button>
+            )}
+          </div>
         </div>
+        <Button type="button" variant="outline" onClick={handleSuggest}>
+          Sugerir contraseña
+        </Button>
         <Button onClick={handleReset} disabled={saving} className="gap-2">
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           Restablecer
