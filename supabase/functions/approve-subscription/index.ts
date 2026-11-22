@@ -213,24 +213,24 @@ async function generateInvoicePdf(inv: InvoiceRow, name: string, email: string, 
   const lightGray = rgb(0.96, 0.96, 0.96)
   const line = rgb(0.85, 0.85, 0.85)
 
-  // Header negro con el logo blanco a la izquierda — mismo criterio que
-  // el correo. Si no se puede traer el logo, sigue igual solo con texto.
+  // Header negro: nombre de marca a la izquierda (siempre visible), logo
+  // real a la derecha — mismo criterio que se dejó en FitBlood.
   const HEADER_H = 100
   page.drawRectangle({ x: 0, y: pageHeight - HEADER_H, width: pageWidth, height: HEADER_H, color: black })
+  page.drawText("JT TRAINING", { x: 50, y: pageHeight - HEADER_H / 2 - 6, size: 20, font: bold, color: white })
   try {
     const logoBytes = await fetch(LOGO_URL).then((r) => r.arrayBuffer())
     const logo = await doc.embedPng(logoBytes)
     const logoH = 60
     const logoW = (logo.width / logo.height) * logoH
     page.drawImage(logo, {
-      x: 50,
+      x: 545 - logoW,
       y: pageHeight - HEADER_H + (HEADER_H - logoH) / 2,
       width: logoW,
       height: logoH,
     })
   } catch (e) {
     console.error("No se pudo incrustar el logo en el PDF", e)
-    page.drawText("JT TRAINING", { x: 50, y: pageHeight - HEADER_H / 2 - 6, size: 20, font: bold, color: white })
   }
 
   let y = pageHeight - HEADER_H - 40
