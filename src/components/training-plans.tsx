@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslation } from "@/contexts/language-context"
 import { useClients } from "@/contexts/clients-context"
@@ -380,28 +381,22 @@ export function TrainingPlans() {
               </div>
 
               {bankDetails.enabled && sumupEnabled && !sumupCheckout && (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("bacs")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
-                      paymentMethod === "bacs" ? "border-black bg-black text-white" : "border-gray-300 text-gray-700 hover:border-black"
-                    }`}
-                  >
+                <div className="flex items-center justify-center gap-3">
+                  <span className={`text-sm font-semibold transition-colors ${paymentMethod === "bacs" ? "text-black" : "text-gray-400"}`}>
                     Transferencia
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("sumup")}
-                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
-                      paymentMethod === "sumup" ? "border-black bg-black text-white" : "border-gray-300 text-gray-700 hover:border-black"
-                    }`}
-                  >
+                  </span>
+                  <Switch
+                    checked={paymentMethod === "sumup"}
+                    onCheckedChange={(checked) => setPaymentMethod(checked ? "sumup" : "bacs")}
+                    aria-label="Pagar con tarjeta"
+                  />
+                  <span className={`text-sm font-semibold transition-colors ${paymentMethod === "sumup" ? "text-black" : "text-gray-400"}`}>
                     Tarjeta
-                  </button>
+                  </span>
                 </div>
               )}
 
+              <div key={paymentMethod} className="animate-in fade-in slide-in-from-bottom-1 duration-300 space-y-4">
               {paymentMethod === "sumup" && sumupEnabled && (
                 <>
                   {sumupCheckout ? (
@@ -526,6 +521,7 @@ export function TrainingPlans() {
               </p>
               </>
               ) : null}
+              </div>
 
               <button
                 onClick={closeModal}
