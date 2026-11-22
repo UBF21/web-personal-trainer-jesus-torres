@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Banknote, Check, ChevronRight, FileImage, FileText, KeyRound, Loader2, Send, ShieldCheck, X, type LucideIcon } from "lucide-react"
+import { Banknote, Check, ChevronRight, CreditCard, FileImage, FileText, KeyRound, Loader2, Send, ShieldCheck, X, type LucideIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -472,27 +472,39 @@ export function AdminAgenda() {
 export function AdminPaymentMethods() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [enabled, setEnabled] = useState(true)
+  const [bacsEnabled, setBacsEnabled] = useState(true)
   const [iban, setIban] = useState("")
   const [contactEmail, setContactEmail] = useState("")
+  const [sumupEnabled, setSumupEnabled] = useState(false)
 
   useEffect(() => {
     api.paymentMethods.get().then((res) => {
       const bacs = res.data?.find((m) => m.method_key === "bacs")
       if (bacs) {
-        setEnabled(bacs.enabled)
+        setBacsEnabled(bacs.enabled)
         setIban(bacs.iban)
         setContactEmail(bacs.contact_email)
       }
+      const sumup = res.data?.find((m) => m.method_key === "sumup")
+      if (sumup) setSumupEnabled(sumup.enabled)
       setLoading(false)
     })
   }, [])
 
-  async function handleToggle(checked: boolean) {
-    setEnabled(checked)
+  async function handleToggleBacs(checked: boolean) {
+    setBacsEnabled(checked)
     const res = await api.paymentMethods.update("bacs", { enabled: checked })
     if (!res.success) {
-      setEnabled(!checked)
+      setBacsEnabled(!checked)
+      toast({ title: "No se pudo actualizar", description: res.error, variant: "destructive" })
+    }
+  }
+
+  async function handleToggleSumup(checked: boolean) {
+    setSumupEnabled(checked)
+    const res = await api.paymentMethods.update("sumup", { enabled: checked })
+    if (!res.success) {
+      setSumupEnabled(!checked)
       toast({ title: "No se pudo actualizar", description: res.error, variant: "destructive" })
     }
   }
@@ -515,48 +527,70 @@ export function AdminPaymentMethods() {
     <>
       <PageHeader
         title="Métodos de pago"
-        description="Controla los datos que ven los clientes al comprar un plan por transferencia."
+        description="Controla cómo pueden pagar un plan los clientes."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Banknote className="h-5 w-5" />
-            Transferencia bancaria
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
-            <div>
-              <p className="font-semibold">Activo</p>
-              <p className="text-sm text-muted-foreground">
-                Si lo apagas, los clientes no van a poder elegir pagar un plan.
-              </p>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5" />
+              Transferencia bancaria
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+              <div>
+                <p className="font-semibold">Activo</p>
+                <p className="text-sm text-muted-foreground">
+                  Si lo apagas, los clientes no van a poder elegir pagar un plan por transferencia.
+                </p>
+              </div>
+              <Switch checked={bacsEnabled} onCheckedChange={handleToggleBacs} aria-label="Transferencia bancaria activa" />
             </div>
-            <Switch checked={enabled} onCheckedChange={handleToggle} aria-label="Transferencia bancaria activa" />
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="payment-iban">IBAN</Label>
-            <Input id="payment-iban" value={iban} onChange={(e) => setIban(e.target.value)} />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="payment-iban">IBAN</Label>
+              <Input id="payment-iban" value={iban} onChange={(e) => setIban(e.target.value)} />
+            </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="payment-contact-email">Correo para comprobantes</Label>
-            <Input
-              id="payment-contact-email"
-              type="email"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="payment-contact-email">Correo para comprobantes</Label>
+              <Input
+                id="payment-contact-email"
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+              />
+            </div>
 
-          <Button onClick={handleSave} disabled={saving} className="gap-2 bg-black text-white hover:bg-gray-800">
-            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            Guardar cambios
-          </Button>
-        </CardContent>
-      </Card>
+            <Button onClick={handleSave} disabled={saving} className="gap-2 bg-black text-white hover:bg-gray-800">
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Guardar cambios
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Pago con tarjeta (SumUp)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+              <div>
+                <p className="font-semibold">Activo</p>
+                <p className="text-sm text-muted-foreground">
+                  El cliente paga con tarjeta y su plan se activa solo, sin que nadie lo apruebe a mano.
+                </p>
+              </div>
+              <Switch checked={sumupEnabled} onCheckedChange={handleToggleSumup} aria-label="Pago con tarjeta activo" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </>
   )
 }

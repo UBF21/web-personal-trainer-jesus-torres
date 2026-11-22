@@ -454,6 +454,19 @@ export const api = {
       if (!data?.success) return { success: false, error: data?.error || "No se pudo registrar la solicitud" }
       return { success: true, data: mapPendingRow(data.data), message: data.warning }
     },
+    createSumupCheckout: async (
+      input: Omit<PendingSubscriptionInput, "bank" | "operation" | "voucher">,
+    ): Promise<ApiResponse<{ pendingId: string; checkoutId: string }>> => {
+      // Igual que createPending pero para pago con tarjeta: crea el
+      // checkout en SumUp (necesita su clave secreta, que no puede vivir
+      // en el navegador) — el widget embebido lo monta con el checkoutId
+      // que devuelve esto, y sumup-webhook activa el plan cuando SumUp
+      // confirme el cobro.
+      const { data, error } = await supabase.functions.invoke("create-sumup-checkout", { body: input })
+      if (error) return { success: false, error: await functionErrorMessage(error) }
+      if (!data?.success) return { success: false, error: data?.error || "No se pudo iniciar el pago" }
+      return { success: true, data: data.data }
+    },
     approvePending: async (id: string): Promise<ApiResponse<ApiClient>> => {
       // Edge Function (no una llamada directa a la tabla): crear la cuenta
       // de acceso del cliente y mandar el correo requiere la service_role

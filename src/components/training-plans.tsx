@@ -11,6 +11,18 @@ import { useTranslation } from "@/contexts/language-context"
 import { useClients } from "@/contexts/clients-context"
 import { api as backendApi, type Plan } from "@/config/api"
 
+declare global {
+  interface Window {
+    SumUpCard?: {
+      mount: (options: {
+        checkoutId: string
+        id?: string
+        onResponse?: (type: string, body?: unknown) => void
+      }) => { unmount?: () => void }
+    }
+  }
+}
+
 const PRICES = [400, 1200, 3000]
 const POPULAR_INDEX = 1
 
@@ -34,13 +46,58 @@ export function TrainingPlans() {
     iban: "LT02 3130 0101 3018 4834",
     email: "personaltrainerjesustorres@gmail.com",
   })
+  const [sumupEnabled, setSumupEnabled] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<"bacs" | "sumup">("bacs")
+  const [sumupSubmitting, setSumupSubmitting] = useState(false)
+  const [sumupCheckout, setSumupCheckout] = useState<string | null>(null)
+  const [sumupStatus, setSumupStatus] = useState<"processing" | "success" | "error" | null>(null)
 
   useEffect(() => {
     backendApi.paymentMethods.get().then((res) => {
       const bacs = res.data?.find((m) => m.method_key === "bacs")
       if (bacs) setBankDetails({ enabled: bacs.enabled, iban: bacs.iban, email: bacs.contact_email })
+      const sumup = res.data?.find((m) => m.method_key === "sumup")
+      if (sumup?.enabled) {
+        setSumupEnabled(true)
+        setPaymentMethod("sumup")
+      }
     })
   }, [])
+
+  useEffect(() => {
+    if (!sumupCheckout) return
+    let widget: { unmount?: () => void } | null = null
+    let cancelled = false
+
+    function mount() {
+      if (cancelled) return
+      widget =
+        window.SumUpCard?.mount({
+          checkoutId: sumupCheckout!,
+          id: "sumup-card",
+          onResponse: (type) => {
+            if (type === "sent" || type === "auth-screen") setSumupStatus("processing")
+            else if (type === "success") setSumupStatus("success")
+            else if (type === "error" || type === "fail" || type === "invalid") setSumupStatus("error")
+          },
+        }) ?? null
+    }
+
+    if (window.SumUpCard) {
+      mount()
+    } else {
+      const script = document.createElement("script")
+      script.src = "https://gateway.sumup.com/gateway/ecom/card/v2/sdk.js"
+      script.async = true
+      script.onload = mount
+      document.body.appendChild(script)
+    }
+
+    return () => {
+      cancelled = true
+      widget?.unmount?.()
+    }
+  }, [sumupCheckout])
 
   useEffect(() => {
     backendApi.plans
@@ -82,10 +139,15 @@ export function TrainingPlans() {
     setRequestName("")
     setRequestEmail("")
     setRequestSent(false)
+    setSumupCheckout(null)
+    setSumupStatus(null)
+    setPaymentMethod(sumupEnabled ? "sumup" : "bacs")
   }
 
   const closeModal = () => {
     setSelectedPlanData(null)
+    setSumupCheckout(null)
+    setSumupStatus(null)
   }
 
   const copyToClipboard = (text: string) => {
@@ -105,6 +167,21 @@ export function TrainingPlans() {
     })
     setRequestSubmitting(false)
     if (ok) setRequestSent(true)
+  }
+
+  async function handleSumupSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!selectedPlanData) return
+
+    setSumupSubmitting(true)
+    const res = await backendApi.clients.createSumupCheckout({
+      name: requestName.trim(),
+      email: requestEmail.trim(),
+      plan: selectedPlanData.name,
+      amount: selectedPlanData.price,
+    })
+    setSumupSubmitting(false)
+    if (res.success && res.data) setSumupCheckout(res.data.checkoutId)
   }
 
   return (
@@ -300,14 +377,82 @@ export function TrainingPlans() {
                   {selectedPlanData.price}€
                   <span className="text-base text-gray-500 ml-2">EUR</span>
                 </p>
-                <p className="text-sm text-gray-600 mt-2">Transferencia Bancaria</p>
               </div>
 
-              {!bankDetails.enabled ? (
+              {bankDetails.enabled && sumupEnabled && !sumupCheckout && (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("bacs")}
+                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                      paymentMethod === "bacs" ? "border-black bg-black text-white" : "border-gray-300 text-gray-700 hover:border-black"
+                    }`}
+                  >
+                    Transferencia
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("sumup")}
+                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                      paymentMethod === "sumup" ? "border-black bg-black text-white" : "border-gray-300 text-gray-700 hover:border-black"
+                    }`}
+                  >
+                    Tarjeta
+                  </button>
+                </div>
+              )}
+
+              {paymentMethod === "sumup" && sumupEnabled && (
+                <>
+                  {sumupCheckout ? (
+                    sumupStatus === "success" ? (
+                      <p className="text-sm font-semibold text-green-700 text-center">
+                        ✓ Pago confirmado — ya te mandamos tu acceso por correo.
+                      </p>
+                    ) : (
+                      <>
+                        <div id="sumup-card" />
+                        {sumupStatus === "processing" && (
+                          <p className="text-xs text-gray-500 text-center">Procesando pago…</p>
+                        )}
+                        {sumupStatus === "error" && (
+                          <p className="text-xs text-red-600 text-center">
+                            No pudimos procesar el pago. Revisa los datos de tu tarjeta e intenta de nuevo.
+                          </p>
+                        )}
+                      </>
+                    )
+                  ) : (
+                    <form onSubmit={handleSumupSubmit} className="space-y-3">
+                      <p className="text-sm text-gray-600 text-center">Ingresa tus datos para pagar con tarjeta:</p>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="sumup-name">Nombre</Label>
+                        <Input id="sumup-name" value={requestName} onChange={(e) => setRequestName(e.target.value)} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="sumup-email">Correo</Label>
+                        <Input
+                          id="sumup-email"
+                          type="email"
+                          value={requestEmail}
+                          onChange={(e) => setRequestEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <Button type="submit" disabled={sumupSubmitting} className="w-full gap-2 bg-black text-white hover:bg-gray-800">
+                        {sumupSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                        Continuar al pago
+                      </Button>
+                    </form>
+                  )}
+                </>
+              )}
+
+              {paymentMethod === "bacs" && !bankDetails.enabled ? (
                 <p className="text-sm text-gray-600 text-center">
                   Los pagos están temporalmente desactivados. Escríbenos para coordinar tu plan.
                 </p>
-              ) : !requestSent ? (
+              ) : paymentMethod === "bacs" && !requestSent ? (
                 <form onSubmit={handleRequestSubmit} className="space-y-3">
                   <p className="text-sm text-gray-600 text-center">
                     Déjanos tus datos para registrar tu solicitud de este plan:
@@ -336,7 +481,7 @@ export function TrainingPlans() {
                     Registrar solicitud
                   </Button>
                 </form>
-              ) : (
+              ) : paymentMethod === "bacs" ? (
               <>
               <p className="text-sm font-semibold text-green-700 text-center">
                 ✓ Solicitud registrada — ahora realiza la transferencia:
@@ -380,7 +525,7 @@ export function TrainingPlans() {
                 Una vez recibido el comprobante, confirmaremos tu plan en un máximo de 24h
               </p>
               </>
-              )}
+              ) : null}
 
               <button
                 onClick={closeModal}
