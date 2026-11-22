@@ -1,13 +1,14 @@
 import { useEffect } from "react"
 import { Link } from "react-router-dom"
-import { Check } from "lucide-react"
+import { Check, Salad, Target } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useAuth } from "@/contexts/auth-context"
 import { useClients } from "@/contexts/clients-context"
-import { APPOINTMENTS, getClientDetail } from "@/lib/mock-data"
+import { APPOINTMENTS, buildNutritionGuide, buildWeightSeries, getClientDetail } from "@/lib/mock-data"
+import { NutritionGuideContent, WeightChart } from "./client-detail"
 import { MockNotice, PageHeader } from "./panel-ui"
 
 /** El cliente con sesión, buscado por correo; null si aún no tiene un plan aprobado. */
@@ -32,10 +33,13 @@ function NoPlanYet() {
 
 export function ClientPlan() {
   const client = useMyClient()
-  const { programs, loadProgram } = useClients()
+  const { programs, loadProgram, nutrition: nutritionSaved, loadNutrition, weightLogs, loadWeightLogs } = useClients()
 
   useEffect(() => {
-    if (client) loadProgram(client.id)
+    if (!client) return
+    loadProgram(client.id)
+    loadNutrition(client.id)
+    loadWeightLogs(client.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client?.id])
 
@@ -49,6 +53,13 @@ export function ClientPlan() {
   }
 
   const d = getClientDetail(client)
+  const logs = weightLogs[client.id] ?? []
+  const currentWeight = logs.length > 0 ? logs[logs.length - 1].weight : (client.startWeight ?? 70)
+  const weightSeries = buildWeightSeries(logs)
+  const toGoal =
+    currentWeight != null && client.goalWeight != null ? Math.round((currentWeight - client.goalWeight) * 10) / 10 : null
+  const nutrition =
+    nutritionSaved[client.id] ?? buildNutritionGuide(currentWeight, programs[client.id]?.goal ?? d.program.goal)
 
   return (
     <>
@@ -121,6 +132,52 @@ export function ClientPlan() {
           </Card>
         ))}
       </div>
+
+      {client.startWeight != null && client.goalWeight != null && (
+        <>
+          <h2 className="mb-3 mt-8 flex items-center gap-2 text-lg font-bold">
+            <Target className="h-5 w-5" />
+            Evolución de peso
+          </h2>
+          <Card>
+            <CardContent className="space-y-6 p-5">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: "Peso inicial", value: `${client.startWeight} kg` },
+                  { label: "Peso actual", value: currentWeight != null ? `${currentWeight} kg` : "Sin registros" },
+                  {
+                    label: "Objetivo",
+                    value: `${client.goalWeight} kg`,
+                    hint: toGoal == null ? undefined : toGoal > 0 ? `Te faltan ${toGoal} kg` : "¡Objetivo logrado!",
+                  },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted-foreground">{m.label}</p>
+                    <p className="text-lg font-bold">{m.value}</p>
+                    {m.hint && <p className="text-xs text-muted-foreground">{m.hint}</p>}
+                  </div>
+                ))}
+              </div>
+              {weightSeries.length >= 2 ? (
+                <WeightChart series={weightSeries} goal={client.goalWeight} />
+              ) : (
+                <p className="text-sm text-muted-foreground">Todavía no hay suficientes registros para graficar la evolución.</p>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      <h2 className="mb-3 mt-8 flex items-center gap-2 text-lg font-bold">
+        <Salad className="h-5 w-5" />
+        Guía de nutrición
+      </h2>
+      <Card>
+        <CardContent className="p-5">
+          <NutritionGuideContent guide={nutrition} canEdit={false} onSave={() => {}} />
+        </CardContent>
+      </Card>
+
       <MockNotice />
     </>
   )

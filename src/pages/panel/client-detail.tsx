@@ -251,8 +251,82 @@ function WeightTrackingCard({
   )
 }
 
+/** Antes no había ninguna pantalla para tocar esto — el progreso y el
+ * estado quedaban congelados en lo que se puso al aprobar la suscripción. */
+function ClientProgressEditor({
+  client,
+  canEdit,
+  onSave,
+}: {
+  client: MockClient
+  canEdit: boolean
+  onSave: (input: { status: MockClient["status"]; progress: number }) => Promise<boolean>
+}) {
+  const [status, setStatus] = useState<MockClient["status"]>(client.status)
+  const [progress, setProgress] = useState(client.progress)
+  const [saving, setSaving] = useState(false)
+
+  async function handleSave() {
+    setSaving(true)
+    await onSave({ status, progress })
+    setSaving(false)
+  }
+
+  if (!canEdit) {
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="font-medium">Avance del plan</span>
+          <span className="text-muted-foreground">{client.progress} %</span>
+        </div>
+        <Progress value={client.progress} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between text-sm">
+        <span className="font-medium">Avance del plan</span>
+        <span className="text-muted-foreground">{progress} %</span>
+      </div>
+      <Progress value={progress} />
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="client-progress">Progreso (%)</Label>
+          <Input
+            id="client-progress"
+            type="number"
+            min={0}
+            max={100}
+            value={progress}
+            onChange={(e) => setProgress(Math.min(100, Math.max(0, Number(e.target.value))))}
+            className="w-24"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="client-status">Estado</Label>
+          <select
+            id="client-status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as MockClient["status"])}
+            className={SELECT_CLASS}
+          >
+            <option value="Nuevo">Nuevo</option>
+            <option value="Activo">Activo</option>
+            <option value="Pausado">Pausado</option>
+          </select>
+        </div>
+        <Button type="button" variant="outline" onClick={handleSave} disabled={saving}>
+          Guardar
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 /** Evolución del peso en las últimas semanas (SVG simple, sin librerías). */
-function WeightChart({ series, goal }: { series: { label: string; kg: number }[]; goal: number }) {
+export function WeightChart({ series, goal }: { series: { label: string; kg: number }[]; goal: number }) {
   const width = 560
   const height = 200
   const pad = { top: 16, right: 16, bottom: 28, left: 40 }
@@ -440,7 +514,7 @@ function TrainingProgramContent({
 }
 
 /** Contenido de la guía de nutrición: macros diarios, comidas, hidratación y suplementación. Con permiso se puede editar. */
-function NutritionGuideContent({
+export function NutritionGuideContent({
   guide,
   canEdit,
   onSave,
@@ -674,6 +748,7 @@ export default function ClientDetailPage() {
     loadWeightLogs,
     addWeightLog,
     setWeightTargets,
+    updateClientInfo,
   } = useClients()
   const [creating, setCreating] = useState(false)
   const client = clients.find((c) => String(c.id) === id)
@@ -785,13 +860,11 @@ export default function ClientDetailPage() {
             <CardDescription>Avance del plan y evolución de su peso</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">Avance del plan</span>
-                <span className="text-muted-foreground">{client.progress} %</span>
-              </div>
-              <Progress value={client.progress} />
-            </div>
+            <ClientProgressEditor
+              client={client}
+              canEdit={canEdit}
+              onSave={(input) => updateClientInfo(client.id, input)}
+            />
 
             <WeightTrackingCard
               client={client}

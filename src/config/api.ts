@@ -402,6 +402,14 @@ export const api = {
       if (error) return { success: false, error: error.message }
       return { success: true, data: data.map(mapClientRow) }
     },
+    update: async (
+      clientId: string,
+      input: { status?: ApiClient["status"]; progress?: number },
+    ): Promise<ApiResponse<null>> => {
+      const { error } = await supabase.from("clients").update(input).eq("id", clientId)
+      if (error) return { success: false, error: error.message }
+      return { success: true }
+    },
     getWeightLogs: async (clientId: string): Promise<ApiResponse<WeightLog[]>> => {
       const { data, error } = await supabase
         .from("weight_logs")

@@ -44,6 +44,7 @@ interface ClientsContextValue {
   loadWeightLogs: (clientId: string) => Promise<void>
   addWeightLog: (clientId: string, weight: number) => Promise<boolean>
   setWeightTargets: (clientId: string, startWeight: number, goalWeight: number) => Promise<boolean>
+  updateClientInfo: (clientId: string, input: { status?: MockClient["status"]; progress?: number }) => Promise<boolean>
 }
 
 const ClientsContext = createContext<ClientsContextValue | null>(null)
@@ -175,6 +176,17 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
     return res.success
   }, [])
 
+  const updateClientInfo = useCallback(
+    async (clientId: string, input: { status?: MockClient["status"]; progress?: number }) => {
+      const res = await api.clients.update(clientId, input)
+      if (res.success) {
+        setClients((prev) => prev.map((c) => (c.id === clientId ? { ...c, ...input } : c)))
+      }
+      return res.success
+    },
+    [],
+  )
+
   const value = useMemo(
     () => ({
       clients,
@@ -195,6 +207,7 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
       loadWeightLogs,
       addWeightLog,
       setWeightTargets,
+      updateClientInfo,
     }),
     [
       clients,
@@ -214,6 +227,7 @@ export function ClientsProvider({ children }: { children: ReactNode }) {
       loadWeightLogs,
       addWeightLog,
       setWeightTargets,
+      updateClientInfo,
     ],
   )
 
